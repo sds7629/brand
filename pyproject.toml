@@ -1,0 +1,57 @@
+[tool.poetry]
+name = "brand"
+version = "0.1.0"
+description = ""
+authors = ["sds7629 <sds7629@naver.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.2"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
+gunicorn = "^22.0.0"
+orjson = "^3.10.1"
+
+[tool.coverage.report]
+fail_under = 0
+show_missing = true
+
+[tool.coverage.run]
+branch = true
+omit = [
+  ".mypy_cache/**/*",
+  ".pytest_cache/**/*",
+  "app/main.py",
+  "app/tests/*",
+  "app/tests/**/*"
+]
+source = ["app"]
+
+[tool.black]
+line-length = 120
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+disallow_subclassing_any = false
+exclude = "fabfile"
+ignore_missing_imports = true
+implicit_reexport = true
+plugins = "pydantic.mypy"
+python_version = "3.11"
+show_error_codes = true
+strict = true
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.0"
+isort = "^5.13.2"
+mypy = "^1.9.0"
+coverage = "^7.4.4"
+pytest = "^8.1.1"
+pytest-asyncio = "^0.23.6"
+toml-sort = "^0.23.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

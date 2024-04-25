@@ -15,16 +15,14 @@ router = APIRouter(prefix="/v1/users", tags=["user"], redirect_slashes=False)
 @router.post(
     "/signup",
     description="유저 생성",
-    response_class = ORJSONResponse,
+    response_class=ORJSONResponse,
 )
-async def api_signup_user(user_signup_request:UserSignupRequest) -> UserSignupResponse:
+async def api_signup_user(user_signup_request: UserSignupRequest) -> UserSignupResponse:
     user = await signup_user(user_signup_request)
     return UserSignupResponse(
-        id = str(user.id),
-        name = user.name,
-        email = user.email,
-        nickname = user.nickname,
-        gender = user.gender,
+        id=str(user.id),
+        name=user.name,
+        email=user.email,
+        nickname=user.nickname,
+        gender=user.gender,
     )
-
-

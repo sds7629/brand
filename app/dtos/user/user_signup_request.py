@@ -3,10 +3,9 @@ import dataclasses
 
 @dataclasses.dataclass
 class UserSignupRequest:
-    user_id:str
+    user_id: str
     email: str
     name: str
-    password:str
+    password: str
     gender: str
     nickname: str
-

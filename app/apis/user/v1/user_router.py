@@ -26,3 +26,13 @@ async def api_signup_user(user_signup_request: UserSignupRequest) -> UserSignupR
         nickname=user.nickname,
         gender=user.gender,
     )
+
+#
+# @router.post(
+#     "/signin",
+#     description="유저 로그인",
+#     response_class=ORJSONResponse,
+# )
+# async def api_signin_user(user_singin_request: UserSigninRequest) -> UserSigninResponse:
+#     user = await signin_user(user_singin_request)
+#     ...

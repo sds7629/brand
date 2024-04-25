@@ -1,5 +1,5 @@
 import dataclasses
-
+from pydantic import EmailStr
 
 @dataclasses.dataclass
 class UserSignupRequest:

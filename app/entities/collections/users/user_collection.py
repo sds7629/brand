@@ -13,15 +13,18 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class UserCollection:
-    _collection = AsyncIOMotorCollection(db, "users")
+    _collection = AsyncIOMotorCollection(db, "user")
 
     @classmethod
     async def set_index(cls) -> None:
-        await cls._collection.create_index([("user_no", pymongo.ASCENDING)], unique=True)
+        await cls._collection.create_index(
+            [("email", pymongo.TEXT)],
+            unique=True,
+        )
 
     @classmethod
     async def insert_one(
-        cls, user_id: str, email: str, password: str, name: str, gender: str, nickname: str, login_method: str = "page"
+        cls, user_id: str, email: str, name: str ,password: str, gender: str, nickname: str, login_method: str = "page"
     ) -> UserDocument:
         result = await cls._collection.insert_one(
             {
@@ -44,4 +47,29 @@ class UserCollection:
             gender=gender,
             nickname=nickname,
             login_method=login_method,
+        )
+
+
+    @classmethod
+    async def find_by_id(cls, object_id:ObjectId) -> UserDocument | None:
+        result = await cls._collection.find_one(
+            {
+                "_id": object_id
+            }
+        )
+        return cls._result_dto(result) if result else None
+
+    @classmethod
+    async def _result_dto(cls, result:dict[Any, Any]) -> UserDocument:
+        return UserDocument(
+            _id=result["_id"],
+            user_id=result["user_id"],
+            email = result["email"],
+            name=result["name"],
+            hash_pw=result["hash_pw"],
+            gender=result["gender"],
+            nickname = result["nickname"],
+            login_method=result["login_method"],
+            is_authenticated=result["is_authenticated"],
+            is_delete=result["is_delete"],
         )

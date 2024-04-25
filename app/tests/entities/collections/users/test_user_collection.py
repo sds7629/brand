@@ -5,12 +5,12 @@ from app.entities.collections.users.user_document import UserDocument
 
 
 async def test_유저_회원가입() -> None:
-    user_id = "sds7629"
-    email = "sds7629@naver.com"
-    name = "김진우"
-    password = "rlawlsdn1!"
+    user_id = "admin"
+    email = "admin@naver.com"
+    name = "어드민"
+    password = "1234"
     gender = "male"
-    nickname = "jinoo"
+    nickname = "admin"
 
     user = await UserCollection.insert_one(user_id, email, password, name, gender, nickname)
     results = await UserCollection._collection.find({}).to_list(None)

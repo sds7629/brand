@@ -6,11 +6,10 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 from passlib.context import CryptContext
 
-from app.entities.collections.users.user_document import UserDocument
+from app.entities.collections.users.user_document import UserDocument, DeliveryDocument
 from app.utils.connection import db
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 class UserCollection:
     _collection = AsyncIOMotorCollection(db, "user")
@@ -24,7 +23,7 @@ class UserCollection:
 
     @classmethod
     async def insert_one(
-        cls, user_id: str, email: str, name: str, password: str, gender: str, nickname: str, login_method: str = "page"
+        cls, user_id: str, email: str, name: str, password: str, gender: str, nickname: str, login_method: str , delivery_area:list[DeliveryDocument]
     ) -> UserDocument:
         result = await cls._collection.insert_one(
             {
@@ -35,6 +34,7 @@ class UserCollection:
                 "gender": gender,
                 "nickname": nickname,
                 "login_method": login_method,
+                "delivery_area": [asdict(area) for area in delivery_area],
             }
         )
 
@@ -47,12 +47,14 @@ class UserCollection:
             gender=gender,
             nickname=nickname,
             login_method=login_method,
+            delivery_area=delivery_area,
         )
 
     @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> UserDocument | None:
         result = await cls._collection.find_one({"_id": object_id})
         return cls._result_dto(result) if result else None
+
 
     @classmethod
     async def _result_dto(cls, result: dict[Any, Any]) -> UserDocument:

@@ -1,12 +1,14 @@
 import dataclasses
 
-from app.entities.collections.users.user_collection import  UserCollection
 
+@dataclasses.dataclass
+class Token:
+    access_token: str
+    refresh_token: str
 
 @dataclasses.dataclass
 class UserSigninResponse:
     id: str
-    access_token: str
-    refresh_token: str
+    token: list[Token]
     name: str
     nickname: str

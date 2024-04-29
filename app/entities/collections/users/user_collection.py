@@ -4,12 +4,11 @@ from typing import Any, cast
 import pymongo
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
-from passlib.context import CryptContext
 
-from app.entities.collections.users.user_document import UserDocument, DeliveryDocument
+from app.entities.collections.users.user_document import DeliveryDocument, UserDocument
 from app.utils.connection import db
+from app.utils.utility import Util
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class UserCollection:
     _collection = AsyncIOMotorCollection(db, "user")
@@ -23,14 +22,22 @@ class UserCollection:
 
     @classmethod
     async def insert_one(
-        cls, user_id: str, email: str, name: str, password: str, gender: str, nickname: str, login_method: str , delivery_area:list[DeliveryDocument]
+        cls,
+        user_id: str,
+        email: str,
+        name: str,
+        password: str,
+        gender: str,
+        nickname: str,
+        login_method: str = "page",
+        delivery_area: list[DeliveryDocument] = [],
     ) -> UserDocument:
         result = await cls._collection.insert_one(
             {
                 "user_id": user_id,
                 "email": email,
                 "name": name,
-                "hash_pw": pwd_context.hash(password),
+                "hash_pw": await Util.get_hashed_password(password),
                 "gender": gender,
                 "nickname": nickname,
                 "login_method": login_method,
@@ -42,7 +49,7 @@ class UserCollection:
             _id=result.inserted_id,
             user_id=user_id,
             name=name,
-            hash_pw=pwd_context.hash(password),
+            hash_pw=await Util.get_hashed_password(password),
             email=email,
             gender=gender,
             nickname=nickname,
@@ -54,7 +61,6 @@ class UserCollection:
     async def find_by_id(cls, object_id: ObjectId) -> UserDocument | None:
         result = await cls._collection.find_one({"_id": object_id})
         return cls._result_dto(result) if result else None
-
 
     @classmethod
     async def _result_dto(cls, result: dict[Any, Any]) -> UserDocument:

@@ -1,17 +1,25 @@
+import os
+
+from pathlib import Path
+from dotenv import load_dotenv
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+
 from bson import ObjectId
-
-from app.utils.utility import Util
-
-from app.entities.collections.users.user_collection import UserCollection
-from app.entities.collections.users.user_document import UserDocument
 
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
+from app.entities.collections.users.user_collection import UserCollection
+from app.entities.collections.users.user_document import UserDocument
+from app.utils.utility import Util
 
 
-
-
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXFIRES")
+ACCESS_TOKEN_EXFIRE = os.environ.get("ACCESS_TOKEN_EXFIRES")
+REFRESH_TOKEN_EXFIRE = os.environ.get("REFRESH_TOKEN_EXFIRES")
+REFRESH_SECRET_KEY = os.environ.get("REFRESH_SECRET_KEY")
+ACCESS_SECRET_KEY = os.environ.get("ACCESS_SECRET_KEY")
+ALGORITHM = os.environ.get("ALGORITHM")
 
 async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument:
     if Util.is_valid_email(user_signup_request.email):
@@ -27,13 +35,18 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument:
         return user
 
     else:
-        raise ValueError('Invalid email')
+        raise ValueError("Invalid email")
 
 
-async def signin_user(user_signin_request:UserSigninRequest) -> UserDocument:
+async def signin_user(user_signin_request: UserSigninRequest) -> dict:
     user = await UserCollection._collection.find_one({"user_id": user_signin_request.user_id})
-    if user is None:
-        raise ValueError('User not found')
-    if Util.is_valid_password(user.hash_pw, user_signin_request.password):
-        ...
-
+    if await Util.is_valid_password(user_signin_request.password, user["hash_pw"]):
+        access_token = await Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
+        refresh_token = await Util.encode(user,REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM)
+        data = {
+            "user_data": user,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+        return data
+    return None

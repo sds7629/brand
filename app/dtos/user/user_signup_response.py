@@ -8,5 +8,3 @@ class UserSignupResponse:
     email: str
     nickname: str
     gender: str
-
-

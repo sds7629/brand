@@ -1,10 +1,13 @@
 import dataclasses
-
 import datetime
+from dataclasses import field
+
 from app.entities.collections.base_document import BaseDocument
+
 
 @dataclasses.dataclass
 class DeliveryDocument:
+    _id_user: str
     recipient: str
     code: str
     address: str
@@ -24,6 +27,6 @@ class UserDocument(BaseDocument):
     gender: str
     nickname: str
     login_method: str
-    delivery_area: list[DeliveryDocument]
+    delivery_area: list[DeliveryDocument] | None = field(default_factory=list)
     is_authenticated: bool = False
     is_delete: bool = False

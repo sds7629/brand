@@ -6,6 +6,7 @@ class Token:
     access_token: str
     refresh_token: str
 
+
 @dataclasses.dataclass
 class UserSigninResponse:
     id: str

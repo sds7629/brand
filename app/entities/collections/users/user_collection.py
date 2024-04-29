@@ -30,6 +30,8 @@ class UserCollection:
         gender: str,
         nickname: str,
         login_method: str = "page",
+        is_authenticated: bool = False,
+        is_delete: bool = False,
         delivery_area: list[DeliveryDocument] = [],
     ) -> UserDocument:
         result = await cls._collection.insert_one(
@@ -41,6 +43,8 @@ class UserCollection:
                 "gender": gender,
                 "nickname": nickname,
                 "login_method": login_method,
+                "is_authenticated": is_authenticated,
+                "is_delete": is_delete,
                 "delivery_area": [asdict(area) for area in delivery_area],
             }
         )
@@ -54,12 +58,22 @@ class UserCollection:
             gender=gender,
             nickname=nickname,
             login_method=login_method,
+            is_authenticated=is_authenticated,
+            is_delete=is_delete,
             delivery_area=delivery_area,
         )
 
     @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> UserDocument | None:
         result = await cls._collection.find_one({"_id": object_id})
+        return cls._result_dto(result) if result else None
+
+    @classmethod
+    async def delete_by_id(cls, object_id: ObjectId) -> UserDocument | None:
+        result = await cls._collection.update_one(
+            {"_id": object_id},
+            {"$set": {"is_delete": True}},
+        )
         return cls._result_dto(result) if result else None
 
     @classmethod

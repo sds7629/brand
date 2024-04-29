@@ -50,3 +50,10 @@ async def signin_user(user_signin_request: UserSigninRequest) -> dict:
         }
         return data
     return None
+
+
+async def delete_user(user_id: ObjectId) -> None:
+    if not(shop:= await UserCollection.find_by_id(user_id)):
+        raise ValueError(f"{user_id}User not found")
+    await UserCollection.delete_by_id(user_id)
+

@@ -27,6 +27,6 @@ class UserDocument(BaseDocument):
     gender: str
     nickname: str
     login_method: str
+    is_authenticated: bool
+    is_delete: bool
     delivery_area: list[DeliveryDocument] | None = field(default_factory=list)
-    is_authenticated: bool = False
-    is_delete: bool = False

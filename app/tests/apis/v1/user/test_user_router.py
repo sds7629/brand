@@ -42,3 +42,14 @@ async def test_유저_로그인_테스트() -> None:
     assert response.status_code == status.HTTP_200_OK
 
     assert response.json()["token"] is not None
+
+
+async def test_유저_삭제_테스트() -> None:
+    request_body = {
+        "base_user_id" : "662f82674d0eea5b6d51a0b3"
+    }
+
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post("/v1/users/signout", json=request_body)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT

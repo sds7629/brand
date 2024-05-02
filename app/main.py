@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.apis.qna.v1.qna_router import router as qna_router
 from app.apis.user.v1.user_router import router as user_router
 from app.entities.collections import set_indexes
 
@@ -17,6 +18,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(user_router)
+app.include_router(qna_router)
 
 origins = ["http://localhost:3000"]
 

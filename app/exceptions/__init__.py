@@ -5,3 +5,7 @@ class BaseException(Exception):
 
 class UserNotFoundException(BaseException):
     pass
+
+
+class ValidationException(BaseException):
+    pass

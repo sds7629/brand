@@ -14,6 +14,7 @@ async def test_유저_생성_테스트() -> None:
         "password": "1234",
         "gender": "male",
         "nickname": "admin",
+        "phone_num": "010-1234-4444",
     }
 
     # When
@@ -45,9 +46,7 @@ async def test_유저_로그인_테스트() -> None:
 
 
 async def test_유저_삭제_테스트() -> None:
-    request_body = {
-        "base_user_id" : "662f82674d0eea5b6d51a0b3"
-    }
+    request_body = {"base_user_id": "66334733e28ecd65927f0251"}
 
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post("/v1/users/signout", json=request_body)

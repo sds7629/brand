@@ -11,3 +11,4 @@ class UserSignupRequest:
     password: str
     gender: str
     nickname: str
+    phone_num: str

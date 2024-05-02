@@ -26,7 +26,8 @@ class UserDocument(BaseDocument):
     hash_pw: str
     gender: str
     nickname: str
+    phone_num: str
     login_method: str
     is_authenticated: bool
     is_delete: bool
-    delivery_area: list[DeliveryDocument] | None = field(default_factory=list)
+    delivery_area: list[DeliveryDocument] | None

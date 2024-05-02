@@ -1,12 +1,9 @@
-from datetime import datetime, timedelta
-
-from pytz import timezone
-
 import re
+from datetime import datetime, timedelta
 
 from jose import jwt
 from passlib.context import CryptContext
-
+from pytz import timezone
 
 
 class Util:
@@ -19,6 +16,11 @@ class Util:
     @classmethod
     async def is_valid_password(cls, input_password: str, save_password: str) -> bool:
         return cls._pwd_context.verify(input_password, save_password)
+
+    @classmethod
+    async def phone_validator(cls, phone_number: str) -> bool:
+        phone_regex = r"\d{2,3}-\d{3,4}-\d{4}$"
+        return bool(re.match(phone_regex, phone_number))
 
     @classmethod
     async def is_valid_email(cls, email: str) -> bool:
@@ -40,14 +42,14 @@ class Util:
         return jwt.encode(to_encode, secret_key, algorithm=algorithm)
 
     @classmethod
-    async def decode(cls, token: str, secret_key:str, algorithm:str = "HS256") -> dict | None:
+    async def decode(cls, token: str, secret_key: str, algorithm: str = "HS256") -> dict | None:
         try:
             return jwt.decode(token, secret_key, algorithms=algorithm)
         except jwt.JWTError:
             return None
 
     @classmethod
-    async def check_token_expire(cls, token: str, secret_key:str, algorithm: str) -> dict | None:
+    async def check_token_expire(cls, token: str, secret_key: str, algorithm: str) -> dict | None:
         payload = cls.decode(token, secret_key, algorithm)
         now_time = datetime.timestamp(datetime.now(timezone("Asia/Seoul")))
         if payload and payload["exp"] < now_time:

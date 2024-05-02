@@ -1,3 +1,4 @@
+import asyncio
 import os
 from pathlib import Path
 
@@ -23,9 +24,11 @@ ALGORITHM = os.environ.get("ALGORITHM")
 
 
 async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument:
-    if await Util.is_valid_email(user_signup_request.email) and await Util.phone_validator(
-        user_signup_request.phone_num
-    ):
+    user_validator = await asyncio.gather(
+        Util.is_valid_email(user_signup_request.email),
+        Util.phone_validator(user_signup_request.phone_num)
+    )
+    if all(user_validator):
         user = await UserCollection.insert_one(
             user_signup_request.user_id,
             user_signup_request.email,
@@ -50,8 +53,12 @@ async def signin_user(user_signin_request: UserSigninRequest) -> dict:
         raise ValueError("Deleted User!")
 
     if await Util.is_valid_password(user_signin_request.password, user["hash_pw"]):
-        access_token = await Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
-        refresh_token = await Util.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM)
+        access_token, refresh_token = await asyncio.gather(
+            Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM),
+            Util.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM)
+        )
+        # access_token = await Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
+        # refresh_token = await Util.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM)
         data = {
             "user_data": user,
             "access_token": access_token,

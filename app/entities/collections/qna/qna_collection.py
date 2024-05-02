@@ -8,7 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import UserDocument
 from app.utils.connection import db
-from app.utils.utility import Util
+
 
 
 class QnACollection:

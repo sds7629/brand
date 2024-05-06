@@ -20,6 +20,7 @@ from app.dtos.user.user_jwt_payload import UserJWT
 
 ACCESS_TOKEN_EXFIRE = os.environ.get("ACCESS_TOKEN_EXFIRES")
 
+
 class Util:
     _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     _algorithm = "HS256"

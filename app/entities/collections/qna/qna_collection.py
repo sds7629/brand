@@ -3,15 +3,15 @@ from bson import ObjectId
 from typing import Any, cast
 
 import pymongo
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 from app.entities.collections.qna.qna_document import QnADocument
-from app.entities.collections.users.user_document import UserDocument
+from app.entities.collections.users.user_document import UserDocument, ShowUserDocument
 from app.utils.connection import db
 
 
 class QnACollection:
-    _collection = AsyncIOMotorClient(db, "qna")
+    _collection = AsyncIOMotorCollection(db, "qna")
 
     @classmethod
     async def set_index(cls) -> None:
@@ -24,9 +24,9 @@ class QnACollection:
         cls,
         title: str,
         payload: str,
-        image_url: str,
+        image_url: str | None,
         qna_password: str,
-        writer: list[UserDocument],
+        writer: list[ShowUserDocument],
     ) -> QnADocument:
         result = await cls._collection.insert_one(
             {
@@ -34,7 +34,7 @@ class QnACollection:
                 "payload": payload,
                 "image_url": image_url,
                 "qna_password": qna_password,
-                "writer": asdict(writer[0]),
+                "writer": [asdict(user) for user in writer],
             }
         )
 
@@ -53,12 +53,17 @@ class QnACollection:
         return cls._result_dto(result) if result else None
 
     @classmethod
-    async def delete_by_id(cls, oject_id: ObjectId) -> int:
-        result = await cls._collection.delete_one({"_id": ObjectId(oject_id)})
+    async def delete_by_id(cls, object_id: ObjectId) -> int:
+        result = await cls._collection.delete_one({"_id": ObjectId(object_id)})
         return cast(int, result.deleted_count)
 
     @classmethod
-    async def _result_dto(cls, result: dict[Any, Any]) -> QnADocument:
+    async def find_by_title(cls, title: str) -> QnADocument | None:
+        result = await cls._collection.find_one({"title": title})
+        return cls._result_dto(result) if result else None
+
+    @classmethod
+    def _result_dto(cls, result: dict[Any, Any]) -> QnADocument:
         return QnADocument(
             _id=result["_id"],
             title=result["title"],

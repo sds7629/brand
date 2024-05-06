@@ -31,3 +31,12 @@ class UserDocument(BaseDocument):
     is_authenticated: bool
     is_delete: bool
     delivery_area: list[DeliveryDocument] | None
+
+
+@dataclasses.dataclass
+class ShowUserDocument(BaseDocument):
+    user_id: str
+    email: str
+    name: str
+    gender: str
+    nickname: str

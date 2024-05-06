@@ -1,11 +1,11 @@
 from dataclasses import asdict
-from typing import Any, cast
+from typing import Any
 
 import pymongo
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from app.entities.collections.users.user_document import DeliveryDocument, UserDocument
+from app.entities.collections.users.user_document import DeliveryDocument, UserDocument, ShowUserDocument
 from app.utils.connection import db
 from app.utils.utility import Util
 
@@ -16,7 +16,10 @@ class UserCollection:
     @classmethod
     async def set_index(cls) -> None:
         await cls._collection.create_index(
-            [("email", pymongo.TEXT)],
+            [
+                ("user_id", pymongo.TEXT),
+                ("nickname", pymongo.TEXT),
+            ],
             unique=True,
         )
 
@@ -67,30 +70,22 @@ class UserCollection:
         )
 
     @classmethod
-    async def find_by_id(cls, object_id: ObjectId) -> UserDocument | None:
-        result = await cls._collection.find_one(
-            {
-                "_id": object_id
-            }
-        )
+    async def find_by_id(cls, object_id: ObjectId) -> ShowUserDocument | None:
+        result = await cls._collection.find_one({"_id": object_id})
         return cls._result_dto(result) if result else None
 
     @classmethod
-    async def find_by_user_id(cls, user_id: str) -> UserDocument | None:
-        result = await cls._collection.find_one(
-            {
-                "user_id": user_id
-            }
-        )
+    async def find_by_user_id(cls, user_id: str) -> ShowUserDocument | None:
+        result = await cls._collection.find_one({"user_id": user_id})
         return cls._result_dto(result) if result else None
 
     @classmethod
-    async def find_by_nickname(cls, nickname: str) -> UserDocument | None:
+    async def find_by_nickname(cls, nickname: str) -> ShowUserDocument | None:
         result = await cls._collection.find_one({"nickname": nickname})
         return cls._result_dto(result) if result else None
 
     @classmethod
-    async def delete_by_id(cls, object_id: ObjectId) -> UserDocument | None:
+    async def delete_by_id(cls, object_id: ObjectId) -> ShowUserDocument | None:
         result = await cls._collection.update_one(
             {"_id": object_id},
             {"$set": {"is_delete": True}},
@@ -98,16 +93,12 @@ class UserCollection:
         return cls._result_dto(result) if result else None
 
     @classmethod
-    async def _result_dto(cls, result: dict[Any, Any]) -> UserDocument:
-        return UserDocument(
+    def _result_dto(cls, result: dict[Any, Any]) -> ShowUserDocument:
+        return ShowUserDocument(
             _id=result["_id"],
             user_id=result["user_id"],
             email=result["email"],
             name=result["name"],
-            hash_pw=result["hash_pw"],
             gender=result["gender"],
             nickname=result["nickname"],
-            login_method=result["login_method"],
-            is_authenticated=result["is_authenticated"],
-            is_delete=result["is_delete"],
         )

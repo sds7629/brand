@@ -13,7 +13,7 @@ from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import UserDocument
-from app.exceptions import ValidationException
+from app.exceptions import ValidationException, UserNotFoundException
 from app.utils.utility import Util
 
 ACCESS_TOKEN_EXFIRE = os.environ.get("ACCESS_TOKEN_EXFIRES")
@@ -23,11 +23,19 @@ ACCESS_SECRET_KEY = os.environ.get("ACCESS_SECRET_KEY")
 ALGORITHM = os.environ.get("ALGORITHM")
 
 
-async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument:
+async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | None:
     user_validator = await asyncio.gather(
-        Util.is_valid_email(user_signup_request.email),
-        Util.phone_validator(user_signup_request.phone_num)
+        Util.is_valid_email(user_signup_request.email), Util.phone_validator(user_signup_request.phone_num)
     )
+
+    user_id_exist, nickname_exist = await asyncio.gather(
+        UserCollection.find_by_user_id(user_signup_request.user_id),
+        UserCollection.find_by_nickname(user_signup_request.nickname),
+    )
+
+    if user_id_exist or nickname_exist:
+        return None
+
     if all(user_validator):
         user = await UserCollection.insert_one(
             user_signup_request.user_id,
@@ -41,24 +49,27 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument:
 
         return user
     else:
-
         raise ValidationException(
             f"유저의 {user_signup_request.email} 혹은 {user_signup_request.phone_num}이 잘못 되었습니다."
         )
 
 
-async def signin_user(user_signin_request: UserSigninRequest) -> dict:
+async def signin_user(user_signin_request: UserSigninRequest) -> dict | None:
     user = await UserCollection._collection.find_one({"user_id": user_signin_request.user_id})
-    if user["is_delete"]:
-        raise ValueError("Deleted User!")
+
+    if not user:
+        raise UserNotFoundException(f"가입된 유저가 아닙니다.")
+
+    if user is not None:
+        if user["is_delete"]:
+            raise UserNotFoundException(f"가입된 유저가 아닙니다.")
 
     if await Util.is_valid_password(user_signin_request.password, user["hash_pw"]):
         access_token, refresh_token = await asyncio.gather(
             Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM),
-            Util.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM)
+            Util.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM),
         )
-        # access_token = await Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
-        # refresh_token = await Util.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM)
+
         data = {
             "user_data": user,
             "access_token": access_token,

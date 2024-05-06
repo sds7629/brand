@@ -68,7 +68,25 @@ class UserCollection:
 
     @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> UserDocument | None:
-        result = await cls._collection.find_one({"_id": object_id})
+        result = await cls._collection.find_one(
+            {
+                "_id": object_id
+            }
+        )
+        return cls._result_dto(result) if result else None
+
+    @classmethod
+    async def find_by_user_id(cls, user_id: str) -> UserDocument | None:
+        result = await cls._collection.find_one(
+            {
+                "user_id": user_id
+            }
+        )
+        return cls._result_dto(result) if result else None
+
+    @classmethod
+    async def find_by_nickname(cls, nickname: str) -> UserDocument | None:
+        result = await cls._collection.find_one({"nickname": nickname})
         return cls._result_dto(result) if result else None
 
     @classmethod

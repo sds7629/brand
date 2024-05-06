@@ -10,7 +10,6 @@ from app.entities.collections.users.user_document import UserDocument
 from app.utils.connection import db
 
 
-
 class QnACollection:
     _collection = AsyncIOMotorClient(db, "qna")
 
@@ -41,11 +40,11 @@ class QnACollection:
 
         return QnADocument(
             _id=result.inserted_id,
-            title = title,
-            payload = payload,
-            image_url = image_url,
-            qna_password = qna_password,
-            writer = writer,
+            title=title,
+            payload=payload,
+            image_url=image_url,
+            qna_password=qna_password,
+            writer=writer,
         )
 
     @classmethod
@@ -58,14 +57,13 @@ class QnACollection:
         result = await cls._collection.delete_one({"_id": ObjectId(oject_id)})
         return cast(int, result.deleted_count)
 
-
     @classmethod
     async def _result_dto(cls, result: dict[Any, Any]) -> QnADocument:
         return QnADocument(
-            _id = result["_id"],
-            title = result["title"],
-            payload = result["payload"],
-            image_url = result["image_url"],
-            qna_password = result["qna_password"],
-            writer = result["writer"],
+            _id=result["_id"],
+            title=result["title"],
+            payload=result["payload"],
+            image_url=result["image_url"],
+            qna_password=result["qna_password"],
+            writer=result["writer"],
         )

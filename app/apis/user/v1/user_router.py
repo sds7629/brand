@@ -1,8 +1,9 @@
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
+from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import Response
 
 from app.dtos.user.user_signin_request import UserSigninRequest
@@ -14,6 +15,7 @@ from app.exceptions import UserNotFoundException
 from app.services.user_service import delete_user, signin_user, signup_user
 
 router = APIRouter(prefix="/v1/users", tags=["user"], redirect_slashes=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 @router.post(

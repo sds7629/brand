@@ -1,6 +1,6 @@
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
 from fastapi.security import OAuth2PasswordBearer
@@ -62,13 +62,22 @@ async def api_signin_user(response: Response, user_signin_request: UserSigninReq
             samesite="lax",
         )
         return UserSigninResponse(
-            id=str(user["user_data"]["_id"]),
+            id=str(user["user_data"].id),
             token=[Token(access_token=user["access_token"], refresh_token=user["refresh_token"])],
-            name=user["user_data"]["name"],
-            nickname=user["user_data"]["nickname"],
+            name=user["user_data"].name,
+            nickname=user["user_data"].nickname,
         )
     else:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="잘못된 요청입니다.")
+
+
+@router.post(
+    "/logout",
+    description="유저 로그아웃",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_logout_user(response: Response) -> None: ...
 
 
 @router.post(

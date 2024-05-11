@@ -40,3 +40,5 @@ class ShowUserDocument(BaseDocument):
     name: str
     gender: str
     nickname: str
+    is_delete: bool
+    delivery_area: list[DeliveryDocument] | None

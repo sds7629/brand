@@ -11,6 +11,6 @@ class QnADocument(BaseDocument):
     title: str
     payload: str
     qna_password: str | None
-    writer: list[ShowUserDocument]
+    writer: ShowUserDocument
     image_url: str | None
     updated_at: datetime.time() = None

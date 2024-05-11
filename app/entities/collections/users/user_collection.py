@@ -5,7 +5,11 @@ import pymongo
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from app.entities.collections.users.user_document import DeliveryDocument, UserDocument, ShowUserDocument
+from app.entities.collections.users.user_document import (
+    DeliveryDocument,
+    ShowUserDocument,
+    UserDocument,
+)
 from app.utils.connection import db
 from app.utils.utility import Util
 
@@ -72,17 +76,17 @@ class UserCollection:
     @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> ShowUserDocument | None:
         result = await cls._collection.find_one({"_id": object_id})
-        return cls._result_dto(result) if result else None
+        return cls._result_show_user_document_dto(result) if result else None
 
     @classmethod
-    async def find_by_user_id(cls, user_id: str) -> ShowUserDocument | None:
+    async def find_by_user_id(cls, user_id: str) -> UserDocument | None:
         result = await cls._collection.find_one({"user_id": user_id})
-        return cls._result_dto(result) if result else None
+        return cls._result_base_user_document_dto(result) if result else None
 
     @classmethod
     async def find_by_nickname(cls, nickname: str) -> ShowUserDocument | None:
         result = await cls._collection.find_one({"nickname": nickname})
-        return cls._result_dto(result) if result else None
+        return cls._result_show_user_document_dto(result) if result else None
 
     @classmethod
     async def delete_by_id(cls, object_id: ObjectId) -> ShowUserDocument | None:
@@ -90,10 +94,10 @@ class UserCollection:
             {"_id": object_id},
             {"$set": {"is_delete": True}},
         )
-        return cls._result_dto(result) if result else None
+        return cls._result_show_user_document_dto(result) if result else None
 
     @classmethod
-    def _result_dto(cls, result: dict[Any, Any]) -> ShowUserDocument:
+    def _result_show_user_document_dto(cls, result: dict[Any, Any]) -> ShowUserDocument:
         return ShowUserDocument(
             _id=result["_id"],
             user_id=result["user_id"],
@@ -101,4 +105,24 @@ class UserCollection:
             name=result["name"],
             gender=result["gender"],
             nickname=result["nickname"],
+            is_delete=result["is_delete"],
+            delivery_area=result["delivery_area"],
+        )
+
+
+    @classmethod
+    def _result_base_user_document_dto(cls, result: dict[Any, Any]) -> UserDocument:
+        return UserDocument(
+            _id=result["_id"],
+            user_id=result["user_id"],
+            email=result["email"],
+            name=result["name"],
+            hash_pw=result["hash_pw"],
+            gender=result["gender"],
+            nickname=result["nickname"],
+            phone_num=result["phone_num"],
+            login_method=result["login_method"],
+            is_authenticated = result["is_authenticated"],
+            is_delete=result["is_delete"],
+            delivery_area=result["delivery_area"],
         )

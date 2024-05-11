@@ -13,7 +13,7 @@ from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import UserDocument
-from app.exceptions import ValidationException, UserNotFoundException
+from app.exceptions import UserNotFoundException, ValidationException
 from app.utils.utility import Util
 
 ACCESS_TOKEN_EXFIRE = os.environ.get("ACCESS_TOKEN_EXFIRES")
@@ -55,16 +55,16 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | 
 
 
 async def signin_user(user_signin_request: UserSigninRequest) -> dict | None:
-    user = await UserCollection._collection.find_one({"user_id": user_signin_request.user_id})
+    user = await UserCollection.find_by_user_id(user_signin_request.user_id)
 
     if not user:
         raise UserNotFoundException(f"가입된 유저가 아닙니다.")
 
     if user is not None:
-        if user["is_delete"]:
+        if user.is_delete:
             raise UserNotFoundException(f"가입된 유저가 아닙니다.")
 
-    if await Util.is_valid_password(user_signin_request.password, user["hash_pw"]):
+    if await Util.is_valid_password(user_signin_request.password, user.hash_pw):
         access_token, refresh_token = await asyncio.gather(
             Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM),
             Util.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM),

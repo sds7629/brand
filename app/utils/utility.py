@@ -1,9 +1,10 @@
-import re
-
 import os
+import re
 from pathlib import Path
 
 from dotenv import load_dotenv
+
+from app.entities.collections.users.user_document import  UserDocument
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(os.path.join(BASE_DIR, ".env"))
@@ -46,17 +47,17 @@ class Util:
     @classmethod
     async def encode(
         cls,
-        data: dict,
+        data: UserDocument,
         secret_key: str,
         expires_time: str,
         algorithm: str = "HS256",
     ) -> str:
         to_encode = asdict(
             UserJWT(
-                _id=str(data["_id"]),
-                user_id=data["user_id"],
-                gender=data["gender"],
-                nickname=data["nickname"],
+                _id=str(data.id),
+                user_id=data.user_id,
+                gender=data.gender,
+                nickname=data.nickname,
             )
         )
         expire = datetime.now(timezone("Asia/Seoul")) + timedelta(minutes=float(expires_time))

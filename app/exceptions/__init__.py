@@ -7,5 +7,9 @@ class UserNotFoundException(BaseException):
     pass
 
 
+class QnANotFoundException(BaseException):
+    pass
+
+
 class ValidationException(BaseException):
     pass

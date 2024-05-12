@@ -1,4 +1,4 @@
-from app.services.qna_service import find_qna_by_title, find_qna_by_id, qna_list
+from app.services.qna_service import find_qna_by_id, find_qna_by_title, qna_list
 
 
 async def test_find_qna_by_title_service() -> None:

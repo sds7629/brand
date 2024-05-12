@@ -1,20 +1,20 @@
-import dataclasses
+from typing import Sequence
 
-from typing import Sequence, Any
+from pydantic import dataclasses
 
-from pydantic import BaseModel
-
+from app.config import Config
 from app.entities.collections.users.user_document import ShowUserDocument
 
 
-
-class BeforeQnAResponse(BaseModel):
+@dataclasses.dataclass
+class OnlyOneQnAResponse:
     id: str
     title: str
     payload: str
-    writer: [ShowUserDocument]
+    writer: ShowUserDocument
     image_url: str | None = None
+
 
 @dataclasses.dataclass
 class QnAResponse:
-    qna: Sequence[BeforeQnAResponse]
+    qna: Sequence[OnlyOneQnAResponse]

@@ -1,14 +1,15 @@
+from bson import ObjectId
+
 from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_collection import UserCollection
+from app.services.qna_service import find_qna_by_id, qna_list
 from app.utils.utility import Util
-from app.services.qna_service import qna_list, find_qna_by_id
-from bson import ObjectId
 
 
 async def test_insert_one() -> None:
     # Given
-    user = await UserCollection.find_by_user_id("admin")
+    user = await UserCollection.find_by_nickname("admin")
     title = "안녕하세요"
     payload = "안녕하세요, 진우입니다ㅡ.ㅡ"
     qna_password = "12343"
@@ -49,3 +50,10 @@ async def test_QnA_find_by_id() -> None:
     result = await find_qna_by_id(ObjectId(find_id))
 
     assert result is not None
+
+
+async def test_delete_by_id() -> None:
+    find_id = ObjectId("663cb44edfeda588b0cdf1e3")
+    result = await QnACollection.delete_by_id(find_id)
+
+    assert result == 1

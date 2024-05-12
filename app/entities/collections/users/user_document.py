@@ -1,13 +1,14 @@
-import dataclasses
 import datetime
-from dataclasses import field
 
+from pydantic import dataclasses
+
+from app.config import Config
 from app.entities.collections.base_document import BaseDocument
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(config=Config)
 class DeliveryDocument:
-    _id_user: str
+    user_id: str
     recipient: str
     code: str
     address: str
@@ -33,8 +34,9 @@ class UserDocument(BaseDocument):
     delivery_area: list[DeliveryDocument] | None
 
 
-@dataclasses.dataclass
-class ShowUserDocument(BaseDocument):
+@dataclasses.dataclass(config=Config)
+class ShowUserDocument:
+    _id: str
     user_id: str
     email: str
     name: str

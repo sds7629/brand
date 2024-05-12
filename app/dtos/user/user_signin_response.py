@@ -1,4 +1,6 @@
-import dataclasses
+from pydantic import Field, dataclasses
+
+from app.config import Config
 
 
 @dataclasses.dataclass
@@ -7,7 +9,7 @@ class Token:
     refresh_token: str
 
 
-@dataclasses.dataclass
+@dataclasses.dataclass(config=Config)
 class UserSigninResponse:
     id: str
     token: list[Token]

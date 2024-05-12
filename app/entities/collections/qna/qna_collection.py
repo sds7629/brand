@@ -5,9 +5,8 @@ import pymongo
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
-from app.entities.collections.users.user_collection import UserCollection
-
 from app.entities.collections.qna.qna_document import QnADocument
+from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.connection import db
 

@@ -99,7 +99,7 @@ class UserCollection:
     @classmethod
     def _result_show_user_document_dto(cls, result: dict[Any, Any]) -> ShowUserDocument:
         return ShowUserDocument(
-            _id=result["_id"],
+            _id=str(result["_id"]),
             user_id=result["user_id"],
             email=result["email"],
             name=result["name"],
@@ -108,7 +108,6 @@ class UserCollection:
             is_delete=result["is_delete"],
             delivery_area=result["delivery_area"],
         )
-
 
     @classmethod
     def _result_base_user_document_dto(cls, result: dict[Any, Any]) -> UserDocument:
@@ -122,7 +121,7 @@ class UserCollection:
             nickname=result["nickname"],
             phone_num=result["phone_num"],
             login_method=result["login_method"],
-            is_authenticated = result["is_authenticated"],
+            is_authenticated=result["is_authenticated"],
             is_delete=result["is_delete"],
             delivery_area=result["delivery_area"],
         )

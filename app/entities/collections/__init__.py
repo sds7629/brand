@@ -1,6 +1,7 @@
 import asyncio
-from app.entities.collections.users.user_collection import UserCollection
+
 from app.entities.collections.qna.qna_collection import QnACollection
+from app.entities.collections.users.user_collection import UserCollection
 
 
 async def set_indexes() -> None:

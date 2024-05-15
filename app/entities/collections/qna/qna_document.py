@@ -1,11 +1,17 @@
-import datetime
+from pydantic import dataclasses,AwareDatetime
 
-from pydantic import dataclasses
+from typing import Optional
 
-from app.config import Config
 from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 
+
+@dataclasses.dataclass
+class ApplyDocument(BaseDocument):
+    writer: ShowUserDocument
+    payload: str
+    image_url: str
+    updated_at: Optional[AwareDatetime] = None
 
 @dataclasses.dataclass
 class QnADocument(BaseDocument):
@@ -14,4 +20,5 @@ class QnADocument(BaseDocument):
     qna_password: str | None
     writer: ShowUserDocument
     image_url: str | None
-    updated_at: datetime.time() = None
+    apply: list[ApplyDocument] | None
+    updated_at: Optional[AwareDatetime] = None

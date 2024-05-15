@@ -2,26 +2,49 @@ from typing import Annotated
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Security
 from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import Response
 
+from app.dtos.user.user_profile_response import UserProfileResponse
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signin_response import Token, UserSigninResponse
 from app.dtos.user.user_signout_request import UserSignOutRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.dtos.user.user_signup_response import UserSignupResponse
+from app.entities.collections.users.user_document import UserDocument
 from app.exceptions import UserNotFoundException
 from app.services.user_service import delete_user, signin_user, signup_user
+from app.auth.auth_bearer import get_current_user
 
 router = APIRouter(
     prefix="/v1/users",
     tags=["user"],
     redirect_slashes=False,
 )
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/token")
+
+oauth2_scheme = OAuth2PasswordBearer("v1/users/signin")
+
+@router.get(
+    "/me",
+    description="유저 마이페이지",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_profile(user: Annotated[UserDocument, Depends(get_current_user)]):
+    if user:
+        return UserProfileResponse(
+            id = str(user.id),
+            name = user.name,
+            nickname= user.nickname,
+            email = user.email,
+            phone_num=user.phone_num,
+            gender = user.gender,
+            delivery_area=user.delivery_area,
+        )
+
 
 
 @router.post(
@@ -82,8 +105,15 @@ async def api_signin_user(response: Response, user_signin_request: UserSigninReq
     description="유저 로그아웃",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
+
+
+
+    dependencies=[Depends(oauth2_scheme)],
 )
-async def api_logout_user(response: Response) -> None: ...
+async def api_logout_user(response: Response) -> None:
+    response.delete_cookie(key = "access_token")
+    response.delete_cookie(key = "refresh_token")
+
 
 
 @router.post(

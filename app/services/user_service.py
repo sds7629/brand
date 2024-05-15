@@ -1,11 +1,4 @@
 import asyncio
-import os
-from pathlib import Path
-
-from dotenv import load_dotenv
-
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 from bson import ObjectId
 
@@ -16,11 +9,14 @@ from app.entities.collections.users.user_document import UserDocument
 from app.exceptions import UserNotFoundException, ValidationException
 from app.utils.utility import Util
 
-ACCESS_TOKEN_EXFIRE = os.environ.get("ACCESS_TOKEN_EXFIRES")
-REFRESH_TOKEN_EXFIRE = os.environ.get("REFRESH_TOKEN_EXFIRES")
-REFRESH_SECRET_KEY = os.environ.get("REFRESH_SECRET_KEY")
-ACCESS_SECRET_KEY = os.environ.get("ACCESS_SECRET_KEY")
-ALGORITHM = os.environ.get("ALGORITHM")
+from app.config import (
+    ACCESS_TOKEN_EXFIRE,
+    ALGORITHM,
+    ACCESS_SECRET_KEY,
+    REFRESH_TOKEN_EXFIRE,
+    REFRESH_SECRET_KEY,
+)
+
 
 
 async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | None:

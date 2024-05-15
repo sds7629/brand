@@ -52,3 +52,13 @@ async def test_유저_삭제_테스트() -> None:
         response = await client.post("/v1/users/signout", json=request_body)
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+async def test_유저_마이페이지() -> None:
+    header = {
+        "Authorization" : "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjNjYjI0M2UzNjkzNTY0YTE1MGZjNjkiLCJ1c2VyX2lkIjoiYWRtaW4iLCJnZW5kZXIiOiJtYWxlIiwibmlja25hbWUiOiJhZG1pbiIsImV4cCI6MTcxNTc3MzA2Nn0.FK4yS8tVGJncLIRhxesuSEIGFQ9oHhu0ylxcYbOLYB8"
+    }
+    async with AsyncClient(app=app, base_url="http://test", headers=header) as client:
+        response = await client.get("/v1/users/me")
+
+        assert response.status_code == status.HTTP_200_OK

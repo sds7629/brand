@@ -1,6 +1,7 @@
-import datetime
+from datetime import datetime
 
-from pydantic import dataclasses
+from pydantic import dataclasses,AwareDatetime
+from typing import Optional
 
 from app.config import Config
 from app.entities.collections.base_document import BaseDocument
@@ -15,7 +16,7 @@ class DeliveryDocument:
     detail_address: str
     recipient_phone: str
     requirements: str
-    updated_at: datetime.time() = None
+    updated_at: Optional[AwareDatetime] = None
     is_base_delivery: bool = False
 
 

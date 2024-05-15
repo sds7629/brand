@@ -1,17 +1,10 @@
-import os
 import re
-from pathlib import Path
-
-from dotenv import load_dotenv
 
 from app.entities.collections.users.user_document import UserDocument
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-load_dotenv(os.path.join(BASE_DIR, ".env"))
-
-
 from dataclasses import asdict
 from datetime import datetime, timedelta
+
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -19,7 +12,10 @@ from pytz import timezone
 
 from app.dtos.user.user_jwt_payload import UserJWT
 
-ACCESS_TOKEN_EXFIRE = os.environ.get("ACCESS_TOKEN_EXFIRES")
+from app.config import (
+    ACCESS_SECRET_KEY,
+    ACCESS_TOKEN_EXFIRE,
+)
 
 
 class Util:
@@ -47,7 +43,7 @@ class Util:
     @classmethod
     async def encode(
         cls,
-        data: UserDocument,
+        data: dict | UserDocument,
         secret_key: str,
         expires_time: str,
         algorithm: str = "HS256",

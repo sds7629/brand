@@ -3,7 +3,6 @@ from bson.errors import InvalidId
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse
 
-from app.apis.user.v1.user_router import oauth2_scheme
 from app.dtos.qna.qna_response import OnlyOneQnAResponse, QnAResponse
 from app.exceptions import QnANotFoundException
 from app.services.qna_service import delete_qna_by_id, find_qna_by_id, qna_list
@@ -37,7 +36,7 @@ async def api_get_qna() -> QnAResponse:
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_get_qna_detail(qna_id: str, token: str = Depends(oauth2_scheme)) -> OnlyOneQnAResponse:
+async def api_get_qna_detail(qna_id: str) -> OnlyOneQnAResponse:
     try:
         result = await find_qna_by_id(ObjectId(qna_id))
         return OnlyOneQnAResponse(

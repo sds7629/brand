@@ -1,7 +1,7 @@
 from datetime import datetime
-
-from pydantic import dataclasses,AwareDatetime
 from typing import Optional
+
+from pydantic import AwareDatetime, dataclasses
 
 from app.config import Config
 from app.entities.collections.base_document import BaseDocument

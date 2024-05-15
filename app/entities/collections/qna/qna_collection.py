@@ -74,5 +74,5 @@ class QnACollection:
             payload=result["payload"],
             image_url=result["image_url"],
             qna_password=result["qna_password"],
-            writer=UserCollection._result_show_user_document_dto(result["writer"]),
+            writer=result["writer"],
         )

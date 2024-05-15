@@ -1,21 +1,14 @@
 import re
-
-from app.entities.collections.users.user_document import UserDocument
-
 from dataclasses import asdict
 from datetime import datetime, timedelta
-
 
 from jose import jwt
 from passlib.context import CryptContext
 from pytz import timezone
 
+from app.config import ACCESS_TOKEN_EXFIRE
 from app.dtos.user.user_jwt_payload import UserJWT
-
-from app.config import (
-    ACCESS_SECRET_KEY,
-    ACCESS_TOKEN_EXFIRE,
-)
+from app.entities.collections.users.user_document import UserDocument
 
 
 class Util:
@@ -48,14 +41,24 @@ class Util:
         expires_time: str,
         algorithm: str = "HS256",
     ) -> str:
-        to_encode = asdict(
-            UserJWT(
-                _id=str(data.id),
-                user_id=data.user_id,
-                gender=data.gender,
-                nickname=data.nickname,
+        if type(data) == UserDocument:
+            to_encode = asdict(
+                UserJWT(
+                    _id=str(data.id),
+                    user_id=data.user_id,
+                    gender=data.gender,
+                    nickname=data.nickname,
+                )
             )
-        )
+        else:
+            to_encode = asdict(
+                UserJWT(
+                    _id=str(data["id"]),
+                    user_id=data["user_id"],
+                    gender=data["gender"],
+                    nickname=data["nickname"],
+                )
+            )
         expire = datetime.now(timezone("Asia/Seoul")) + timedelta(minutes=float(expires_time))
         to_encode.update({"exp": expire})
         return jwt.encode(to_encode, secret_key, algorithm=algorithm)
@@ -78,10 +81,10 @@ class Util:
         if payload and payload["exp"] > now_time:
             return {
                 "payload": payload,
-                "is_expired": True,
+                "is_expired": False,
             }
         else:
-            return None
+            return {"is_expired": True}
 
     @classmethod
     async def new_access_token(cls, token: str, secret_key: str) -> str | None:

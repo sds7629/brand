@@ -1,11 +1,21 @@
+from typing import Annotated
+
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse
 
+from app.auth.auth_bearer import get_current_user
+from app.dtos.qna.qna_request import QnARequest
 from app.dtos.qna.qna_response import OnlyOneQnAResponse, QnAResponse
+from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import QnANotFoundException
-from app.services.qna_service import delete_qna_by_id, find_qna_by_id, qna_list
+from app.services.qna_service import (
+    create_qna,
+    delete_qna_by_id,
+    find_qna_by_id,
+    qna_list,
+)
 
 router = APIRouter(prefix="/v1/qna", tags=["qna"], redirect_slashes=False)
 
@@ -51,6 +61,28 @@ async def api_get_qna_detail(qna_id: str) -> OnlyOneQnAResponse:
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"message": "QnA not found"},
         )
+
+
+@router.post(
+    "/create",
+    description="QnA 생성",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def api_create_qna(
+    qna_request: QnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
+) -> OnlyOneQnAResponse:
+    try:
+        qna = await create_qna(qna_request, user)
+        return OnlyOneQnAResponse(
+            id=str(qna.id),
+            title=qna.title,
+            payload=qna.payload,
+            writer=qna.writer,
+            image_url=qna.image_url,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.delete(

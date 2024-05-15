@@ -24,3 +24,17 @@ async def test_QnA_삭제하기() -> None:
         response = await client.delete("/v1/qna/663cb44edfeda588b0cdf1e3/delete")
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
+
+
+async def test_QnA_생성하기() -> None:
+    header = {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjNjYjI0M2UzNjkzNTY0YTE1MGZjNjkiLCJ1c2VyX2lkIjoiYWRtaW4iLCJnZW5kZXIiOiJtYWxlIiwibmlja25hbWUiOiJhZG1pbiIsImV4cCI6MTcxNTc3ODM4OX0.Y284iglpy1IUnH3DqwtFC0zAZj9dThLAi-UNKL2hvDA"
+    }
+    request_body = {
+        "title": "절로가",
+        "payload": "가나다",
+    }
+    async with AsyncClient(app=app, base_url="http://test", headers=header) as client:
+        response = await client.post("/v1/qna/create", json=request_body)
+
+        assert response.status_code == status.HTTP_201_CREATED

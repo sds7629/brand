@@ -1,22 +1,20 @@
 import asyncio
-
-from jose import JWTError
 from typing import Annotated
 
-from fastapi import Request, HTTPException, Depends, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
 
-from app.utils.utility import Util
 from app.config import ACCESS_SECRET_KEY
-from app.exceptions import UserNotFoundException, ValidationException
 from app.entities.collections.users.user_collection import UserCollection
-from app.entities.collections.users.user_document import UserDocument
-
+from app.entities.collections.users.user_document import ShowUserDocument
+from app.exceptions import UserNotFoundException, ValidationException
+from app.utils.utility import Util
 
 oauth2_scheme = OAuth2PasswordBearer("/v1/users/signin")
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserDocument:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> ShowUserDocument:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -24,14 +22,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
     )
     try:
         token_expire = await Util.check_token_expire(token, ACCESS_SECRET_KEY)
-        user = await UserCollection.find_by_user_id(token_expire["payload"]["user_id"])
-        if not token_expire["is_expired"]:
+        if token_expire["is_expired"]:
             raise ValidationException(response_message="Token is expired")
+        user = await UserCollection.find_by_nickname(token_expire["payload"]["nickname"])
         if not user:
             raise UserNotFoundException
         return user
     except JWTError:
         raise credentials_exception
-
-
-

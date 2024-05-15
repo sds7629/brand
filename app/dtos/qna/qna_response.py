@@ -2,7 +2,6 @@ from typing import Sequence
 
 from pydantic import dataclasses
 
-from app.config import Config
 from app.entities.collections.users.user_document import ShowUserDocument
 
 

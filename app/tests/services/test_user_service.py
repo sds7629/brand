@@ -1,10 +1,10 @@
 from httpx import AsyncClient
 
+from app.config import ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE
 from app.entities.collections import UserCollection
 from app.main import app
+from app.services.user_service import get_current_user
 from app.utils.utility import Util
-from app.config import (ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE,)
-from app.services.user_service import (get_current_user,)
 
 
 async def test_유저_로그인_테스트() -> None:

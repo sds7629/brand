@@ -1,3 +1,5 @@
+from typing import Optional
+
 from bson import ObjectId
 
 from app.dtos.qna.qna_request import QnARequest, UpdateQnARequest
@@ -6,7 +8,6 @@ from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import QnANotFoundException
 
-from typing import Optional
 
 async def qna_list() -> list[QnADocument]:
     return await QnACollection.find_all_qna()
@@ -36,6 +37,8 @@ async def create_qna(qna_data: QnARequest, user: ShowUserDocument) -> QnADocumen
         writer=user,
     )
 
-async def update_qna(qna_id: ObjectId, valid_value: dict[str, str]) -> QnADocument:
-    await update_by_id(qna_id, valid_value)
 
+async def update_qna(qna_id: ObjectId, validate_data: dict[str, str]) -> None:
+    if not (qna := await QnACollection.find_by_id(qna_id)):
+        raise QnANotFoundException(f"No QnA found with id: {qna_id}")
+    await QnACollection.update_by_id(qna_id, validate_data)

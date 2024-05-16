@@ -32,7 +32,7 @@ class UserDocument(BaseDocument):
     login_method: str
     is_authenticated: bool
     is_delete: bool
-    delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias='delivery_area')
+    delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")
 
 
 @dataclasses.dataclass(config=Config)
@@ -44,4 +44,4 @@ class ShowUserDocument:
     gender: str
     nickname: str
     is_delete: bool
-    delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias='delivery_area')
+    delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")

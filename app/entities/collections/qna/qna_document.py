@@ -3,7 +3,6 @@ from typing import Optional
 from pydantic import AwareDatetime, dataclasses
 from pydantic.dataclasses import Field
 
-
 from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 

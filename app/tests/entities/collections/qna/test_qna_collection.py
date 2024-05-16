@@ -61,5 +61,9 @@ async def test_delete_by_id() -> None:
 
 async def test_update_by_id() -> None:
     find_id = "66458901ac83c88c194b2dca"
+    data = {
+        "payload": "123123"
+    }
+    result = await QnACollection.update_by_id(ObjectId(find_id), data)
 
-    result = await QnACollection.update_by_id(find_id)
+    assert result > 0

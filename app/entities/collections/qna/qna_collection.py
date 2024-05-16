@@ -6,7 +6,6 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
 from app.entities.collections.qna.qna_document import QnADocument
-from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.connection import db
 
@@ -67,9 +66,10 @@ class QnACollection:
         return [cls._result_dto(result) for result in await cls._collection.find({"title": title}).to_list(None)]
 
     @classmethod
-    async def update_by_id(cls, qna_id: ObjectId, data: dict[str, str]) -> QnADocument:
-        result = await cls._collection.update_one({"_id": qna_id},  {"$set": data}, upsert=False)
-        return cls._result_dto(result) if result else None
+    async def update_by_id(cls, qna_id: ObjectId, data: dict[str, str]) -> int:
+        result = await cls._collection.update_one({"_id": qna_id}, {"$set": data}, upsert=False)
+        return result.modified_count
+
     @classmethod
     def _result_dto(cls, result: dict[Any, Any]) -> QnADocument:
         return QnADocument(

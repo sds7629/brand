@@ -15,7 +15,8 @@ from app.services.qna_service import (
     create_qna,
     delete_qna_by_id,
     find_qna_by_id,
-    qna_list, update_qna,
+    qna_list,
+    update_qna,
 )
 
 router = APIRouter(prefix="/v1/qna", tags=["qna"], redirect_slashes=False)
@@ -115,11 +116,14 @@ async def api_delete_qna(qna_id: str) -> None:
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_update_qna(qna_id: str, qna_request: UpdateQnARequest) -> OnlyOneQnAResponse:
+async def api_update_qna(qna_id: str, qna_request: UpdateQnARequest) -> None:
     qna = {key: val for key, val in asdict(qna_request).items() if val is not None}
     if len(qna) >= 1:
-        await update_qna(ObjectId(qna_id), qna)
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail = {"message": "QnA Validation Error"}
-    )
+        try:
+            await update_qna(ObjectId(qna_id), qna)
+        except QnANotFoundException as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"message": e.response_message},
+            )
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": "QnA Validation Error"})

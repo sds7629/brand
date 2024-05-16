@@ -1,20 +1,18 @@
-import asyncio
-import datetime
-
 from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import DeliveryDocument
 
 
 async def test_유저_회원가입() -> None:
-    user_id = "admin"
+    user_id = "admin1"
     email = "admin@naver.com"
     name = "어드민"
     password = "1234"
     gender = "male"
-    nickname = "admin"
+    phone_num = "010-4444-1322"
+    nickname = "admin1"
     delivery_area = [
         DeliveryDocument(
-            _id_user="admin",
+            user_id="admin",
             recipient="user1",
             code="03100",
             address="서울시 종로구 창신동",
@@ -25,11 +23,11 @@ async def test_유저_회원가입() -> None:
     ]
 
     user = await UserCollection.insert_one(
-        user_id, email, name, password, gender, nickname, login_method="kakao", delivery_area=delivery_area
+        user_id, email, name, password, gender, nickname, phone_num, login_method="naver", delivery_area=delivery_area
     )
     results = await UserCollection._collection.find({}).to_list(None)
 
-    assert len(results) == 1
+    assert len(results) == 3
     result = results[0]
     assert result["_id"] == user.id
     assert result["email"] == email

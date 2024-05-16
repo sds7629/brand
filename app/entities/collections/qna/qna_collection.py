@@ -54,18 +54,22 @@ class QnACollection:
 
     @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> QnADocument | None:
-        result = await cls._collection.find_one({"_id": ObjectId(object_id)})
+        result = await cls._collection.find_one({"_id": object_id})
         return cls._result_dto(result) if result else None
 
     @classmethod
     async def delete_by_id(cls, object_id: ObjectId) -> int:
-        result = await cls._collection.delete_one({"_id": ObjectId(object_id)})
+        result = await cls._collection.delete_one({"_id": object_id})
         return cast(int, result.deleted_count)
 
     @classmethod
     async def find_by_title(cls, title: str) -> list[QnADocument]:
         return [cls._result_dto(result) for result in await cls._collection.find({"title": title}).to_list(None)]
 
+    @classmethod
+    async def update_by_id(cls, qna_id: ObjectId, data: dict[str, str]) -> QnADocument:
+        result = await cls._collection.update_one({"_id": qna_id},  {"$set": data}, upsert=False)
+        return cls._result_dto(result) if result else None
     @classmethod
     def _result_dto(cls, result: dict[Any, Any]) -> QnADocument:
         return QnADocument(

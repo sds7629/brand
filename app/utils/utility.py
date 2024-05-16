@@ -1,6 +1,7 @@
 import re
 from dataclasses import asdict
 from datetime import datetime, timedelta
+from typing import Any
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -36,7 +37,7 @@ class Util:
     @classmethod
     async def encode(
         cls,
-        data: dict | UserDocument,
+        data: dict[Any, Any] | UserDocument,
         secret_key: str,
         expires_time: str,
         algorithm: str = "HS256",
@@ -64,7 +65,7 @@ class Util:
         return jwt.encode(to_encode, secret_key, algorithm=algorithm)
 
     @classmethod
-    async def decode(cls, token: str, secret_key: str) -> dict | None:
+    async def decode(cls, token: str, secret_key: str) -> dict[Any, Any] | None:
         try:
             return jwt.decode(token, secret_key, algorithms=cls._algorithm)
         except jwt.JWTError:
@@ -75,7 +76,7 @@ class Util:
         cls,
         token: str,
         secret_key: str,
-    ) -> dict | None:
+    ) -> dict[Any, Any] | None:
         payload = await cls.decode(token, secret_key)
         now_time = datetime.timestamp(datetime.now(timezone("Asia/Seoul")))
         if payload and payload["exp"] > now_time:

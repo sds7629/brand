@@ -1,6 +1,8 @@
 from typing import Optional
 
 from pydantic import AwareDatetime, dataclasses
+from pydantic.dataclasses import Field
+
 
 from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.users.user_document import ShowUserDocument
@@ -21,5 +23,5 @@ class QnADocument(BaseDocument):
     qna_password: str | None
     writer: ShowUserDocument
     image_url: str | None
-    reply: list[ReplyDocument] | None = None
+    reply: list[ReplyDocument] | None = Field(default_factory=list)
     updated_at: Optional[AwareDatetime] = None

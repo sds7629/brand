@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import Annotated
 
 from bson import ObjectId
@@ -6,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse
 
 from app.auth.auth_bearer import get_current_user
-from app.dtos.qna.qna_request import QnARequest
+from app.dtos.qna.qna_request import QnARequest, UpdateQnARequest
 from app.dtos.qna.qna_response import OnlyOneQnAResponse, QnAResponse
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import QnANotFoundException
@@ -14,7 +15,7 @@ from app.services.qna_service import (
     create_qna,
     delete_qna_by_id,
     find_qna_by_id,
-    qna_list,
+    qna_list, update_qna,
 )
 
 router = APIRouter(prefix="/v1/qna", tags=["qna"], redirect_slashes=False)
@@ -106,3 +107,19 @@ async def api_delete_qna(qna_id: str) -> None:
             status_code=status.HTTP_422_PRECONDITION,
             detail={"message": "id is not valid"},
         )
+
+
+@router.put(
+    "/{qna_id}/update",
+    description="QnA 수정",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_update_qna(qna_id: str, qna_request: UpdateQnARequest) -> OnlyOneQnAResponse:
+    qna = {key: val for key, val in asdict(qna_request).items() if val is not None}
+    if len(qna) >= 1:
+        await update_qna(ObjectId(qna_id), qna)
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail = {"message": "QnA Validation Error"}
+    )

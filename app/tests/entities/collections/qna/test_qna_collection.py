@@ -57,3 +57,9 @@ async def test_delete_by_id() -> None:
     result = await QnACollection.delete_by_id(find_id)
 
     assert result == 1
+
+
+async def test_update_by_id() -> None:
+    find_id = "66458901ac83c88c194b2dca"
+
+    result = await QnACollection.update_by_id(find_id)

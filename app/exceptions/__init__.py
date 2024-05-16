@@ -13,3 +13,6 @@ class QnANotFoundException(BaseException):
 
 class ValidationException(BaseException):
     pass
+
+class QnAValidationException(BaseException):
+    pass

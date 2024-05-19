@@ -1,17 +1,19 @@
-from typing import Optional
+from typing import Optional, Annotated
 
-from pydantic import AwareDatetime, dataclasses
+from pydantic import AwareDatetime, dataclasses, AfterValidator, HttpUrl
 from pydantic.dataclasses import Field
 
 from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 
+#Url 유효성 검증
+HttpUrlString = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 
 @dataclasses.dataclass
 class ReplyDocument(BaseDocument):
     writer: ShowUserDocument
     payload: str
-    image_url: str
+    image_url: HttpUrlString | None
     updated_at: Optional[AwareDatetime] = None
 
 
@@ -21,6 +23,6 @@ class QnADocument(BaseDocument):
     payload: str
     qna_password: str | None
     writer: ShowUserDocument
-    image_url: str | None
+    image_url: HttpUrlString | None
     reply: list[ReplyDocument] | None = Field(default_factory=list)
     updated_at: Optional[AwareDatetime] = None

@@ -1,7 +1,8 @@
 from typing import Optional
 
-from pydantic import AwareDatetime, dataclasses
+from pydantic import NaiveDatetime, dataclasses, field_validator
 from pydantic.dataclasses import Field
+
 
 from app.config import Config
 from app.entities.collections.base_document import BaseDocument
@@ -16,7 +17,7 @@ class DeliveryDocument:
     detail_address: str
     recipient_phone: str
     requirements: str
-    updated_at: Optional[AwareDatetime] = None
+    updated_at: Optional[NaiveDatetime] = None
     is_base_delivery: bool = False
 
 
@@ -33,6 +34,8 @@ class UserDocument(BaseDocument):
     is_authenticated: bool
     is_delete: bool
     delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")
+
+
 
 
 @dataclasses.dataclass(config=Config)

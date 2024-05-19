@@ -93,10 +93,9 @@ async def api_create_qna(
     response_class=ORJSONResponse,
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def api_delete_qna(qna_id: str) -> None:
+async def api_delete_qna(qna_id: str, user: Annotated[ShowUserDocument, Depends(get_current_user)] ) -> None:
     try:
-        await delete_qna_by_id(ObjectId(qna_id))
-
+        await delete_qna_by_id(ObjectId(qna_id), user)
     except QnANotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -116,11 +115,11 @@ async def api_delete_qna(qna_id: str) -> None:
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_update_qna(qna_id: str, qna_request: UpdateQnARequest) -> None:
+async def api_update_qna(qna_id: str, qna_request: UpdateQnARequest, user:Annotated[ShowUserDocument, Depends(get_current_user)]) -> None:
     qna = {key: val for key, val in asdict(qna_request).items() if val is not None}
     if len(qna) >= 1:
         try:
-            await update_qna(ObjectId(qna_id), qna)
+            await update_qna(ObjectId(qna_id), qna, user)
         except QnANotFoundException as e:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

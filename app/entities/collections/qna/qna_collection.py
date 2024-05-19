@@ -1,5 +1,6 @@
 from dataclasses import asdict
 from typing import Any, cast
+from pydantic import HttpUrl
 
 import pymongo
 from bson import ObjectId
@@ -32,7 +33,7 @@ class QnACollection:
             {
                 "title": title,
                 "payload": payload,
-                "image_url": image_url,
+                "image_url": HttpUrl(image_url),
                 "qna_password": qna_password,
                 "writer": asdict(writer),
             }
@@ -42,7 +43,7 @@ class QnACollection:
             _id=result.inserted_id,
             title=title,
             payload=payload,
-            image_url=image_url,
+            image_url=HttpUrl(image_url),
             qna_password=qna_password,
             writer=writer,
         )

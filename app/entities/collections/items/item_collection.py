@@ -65,18 +65,23 @@ class ItemCollection:
         )
 
     @classmethod
+    async def find_all_item(cls) -> list[ItemDocument] | None:
+        all_item = await cls._collection.find({}).to_list(length=100)
+        return [cls._parse(item) for item in all_item if item is not None]
+
+    @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> ItemDocument | None:
         result = await cls._collection.find_one({"_id": ObjectId(object_id)})
         return cls._parse(result) if result else None
 
     @classmethod
-    async def find_by_name(cls, name: str) -> ItemDocument | None:
-        result = await cls._collection.find_one({"name": name})
+    async def find_by_name(cls, name: str) -> list[ItemDocument] | None:
+        result = await cls._collection.find({"name": {"$regex": f"/{name}/"}}).to_list(length=100)
         return cls._parse(result) if result else None
 
     @classmethod
     async def update_by_id(cls, object_id: ObjectId, data: dict[Any, Any]) -> int:
-        result = await cls._collection.find_one_and_update({"_id": object_id}, {"$set": data}, upsert= False)
+        result = await cls._collection.update_one({"_id": object_id}, {"$set": data}, upsert= False)
         return result.modified_count
     @classmethod
     async def delete_by_id(cls, object_id: ObjectId) -> int:

@@ -34,7 +34,7 @@ async def test_insert_item() -> None:
 
 
 async def test_find_by_id() -> None:
-    id = "6649c354a17d2dcd42d82879"
+    id = "664af218b5f4b3b058c1de33"
 
     result = await ItemCollection.find_by_id(ObjectId(id))
 
@@ -43,9 +43,39 @@ async def test_find_by_id() -> None:
 
 
 async def test_delete_by_id() -> None:
-    id = "6649c354a17d2dcd42d82879"
+    id = "664af218b5f4b3b058c1de33"
 
     result = await ItemCollection.delete_by_id(ObjectId(id))
 
     assert type(result) == int
     assert result > 0
+
+
+async def test_update_by_id() -> None:
+    id = "664af218b5f4b3b058c1de33"
+    data = {
+        "name": "메롱한 상의",
+        "updated_at": datetime.utcnow()
+    }
+
+    result = await ItemCollection.update_by_id(ObjectId(id), data)
+
+    assert type(result) == int
+    assert result > 0
+
+
+async def test_find_all_item() -> None:
+    item = await ItemCollection.find_all_item()
+
+    assert len(item) == 2
+    assert type(item) == list
+
+
+async def test_find_by_name() -> None:
+    name = "멋진"
+
+    item = await ItemCollection.find_by_name(name)
+
+    assert len(item) == 1
+
+    ## find 정규식 추가 하는중

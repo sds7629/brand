@@ -1,3 +1,5 @@
+from typing import Any
+
 from bson import ObjectId
 from datetime import datetime
 
@@ -48,3 +50,4 @@ async def update_qna(qna_id: ObjectId, validate_data: dict[str, Any], user: Show
         raise NotPermissionException(response_message="작성자가 아닙니다.")
     validate_data["updated_at"] = datetime.utcnow()
     await QnACollection.update_by_id(qna_id, validate_data)
+

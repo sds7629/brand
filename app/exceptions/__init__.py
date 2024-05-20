@@ -20,3 +20,6 @@ class QnAValidationException(BaseException):
 
 class NotPermissionException(BaseException):
     pass
+
+class NoContentException(BaseException):
+    pass

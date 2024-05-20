@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Optional
 
-from pydantic import NaiveDatetime, dataclasses, field_validator
+from pydantic import dataclasses, field_validator
 from pydantic.dataclasses import Field
 
 
@@ -17,7 +18,7 @@ class DeliveryDocument:
     detail_address: str
     recipient_phone: str
     requirements: str
-    updated_at: Optional[NaiveDatetime] = None
+    updated_at: Optional[datetime] = None
     is_base_delivery: bool = False
 
 

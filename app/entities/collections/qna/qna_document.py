@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Optional, Annotated
 
-from pydantic import AwareDatetime, dataclasses, AfterValidator, HttpUrl
+from pydantic import  dataclasses, AfterValidator, HttpUrl
 from pydantic.dataclasses import Field
 
 from app.entities.collections.base_document import BaseDocument
@@ -14,7 +15,7 @@ class ReplyDocument(BaseDocument):
     writer: ShowUserDocument
     payload: str
     image_url: HttpUrlString | None
-    updated_at: Optional[AwareDatetime] = None
+    updated_at: Optional[datetime] = None
 
 
 @dataclasses.dataclass
@@ -25,4 +26,5 @@ class QnADocument(BaseDocument):
     writer: ShowUserDocument
     image_url: HttpUrlString | None
     reply: list[ReplyDocument] | None = Field(default_factory=list)
-    updated_at: Optional[AwareDatetime] = None
+    updated_at: Optional[datetime] = None
+

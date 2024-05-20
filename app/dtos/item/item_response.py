@@ -1,18 +1,24 @@
-import dataclasses
 from datetime import datetime
+from typing import Sequence
 
-from pydantic import HttpUrl
+from pydantic import dataclasses
 
 from app.entities.category.category_codes import CategoryCode
 
 
 @dataclasses.dataclass
-class ItemCreationRequest:
+class OneItemResponse:
+    id: str
     name: str
     price: int
-    image_url: HttpUrl
+    image_url: str
     description: str
     registration_date: datetime
     item_quantity: int
     size: str
-    category: list[CategoryCode]
+    category_codes: list[CategoryCode]
+
+
+@dataclasses.dataclass
+class ItemResponse:
+    item: Sequence[OneItemResponse]

@@ -1,14 +1,15 @@
 from datetime import datetime
-from typing import Optional, Annotated
+from typing import Annotated, Optional
 
-from pydantic import  dataclasses, AfterValidator, HttpUrl
+from pydantic import AfterValidator, HttpUrl, dataclasses
 from pydantic.dataclasses import Field
 
 from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 
-#Url 유효성 검증
+# Url 유효성 검증
 HttpUrlString = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
+
 
 @dataclasses.dataclass
 class ReplyDocument(BaseDocument):
@@ -27,4 +28,3 @@ class QnADocument(BaseDocument):
     image_url: HttpUrlString | None
     reply: list[ReplyDocument] | None = Field(default_factory=list)
     updated_at: Optional[datetime] = None
-

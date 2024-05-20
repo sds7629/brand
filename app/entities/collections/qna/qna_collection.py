@@ -1,10 +1,10 @@
 from dataclasses import asdict
 from typing import Any, cast
-from pydantic import HttpUrl
 
 import pymongo
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
+from pydantic import HttpUrl
 
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
@@ -64,7 +64,10 @@ class QnACollection:
 
     @classmethod
     async def find_by_title(cls, title: str) -> list[QnADocument]:
-        return [cls._result_dto(result) for result in await cls._collection.find({"title": title}).to_list(None)]
+        return [
+            cls._result_dto(result)
+            for result in await cls._collection.find({"title": {"$regex": title, "$options": "i"}}).to_list(None)
+        ]
 
     @classmethod
     async def update_by_id(cls, qna_id: ObjectId, data: dict[str, str]) -> int:

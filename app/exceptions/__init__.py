@@ -18,8 +18,10 @@ class ValidationException(BaseException):
 class QnAValidationException(BaseException):
     pass
 
+
 class NotPermissionException(BaseException):
     pass
+
 
 class NoContentException(BaseException):
     pass

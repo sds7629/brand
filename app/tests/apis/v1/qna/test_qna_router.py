@@ -31,8 +31,8 @@ async def test_QnA_생성하기() -> None:
         "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjQ1ODAyNGZmYjE5ZTRkOTlmOTBmMzQiLCJ1c2VyX2lkIjoiYWRtaW4iLCJnZW5kZXIiOiJtYWxlIiwibmlja25hbWUiOiJhZG1pbiIsImV4cCI6MTcxNTgzNDg2OX0.cMQJg3AwnPhDtpSlNF5zITXOrNsfujsq69Vs1-wUgyA"
     }
     request_body = {
-        "title": "절로가2",
-        "payload": "가나다2",
+        "title": "절로가3",
+        "payload": "가나다3",
     }
     async with AsyncClient(app=app, base_url="http://test", headers=header) as client:
         response = await client.post("/v1/qna/create", json=request_body)

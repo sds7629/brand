@@ -30,7 +30,7 @@ async def test_insert_one() -> None:
 
 
 async def test_find_by_title() -> None:
-    title = "안녕하세요"
+    title = "절로가"
 
     result = await QnACollection.find_by_title(title)
 
@@ -61,9 +61,7 @@ async def test_delete_by_id() -> None:
 
 async def test_update_by_id() -> None:
     find_id = "66458901ac83c88c194b2dca"
-    data = {
-        "payload": "123123"
-    }
+    data = {"payload": "123123"}
     result = await QnACollection.update_by_id(ObjectId(find_id), data)
 
     assert result > 0

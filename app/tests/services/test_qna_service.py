@@ -40,10 +40,7 @@ async def test_create_qna_service() -> None:
 async def test_update_qna_service() -> None:
     qna_id = "66458901ac83c88c194b2dca"
 
-    data = {
-        "title": "브랜드 하이"
-    }
-
+    data = {"title": "브랜드 하이"}
 
     result = await update_qna(ObjectId(qna_id), data)
 

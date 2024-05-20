@@ -1,24 +1,27 @@
+from dataclasses import asdict
+
+from bson import ObjectId
+
 from app.dtos.item.item_creation_request import ItemCreationRequest
 from app.dtos.item.item_update_request import ItemUpdateRequest
-from app.entities.collections.items.item_document import ItemDocument
 from app.entities.collections.items.item_collection import ItemCollection
-from bson import ObjectId
-from dataclasses import asdict
+from app.entities.collections.items.item_document import ItemDocument
 from app.exceptions import NoContentException
+
+
 async def create_item(item_creation_request: ItemCreationRequest) -> ItemDocument:
-    item =  await ItemCollection.insert_one(
-        name = item_creation_request.name,
-        price = item_creation_request.price,
-        image_url = item_creation_request.image_url,
-        description = item_creation_request.description,
-        registration_date = item_creation_request.registration_date,
-        item_quantity = item_creation_request.item_quantity,
-        size = item_creation_request.size,
+    item = await ItemCollection.insert_one(
+        name=item_creation_request.name,
+        price=item_creation_request.price,
+        image_url=item_creation_request.image_url,
+        description=item_creation_request.description,
+        registration_date=item_creation_request.registration_date,
+        item_quantity=item_creation_request.item_quantity,
+        size=item_creation_request.size,
         category=item_creation_request.category,
     )
 
     return item
-
 
 
 async def delete_item(item_id: ObjectId) -> int:
@@ -32,10 +35,18 @@ async def updated_item(item_id: ObjectId, item_update_request: ItemUpdateRequest
         return updated_item
     raise NoContentException(response_message="No Contents")
 
+
 async def get_all_item() -> list[ItemDocument]:
     all_item = await ItemCollection.find_all_item()
 
     return all_item
+
+
+async def get_item_by_name(item_name: str) -> list[ItemDocument]:
+    filtering_item = await ItemCollection.find_by_name(item_name)
+
+    return filtering_item
+
 
 async def get_item_by_id(item_id: ObjectId) -> ItemDocument:
     get_one_item = await ItemCollection.find_by_id(item_id)

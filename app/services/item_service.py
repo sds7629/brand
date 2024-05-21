@@ -15,7 +15,6 @@ async def create_item(item_creation_request: ItemCreationRequest) -> ItemDocumen
         price=item_creation_request.price,
         image_url=item_creation_request.image_url,
         description=item_creation_request.description,
-        registration_date=item_creation_request.registration_date,
         item_quantity=item_creation_request.item_quantity,
         size=item_creation_request.size,
         category=item_creation_request.category,

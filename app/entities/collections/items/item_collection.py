@@ -30,16 +30,16 @@ class ItemCollection:
         price: int,
         image_url: HttpUrl,
         description: str,
-        registration_date: datetime,
         item_quantity: int,
         size: str,
         category: list[CategoryCode],
+        registration_date: datetime = datetime.utcnow(),
     ) -> ItemDocument:
         result = await cls._collection.insert_one(
             {
                 "name": name,
                 "price": price,
-                "image_url": image_url,
+                "image_url": str(image_url),
                 "description": description,
                 "registration_date": registration_date,
                 "item_quantity": item_quantity,

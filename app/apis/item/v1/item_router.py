@@ -6,12 +6,12 @@ from fastapi.responses import ORJSONResponse
 from app.dtos.item.item_creation_request import ItemCreationRequest
 from app.dtos.item.item_response import ItemResponse, OneItemResponse
 from app.dtos.item.item_update_request import ItemUpdateRequest
-from app.exceptions import NoContentException
+from app.exceptions import NoContentException, ItemNotFoundException
 from app.services.item_service import (
     create_item,
     get_all_item,
     get_item_by_name,
-    updated_item,
+    updated_item, delete_item,
 )
 
 router = APIRouter(prefix="/v1/items", tags=["items"], redirect_slashes=False)
@@ -87,14 +87,30 @@ async def api_create_item(item_creation_request: ItemCreationRequest) -> OneItem
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_update_item(item_id: str, item_update_request: ItemUpdateRequest) -> int:
+async def api_update_item(item_id: str, item_update_request: ItemUpdateRequest) -> None:
     try:
-        updated_item_count = await updated_item(ObjectId(item_id), item_update_request)
-        if updated_item_count > 0:
-            return updated_item_count
+        await updated_item(ObjectId(item_id), item_update_request)
     except NoContentException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
     except InvalidId:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail={"message": "id should be valid bson object id"}
+        )
+
+
+@router.delete(
+    "/{item_id}/delete",
+    description="아이템 삭제",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+
+async def api_delete_item(item_id: str) -> None:
+    try:
+        await delete_item(ObjectId(item_id))
+
+    except ItemNotFoundException as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": e.response_message},
         )

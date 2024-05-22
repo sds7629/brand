@@ -19,7 +19,7 @@ async def test_all_item_get_api() -> None:
         new_list = [elem for elem in response.json()["item"]]
 
         assert response.status_code == 200
-        assert len(new_list) == 4
+        assert len(new_list) == 100
 
 
 async def test_create_item_api() -> None:
@@ -38,3 +38,12 @@ async def test_create_item_api() -> None:
     json_data = response.json()
 
     assert response.status_code == 201
+
+
+async def test_delete_item_api() -> None:
+    item_deleted_id = "664af218b5f4b3b058c1de33"
+
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.delete(f"/v1/items/{item_deleted_id}/delete")
+
+    assert response.status_code == 204

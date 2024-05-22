@@ -32,7 +32,7 @@ class ItemCollection:
         description: str,
         item_quantity: int,
         size: str,
-        category: list[CategoryCode],
+        category_codes: list[CategoryCode],
         registration_date: datetime = datetime.utcnow(),
     ) -> ItemDocument:
         result = await cls._collection.insert_one(
@@ -44,7 +44,7 @@ class ItemCollection:
                 "registration_date": registration_date,
                 "item_quantity": item_quantity,
                 "size": size,
-                "category": category,
+                "category": category_codes,
             }
         )
 
@@ -57,7 +57,7 @@ class ItemCollection:
             registration_date=registration_date + timedelta(hours=9),
             item_quantity=item_quantity,
             size=size,
-            category_codes=category,
+            category_codes=category_codes,
         )
 
     @classmethod
@@ -96,5 +96,5 @@ class ItemCollection:
             registration_date=result["registration_date"] + timedelta(hours=9),
             item_quantity=result["item_quantity"],
             size=result["size"],
-            category_codes=result["category"],
+            category_codes=result["category_codes"],
         )

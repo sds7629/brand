@@ -1,6 +1,6 @@
 import asyncio
 import os
-from datetime import datetime
+
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 from pymongo.errors import BulkWriteError
@@ -54,8 +54,8 @@ records = df.to_dict(orient='records')
 async def insert_all() -> None:
     try:
         await item_collection.insert_many(records)
+        print(f"inserted {len(records)} records")
     except BulkWriteError:
         print(f"failed to insert {len(records)} records")
-    print(f"inserted {len(records)} records")
 
 asyncio.run(insert_all())

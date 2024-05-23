@@ -19,6 +19,7 @@ bcrypt = "4.0.1"
 faker = "^25.2.0"
 pandas = "^2.2.2"
 faker-commerce = "^1.0.4"
+aiohttp = "^3.9.5"
 
 [tool.coverage.report]
 fail_under = 0

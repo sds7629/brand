@@ -18,8 +18,8 @@ class ItemCollection:
     async def set_index(cls) -> None:
         await cls._collection.create_index(
             [
-                ("item_name", pymongo.TEXT),
-                ("category_codes", pymongo.ASCENDING),
+                ("name", pymongo.TEXT),
+                ("category_codes", pymongo.TEXT),
             ]
         )
 

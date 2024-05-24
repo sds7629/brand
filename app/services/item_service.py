@@ -6,7 +6,7 @@ from app.dtos.item.item_creation_request import ItemCreationRequest
 from app.dtos.item.item_update_request import ItemUpdateRequest
 from app.entities.collections.items.item_collection import ItemCollection
 from app.entities.collections.items.item_document import ItemDocument
-from app.exceptions import NoContentException, ItemNotFoundException
+from app.exceptions import ItemNotFoundException, NoContentException
 
 
 async def create_item(item_creation_request: ItemCreationRequest) -> ItemDocument:
@@ -24,7 +24,7 @@ async def create_item(item_creation_request: ItemCreationRequest) -> ItemDocumen
 
 
 async def delete_item(item_id: ObjectId) -> int:
-    if not(deleted_item := await ItemCollection.delete_by_id(item_id)):
+    if not (deleted_item := await ItemCollection.delete_by_id(item_id)):
         raise ItemNotFoundException(response_message=f"Item with id {item_id} not found")
     return deleted_item
 

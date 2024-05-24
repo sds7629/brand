@@ -21,7 +21,6 @@ async def test_all_item_get_api() -> None:
 
         assert response.status_code == 200
         assert len(new_list) == 50
-        
 
 
 async def test_create_item_api() -> None:

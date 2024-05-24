@@ -10,6 +10,7 @@ class UserNotFoundException(BaseException):
 class QnANotFoundException(BaseException):
     pass
 
+
 class ItemNotFoundException(BaseException):
     pass
 

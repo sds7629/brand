@@ -61,8 +61,8 @@ class ItemCollection:
         )
 
     @classmethod
-    async def find_all_item(cls) -> list[ItemDocument] | None:
-        all_item = await cls._collection.find({}).to_list(length=100)
+    async def find_all_item(cls, offset: int | None = None) -> list[ItemDocument] | None:
+        all_item = await cls._collection.find({}).limit(50).skip(offset).to_list(length=50)
         return [cls._parse(item) for item in all_item if item is not None]
 
     @classmethod
@@ -72,7 +72,7 @@ class ItemCollection:
 
     @classmethod
     async def find_by_name(cls, name: str) -> list[ItemDocument] | None:
-        filtering_item = await cls._collection.find({"name": {"$regex": name, "$options": "i"}}).to_list(length=100)
+        filtering_item = await cls._collection.find({"name": {"$regex": name, "$options": "i"}}).to_list(length=50)
         return [cls._parse(item) for item in filtering_item if item is not None]
 
     @classmethod

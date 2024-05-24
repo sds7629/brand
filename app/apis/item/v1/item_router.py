@@ -24,7 +24,7 @@ router = APIRouter(prefix="/v1/items", tags=["items"], redirect_slashes=False)
     status_code=status.HTTP_200_OK,
 )
 async def api_get_all_items(
-    name: str | None = None,
+    name: str | None = None, page: int = 1
 ) -> ItemResponse:
     if name is None:
         item = [
@@ -39,7 +39,7 @@ async def api_get_all_items(
                 size=item.size,
                 category_codes=item.category_codes,
             )
-            for item in await get_all_item()
+            for item in await get_all_item(page)
         ]
     else:
         item = [

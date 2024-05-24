@@ -36,8 +36,9 @@ async def updated_item(item_id: ObjectId, item_update_request: ItemUpdateRequest
     raise NoContentException(response_message="No Contents")
 
 
-async def get_all_item() -> list[ItemDocument]:
-    all_item = await ItemCollection.find_all_item()
+async def get_all_item(page: int | None = None) -> list[ItemDocument]:
+    offset = (page - 1) * 50
+    all_item = await ItemCollection.find_all_item(offset)
 
     return all_item
 

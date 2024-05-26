@@ -113,6 +113,15 @@ async def api_logout_user(response: Response) -> None:
 
 
 @router.post(
+    "/logout",
+    description="유저 로그아웃",
+    response_class=Response,
+    status_code=status.HTTP_200_OK,
+)
+async def api_logout_user(response: Response) -> None:
+    ...
+
+@router.post(
     "/signout",
     description="유저 탈퇴",
     response_class=Response,

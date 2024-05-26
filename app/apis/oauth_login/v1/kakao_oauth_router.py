@@ -15,18 +15,30 @@ REDIRECT_URI = "http://localhost:8080/v1/oauth/kakao/code"
     response_class=RedirectResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_kakao_login() -> None:
-    async with AsyncClient() as client:
-        response = await client.get(
-            f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_REST_API_KEY}&response_type=code&redirect_uri={REDIRECT_URI}"
-        )
+async def api_kakao_login() -> RedirectResponse:
+    response = RedirectResponse(f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_REST_API_KEY}&response_type=code&redirect_uri={REDIRECT_URI}")
+
+    return response
 
 
-@router.post(
+
+@router.get(
     "/code",
     description="카카오 코드 발급",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
 async def api_kakao_login_with_code(code: str | None = "None") -> None:
-    print(code)
+    headers = {"Content-type": "application/x-www-form-urlencoded;charset=utf-8"}
+    payload = {
+        "grant_type": "authorization_code",
+        "client_id" : KAKAO_REST_API_KEY,
+        "redirect_uri" : REDIRECT_URI,
+        "code" : code
+    }
+    token_url = f"https://kauth.kakao.com/oauth/token"
+    async with AsyncClient(headers=headers) as client:
+        response = await client.post(token_url, data = payload)
+        if response.status_code == 200:
+            res = response.json()
+            print(res)

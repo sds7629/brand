@@ -67,7 +67,7 @@ class ItemCollection:
 
     @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> ItemDocument | None:
-        result = await cls._collection.find_one({"_id": ObjectId(object_id)})
+        result = await cls._collection.find_one({"_id": object_id})
         return cls._parse(result) if result else None
 
     @classmethod
@@ -82,7 +82,7 @@ class ItemCollection:
 
     @classmethod
     async def delete_by_id(cls, object_id: ObjectId) -> int:
-        result = await cls._collection.delete_one({"_id": ObjectId(object_id)})
+        result = await cls._collection.delete_one({"_id": object_id})
         return cast(int, result.deleted_count)
 
     @classmethod

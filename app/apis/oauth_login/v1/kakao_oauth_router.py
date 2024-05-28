@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse, RedirectResponse
-from httpx import AsyncClient
+import aiohttp
 
 from app.config import KAKAO_REST_API_KEY
 
@@ -37,8 +37,19 @@ async def api_kakao_login_with_code(code: str | None = "None") -> None:
         "code" : code
     }
     token_url = f"https://kauth.kakao.com/oauth/token"
-    async with AsyncClient(headers=headers) as client:
-        response = await client.post(token_url, data = payload)
-        if response.status_code == 200:
-            res = response.json()
-            print(res)
+    async with aiohttp.ClientSession(headers=headers) as client:
+        async with  client.post(token_url, data = payload) as res:
+            if res.status == 200:
+                res_json = await res.json()
+
+    user_headers = {
+            "Authorization": f"Bearer {res_json['access_token']}",
+            "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+        }
+
+    async with aiohttp.ClientSession(headers=user_headers) as client:
+        async with client.get("https://kapi.kakao.com/v2/user/me") as res:
+            if res.status == 200:
+                user_data = await res.json()
+
+### 비즈앱 전환 후 이메일 받아서 로그인처리

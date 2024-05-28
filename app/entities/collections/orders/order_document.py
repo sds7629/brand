@@ -1,10 +1,15 @@
-from pydantic import dataclasses
 from datetime import datetime
 
-from app.entities.collections.base_document import BaseDocument
+from pydantic import dataclasses
 
-from app.entities.collections.users.user_document import ShowUserDocument, DeliveryDocument
+from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.items.item_document import ItemDocument
+from app.entities.collections.users.user_document import (
+    DeliveryDocument,
+    ShowUserDocument,
+)
+
+
 @dataclasses.dataclass
 class OrderDocument(BaseDocument):
     user: ShowUserDocument

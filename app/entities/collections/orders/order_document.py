@@ -9,14 +9,15 @@ from app.entities.collections.users.user_document import (
     ShowUserDocument,
 )
 
+from app.config import Config
 
-@dataclasses.dataclass
+@dataclasses.dataclass(config=Config)
 class OrderDocument(BaseDocument):
     user: ShowUserDocument
     ordering_date: datetime
     ordering_request: str
     ordering_item: ItemDocument
-    ordering_item_count: int
+    ordering_item_mount: int
     zip_code: str
     address: DeliveryDocument
     detail_address: str

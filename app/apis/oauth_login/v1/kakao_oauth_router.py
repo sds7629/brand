@@ -4,13 +4,13 @@ from fastapi.responses import ORJSONResponse, RedirectResponse
 
 from app.config import KAKAO_REST_API_KEY
 
-router = APIRouter(prefix="/v1/oauth/kakao", tags=["kakao"], redirect_slashes=False)
+router = APIRouter(prefix="/v1/oauth", tags=["social"], redirect_slashes=False)
 
 REDIRECT_URI = "http://localhost:8080/v1/oauth/kakao/code"
 
 
 @router.post(
-    "",
+    "/kakao",
     description="카카오 로그인",
     response_class=RedirectResponse,
     status_code=status.HTTP_200_OK,
@@ -24,7 +24,7 @@ async def api_kakao_login() -> RedirectResponse:
 
 
 @router.get(
-    "/code",
+    "/kakao/code",
     description="카카오 코드 발급",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,

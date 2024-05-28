@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -19,31 +21,32 @@ class OrderCollection:
 
     @classmethod
     async def set_index(cls) -> None:
-        await cls._collection.create_index([("id", pymongo.ASCENDING), ("user.name", pymongo.TEXT)])
+        await cls._collection.create_index([("id", pymongo.ASCENDING), ("user.name", pymongo.TEXT)],
+                                           )
 
     @classmethod
     async def insert_one(
         cls,
         user: ShowUserDocument,
-        ordering_date: datetime,
         ordering_request: str,
         ordering_item: ItemDocument,
-        ordering_item_count: int,
+        ordering_item_mount: int,
         zip_code: str,
         address: DeliveryDocument,
         detail_address: str,
         payment_method: str,
         total_price: int,
+        ordering_date: datetime = datetime.utcnow(),
     ) -> OrderDocument:
         order = await cls._collection.insert_one(
             {
-                "user": user,
+                "user": asdict(user),
                 "ordering_date": ordering_date,
                 "ordering_request": ordering_request,
-                "ordering_item": ordering_item,
-                "ordering_item_count": ordering_item_count,
+                "ordering_item": asdict(ordering_item),
+                "ordering_item_mount": ordering_item_mount,
                 "zip_code": zip_code,
-                "address": address,
+                "address": asdict(address),
                 "detail_address": detail_address,
                 "payment_method": payment_method,
                 "total_price": total_price,
@@ -56,7 +59,7 @@ class OrderCollection:
             ordering_date=ordering_date,
             ordering_request=ordering_request,
             ordering_item=ordering_item,
-            ordering_item_count=ordering_item_count,
+            ordering_item_mount=ordering_item_mount,
             zip_code=zip_code,
             address=address,
             detail_address=detail_address,
@@ -65,9 +68,14 @@ class OrderCollection:
         )
 
     @classmethod
-    async def find_by_id(cls, object_id: ObjectId) -> ItemDocument | None:
+    async def find_by_id(cls, object_id: ObjectId) -> OrderDocument | None:
         order = await cls._collection.find_one({"_id": ObjectId(object_id)})
         return cls._parse(order) if order else None
+
+    @classmethod
+    async def find_by_user_name(cls, user_name: str) -> list[OrderDocument] | None:
+        order = await cls._collection.find({"user.name": user_name}).to_list(None)
+        return [cls._parse(order_one) for order_one in order if order is not None]
 
     @classmethod
     def _parse(cls, result: dict[Any, Any]) -> OrderDocument:
@@ -77,7 +85,7 @@ class OrderCollection:
             ordering_date=result["ordering_date"] + timedelta(hours=9),
             ordering_request=result["ordering_request"],
             ordering_item=result["ordering_item"],
-            ordering_item_count=result["ordering_item_count"],
+            ordering_item_mount=result["ordering_item_mount"],
             zip_code=result["zip_code"],
             address=result["address"],
             detail_address=result["detail_address"],

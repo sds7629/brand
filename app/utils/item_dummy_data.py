@@ -30,6 +30,8 @@ category_list: list[CategoryCode] = [
     CategoryCode.SHOES,
 ]
 size_list: list[str] = ["s", "m", "l", "xl", "xls", "xlsx"]
+color: list[str] = ["Black", "White"]
+
 data_mount = 10000
 
 
@@ -40,6 +42,7 @@ description = [fake.paragraph() for _ in range(data_mount)]
 registration_date = [fake.date_time_between() for _ in range(data_mount)]
 item_quantity = [100 for _ in range(data_mount)]
 size = [random.choice(size_list) for _ in range(data_mount)]
+color = [random.choice(color) for _ in range(data_mount)]
 category_codes = [[random.choice(category_list)] for _ in range(data_mount)]
 
 
@@ -51,6 +54,7 @@ df["description"] = description
 df["registration_date"] = registration_date
 df["item_quantity"] = item_quantity
 df["size"] = size
+df["color"] = color
 df["category_codes"] = category_codes
 
 records = df.to_dict(orient="records")

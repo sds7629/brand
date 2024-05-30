@@ -9,6 +9,8 @@ from app.apis.item.v1.item_router import router as item_router
 from app.apis.oauth_login.v1.kakao_oauth_router import router as kakao_router
 from app.apis.qna.v1.qna_router import router as qna_router
 from app.apis.user.v1.user_router import router as user_router
+from app.apis.order.v1.order_router import router as order_router
+from app.apis.cart.v1.cart_router import router as cart_router
 from app.entities.collections import set_indexes
 
 
@@ -25,6 +27,8 @@ app.include_router(user_router)
 app.include_router(qna_router)
 app.include_router(item_router)
 app.include_router(kakao_router)
+app.include_router(order_router)
+app.include_router(cart_router)
 
 templates = Jinja2Templates(directory="app/templates")
 

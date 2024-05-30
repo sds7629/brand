@@ -37,8 +37,7 @@ class UserDocument(BaseDocument):
 
 
 @dataclasses.dataclass(config=Config)
-class ShowUserDocument:
-    _id: str
+class ShowUserDocument(BaseDocument):
     user_id: str
     email: str
     name: str

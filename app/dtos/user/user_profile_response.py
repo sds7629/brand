@@ -9,6 +9,5 @@ class UserProfileResponse:
     name: str
     nickname: str
     email: str
-    phone_num: str
     gender: str
     delivery_area: list[DeliveryDocument] | None

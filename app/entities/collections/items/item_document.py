@@ -12,6 +12,7 @@ HttpUrlString = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 @dataclasses.dataclass
 class ItemDocument(BaseDocument):
     name: str
+    color: str
     price: int
     image_url: HttpUrlString
     description: str

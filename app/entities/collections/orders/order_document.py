@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from pydantic import dataclasses
@@ -18,10 +19,11 @@ class OrderDocument(BaseDocument):
     ordering_request: str
     ordering_item: ItemDocument
     ordering_item_mount: int
-    zip_code: str
+    post_code: str
     address: DeliveryDocument
     detail_address: str
     payment_method: str
     total_price: int
+    order_uuid: uuid.uuid4()
     is_fired: bool = False
     is_payment: bool = False

@@ -27,6 +27,7 @@ class ItemCollection:
     async def insert_one(
         cls,
         name: str,
+        color: str,
         price: int,
         image_url: HttpUrl,
         description: str,
@@ -38,6 +39,7 @@ class ItemCollection:
         result = await cls._collection.insert_one(
             {
                 "name": name,
+                "color": color,
                 "price": price,
                 "image_url": str(image_url),
                 "description": description,
@@ -51,6 +53,7 @@ class ItemCollection:
         return ItemDocument(
             _id=result.inserted_id,
             name=name,
+            color=color,
             price=price,
             image_url=image_url,
             description=description,
@@ -90,6 +93,7 @@ class ItemCollection:
         return ItemDocument(
             _id=result["_id"],
             name=result["name"],
+            color = result["color"],
             price=result["price"],
             image_url=result["image_url"],
             description=result["description"],

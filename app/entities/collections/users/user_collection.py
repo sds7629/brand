@@ -99,7 +99,7 @@ class UserCollection:
     @classmethod
     def _result_show_user_document_dto(cls, result: dict[Any, Any]) -> ShowUserDocument:
         return ShowUserDocument(
-            _id=str(result["_id"]),
+            _id=result["_id"],
             user_id=result["user_id"],
             email=result["email"],
             name=result["name"],

@@ -17,7 +17,7 @@ async def create_item(item_creation_request: ItemCreationRequest) -> ItemDocumen
         description=item_creation_request.description,
         item_quantity=item_creation_request.item_quantity,
         size=item_creation_request.size,
-        category=item_creation_request.category,
+        category_codes=item_creation_request.category,
     )
 
     return item

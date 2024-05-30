@@ -21,8 +21,9 @@ class OrderCollection:
 
     @classmethod
     async def set_index(cls) -> None:
-        await cls._collection.create_index([("id", pymongo.ASCENDING), ("user.name", pymongo.TEXT)],
-                                           )
+        await cls._collection.create_index(
+            [("id", pymongo.ASCENDING), ("user.name", pymongo.TEXT)],
+        )
 
     @classmethod
     async def insert_one(
@@ -31,7 +32,7 @@ class OrderCollection:
         ordering_request: str,
         ordering_item: ItemDocument,
         ordering_item_mount: int,
-        zip_code: str,
+        post_code: str,
         address: DeliveryDocument,
         detail_address: str,
         payment_method: str,
@@ -45,7 +46,7 @@ class OrderCollection:
                 "ordering_request": ordering_request,
                 "ordering_item": asdict(ordering_item),
                 "ordering_item_mount": ordering_item_mount,
-                "zip_code": zip_code,
+                "post_code": post_code,
                 "address": asdict(address),
                 "detail_address": detail_address,
                 "payment_method": payment_method,
@@ -60,7 +61,7 @@ class OrderCollection:
             ordering_request=ordering_request,
             ordering_item=ordering_item,
             ordering_item_mount=ordering_item_mount,
-            zip_code=zip_code,
+            post_code=post_code,
             address=address,
             detail_address=detail_address,
             payment_method=payment_method,
@@ -73,9 +74,9 @@ class OrderCollection:
         return cls._parse(order) if order else None
 
     @classmethod
-    async def find_by_user_name(cls, user_name: str) -> list[OrderDocument] | None:
-        order = await cls._collection.find({"user.name": user_name}).to_list(None)
-        return [cls._parse(order_one) for order_one in order if order is not None]
+    async def find_by_user_nickname(cls, user_nickname: str) -> list[OrderDocument] | None:
+        order = await cls._collection.find({"user.nickname": user_nickname}).to_list(None)
+        return [cls._parse(order_one) for order_one in order if order_one is not None]
 
     @classmethod
     def _parse(cls, result: dict[Any, Any]) -> OrderDocument:
@@ -86,7 +87,7 @@ class OrderCollection:
             ordering_request=result["ordering_request"],
             ordering_item=result["ordering_item"],
             ordering_item_mount=result["ordering_item_mount"],
-            zip_code=result["zip_code"],
+            post_code=result["post_code"],
             address=result["address"],
             detail_address=result["detail_address"],
             payment_method=result["payment_method"],

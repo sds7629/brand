@@ -15,6 +15,10 @@ class ItemNotFoundException(BaseException):
     pass
 
 
+class OrderNotFoundException(BaseException):
+    pass
+
+
 class ValidationException(BaseException):
     pass
 

@@ -15,7 +15,7 @@ from app.dtos.user.user_signin_response import Token, UserSigninResponse
 from app.dtos.user.user_signout_request import UserSignOutRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.dtos.user.user_signup_response import UserSignupResponse
-from app.entities.collections.users.user_document import UserDocument
+from app.entities.collections.users.user_document import  ShowUserDocument
 from app.exceptions import UserNotFoundException
 from app.services.user_service import delete_user, signin_user, signup_user
 
@@ -34,14 +34,13 @@ oauth2_scheme = OAuth2PasswordBearer("v1/users/signin")
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_profile(user: Annotated[UserDocument, Depends(get_current_user)]):
+async def api_profile(user: Annotated[ShowUserDocument, Depends(get_current_user)]):
     if user:
         return UserProfileResponse(
-            id=str(user.id),
+            id = str(user.id),
             name=user.name,
             nickname=user.nickname,
             email=user.email,
-            phone_num=user.phone_num,
             gender=user.gender,
             delivery_area=user.delivery_area,
         )

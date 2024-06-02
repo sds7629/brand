@@ -19,8 +19,19 @@ from app.utils.utility import Util
 
 async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | None:
     user_validator = await asyncio.gather(
-        Util.is_valid_email(user_signup_request.email), Util.phone_validator(user_signup_request.phone_num)
+        Util.is_valid_email(user_signup_request.email),
+        Util.phone_validator(user_signup_request.phone_num),
     )
+
+    if not all(user_validator):
+        raise ValidationException(response_message="Invalid email or phone number")
+
+    id_pw_validator = await asyncio.gather(
+        Util.check_special_words(user_signup_request.user_id), Util.check_passwords(user_signup_request.password)
+    )
+
+    if not all(id_pw_validator):
+        raise ValidationException(response_message="Invalid user ID or password")
 
     user_id_exist, nickname_exist = await asyncio.gather(
         UserCollection.find_by_user_id(user_signup_request.user_id),
@@ -28,24 +39,19 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | 
     )
 
     if user_id_exist or nickname_exist:
-        return None
+        raise ValidationException(response_message="사용할 수 없는 아이디입니다.")
 
-    if all(user_validator):
-        user = await UserCollection.insert_one(
-            user_signup_request.user_id,
-            user_signup_request.email,
-            user_signup_request.name,
-            user_signup_request.password,
-            user_signup_request.gender,
-            user_signup_request.nickname,
-            user_signup_request.phone_num,
-        )
+    user = await UserCollection.insert_one(
+        user_signup_request.user_id,
+        user_signup_request.email,
+        user_signup_request.name,
+        user_signup_request.password,
+        user_signup_request.gender,
+        user_signup_request.nickname,
+        user_signup_request.phone_num,
+    )
 
-        return user
-    else:
-        raise ValidationException(
-            f"유저의 {user_signup_request.email} 혹은 {user_signup_request.phone_num}이 잘못 되었습니다."
-        )
+    return user
 
 
 async def signin_user(user_signin_request: UserSigninRequest) -> dict | None:

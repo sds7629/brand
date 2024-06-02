@@ -10,11 +10,11 @@ class CartItemResponse:
     image_url: HttpUrl
     size: str
     color: str
-    price: int
+
 
 @dataclasses.dataclass
 class CartResponse:
     cart_id: str
-    items: Sequence[CartItemResponse]
-    mount: int
+    item: CartItemResponse
+    quantity: int
     total_price: int

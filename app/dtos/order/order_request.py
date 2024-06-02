@@ -1,7 +1,6 @@
 from pydantic import dataclasses
-from app.config import Config
 
 
-@dataclasses.dataclass(config = Config)
+@dataclasses.dataclass
 class OrderRequest:
-    user_nickname: str
+    user_id: str

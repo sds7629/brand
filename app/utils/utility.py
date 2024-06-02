@@ -32,7 +32,7 @@ class Util:
     @classmethod
     async def is_valid_email(cls, email: str) -> bool:
         email_regex = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        return bool(re.match(email_regex, email))
+        return bool(re.fullmatch(email_regex, email))
 
     @classmethod
     async def encode(
@@ -98,3 +98,13 @@ class Util:
             secret_key,
             ACCESS_TOKEN_EXFIRE,
         )
+
+    @classmethod
+    async def check_special_words(cls, check_str: str) -> bool:
+        special_words = "[${}()\[\]]"
+        return bool(re.search(special_words, check_str))
+
+    @classmethod
+    async def check_passwords(cls, check_passwd: str) -> bool:
+        passwd_regex = "^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+        return bool(re.fullmatch(passwd_regex, check_passwd))

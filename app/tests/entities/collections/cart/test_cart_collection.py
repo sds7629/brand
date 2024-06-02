@@ -2,21 +2,22 @@ from app.entities.collections import UserCollection, ItemCollection
 from app.entities.collections.carts.cart_collection import CartCollection
 
 from bson import ObjectId
+
+
 async def test_cart_insert_one() -> None:
     user = await UserCollection.find_by_nickname(nickname="admin")
-    items = await ItemCollection.find_all_item(offset = 0)
+    items = await ItemCollection.find_all_item(offset=0)
     mount = len(items[:3])
     price = sum([item.price for item in items[:3]])
     result = await CartCollection.insert_one(
-        user = user,
-        items = items[:3],
-        mount = mount,
-        total_price = price,
+        user=user,
+        items=items[:3],
+        mount=mount,
+        total_price=price,
     )
 
     assert result.user == user
     assert result.total_price == price
-
 
 
 async def test_find_user_cart() -> None:

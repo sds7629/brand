@@ -1,5 +1,5 @@
 from app.services.order_service import find_order_user_nickname
-from app.dtos.order.order_request import OrderRequest
+from app.dtos.order.order_creation_request import OrderRequest
 
 
 async def test_유저주문_찾기() -> None:

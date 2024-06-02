@@ -1,33 +1,46 @@
+from datetime import datetime
+
 from bson import ObjectId
 from app.entities.collections import ItemCollection
 from app.entities.collections.orders.order_collection import OrderCollection
+from app.entities.collections.payment.payment_document import PaymentDocument
 from app.entities.collections.users.user_collection import UserCollection
-from app.entities.collections.users.user_document import DeliveryDocument
+from app.utils.enums.color_codes import ColorCode
+from app.utils.enums.size_codes import SizeCode
+from app.utils.payment_util import PaymentUtil
 
 
 async def test_order_insert_one() -> None:
     user = await UserCollection.find_by_nickname("admin")
-    ordering_request = "문 앞에 놔주세요"
-    ordering_item = await ItemCollection.find_by_id(ObjectId("664ed8aab42caf93de9464b6"))
-    ordering_item_mount = 3
-    zip_code = "0110"
-    address = user.delivery_area[0]
+    post_text = "문 앞에 놔주세요"
+    item = await ItemCollection.find_by_id(ObjectId("665b07704f4f6490716bced6"))
+    payment_item = PaymentDocument(
+        user=user,
+        item=item,
+        item_option="white-1",
+        total_price=item.price * 3,
+        payment_time=datetime.utcnow(),
+        is_reviewed=False,
+    )
+    post_code = "0110"
+    address = "서울시 종로구"
     detail_address = "지층동"
     payment_method = "Naver Pay"
-    total_price = ordering_item.price * ordering_item_mount
+    phone_num = "010-2222-1111"
 
     result = await OrderCollection.insert_one(
-        user = user,
-        ordering_request=ordering_request,
-        ordering_item=ordering_item,
-        ordering_item_mount = ordering_item_mount,
-        zip_code = zip_code,
-        address = address,
-        detail_address = detail_address,
-        payment_method = payment_method,
-        total_price = total_price,
-
+        user=user,
+        payment_items=[payment_item],
+        merchant_id=await PaymentUtil.create_uuid_to_sting(),
+        post_code=post_code,
+        address=address,
+        detail_address=detail_address,
+        orderer_name=user.name,
+        phone_num=phone_num,
+        payment_method=payment_method,
+        post_text=post_text,
     )
 
     assert result.user == user
-    assert result.total_price == ordering_item.price * ordering_item_mount
+    assert result.is_payment == False
+    assert result.payment_item[0].is_reviewed == False

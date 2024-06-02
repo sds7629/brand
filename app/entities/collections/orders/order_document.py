@@ -1,29 +1,28 @@
-import uuid
 from datetime import datetime
+from typing import Sequence
 
 from pydantic import dataclasses
 
 from app.entities.collections.base_document import BaseDocument
-from app.entities.collections.items.item_document import ItemDocument
+from app.entities.collections.payment.payment_document import PaymentDocument
 from app.entities.collections.users.user_document import (
-    DeliveryDocument,
     ShowUserDocument,
 )
 
 from app.config import Config
 
+
 @dataclasses.dataclass(config=Config)
 class OrderDocument(BaseDocument):
     user: ShowUserDocument
-    ordering_date: datetime
-    ordering_request: str
-    ordering_item: ItemDocument
-    ordering_item_mount: int
+    payment_item: Sequence[PaymentDocument]
+    merchant_id: str
     post_code: str
-    address: DeliveryDocument
+    address: str
     detail_address: str
+    post_text: str | None
+    orderer_name: str
+    phone_num: str
     payment_method: str
-    total_price: int
-    order_uuid: uuid.uuid4()
-    is_fired: bool = False
-    is_payment: bool = False
+    ordering_date: datetime
+    is_payment: bool

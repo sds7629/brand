@@ -93,7 +93,7 @@ class ItemCollection:
         return ItemDocument(
             _id=result["_id"],
             name=result["name"],
-            color = result["color"],
+            color=result["color"],
             price=result["price"],
             image_url=result["image_url"],
             description=result["description"],

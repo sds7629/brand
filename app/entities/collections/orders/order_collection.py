@@ -1,7 +1,8 @@
+import uuid
 from dataclasses import asdict
 
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Sequence
 
 import pymongo
 from bson import ObjectId
@@ -9,6 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorCollection
 
 from app.entities.collections.items.item_document import ItemDocument
 from app.entities.collections.orders.order_document import OrderDocument
+from app.entities.collections.payment.payment_document import PaymentDocument
 from app.entities.collections.users.user_document import (
     DeliveryDocument,
     ShowUserDocument,
@@ -29,43 +31,49 @@ class OrderCollection:
     async def insert_one(
         cls,
         user: ShowUserDocument,
-        ordering_request: str,
-        ordering_item: ItemDocument,
-        ordering_item_mount: int,
+        payment_items: Sequence[PaymentDocument],
+        merchant_id: str,
         post_code: str,
-        address: DeliveryDocument,
+        address: str,
         detail_address: str,
+        orderer_name: str,
+        phone_num: str,
         payment_method: str,
-        total_price: int,
+        post_text: str | None = None,
         ordering_date: datetime = datetime.utcnow(),
+        is_payment: bool = False,
     ) -> OrderDocument:
         order = await cls._collection.insert_one(
             {
                 "user": asdict(user),
-                "ordering_date": ordering_date,
-                "ordering_request": ordering_request,
-                "ordering_item": asdict(ordering_item),
-                "ordering_item_mount": ordering_item_mount,
+                "payment_item": [asdict(item) for item in payment_items],
+                "merchant_id": merchant_id,
                 "post_code": post_code,
-                "address": asdict(address),
+                "address": address,
                 "detail_address": detail_address,
+                "post_text": post_text,
+                "orderer_name": orderer_name,
+                "phone_num": phone_num,
                 "payment_method": payment_method,
-                "total_price": total_price,
+                "ordering_date": ordering_date,
+                "is_payment": is_payment,
             }
         )
 
         return OrderDocument(
             _id=order.inserted_id,
             user=user,
-            ordering_date=ordering_date,
-            ordering_request=ordering_request,
-            ordering_item=ordering_item,
-            ordering_item_mount=ordering_item_mount,
+            payment_item=payment_items,
+            merchant_id=merchant_id,
             post_code=post_code,
             address=address,
             detail_address=detail_address,
+            post_text=post_text,
+            orderer_name=orderer_name,
+            phone_num=phone_num,
             payment_method=payment_method,
-            total_price=total_price,
+            ordering_date=ordering_date + timedelta(hours=9),
+            is_payment=is_payment,
         )
 
     @classmethod
@@ -74,8 +82,8 @@ class OrderCollection:
         return cls._parse(order) if order else None
 
     @classmethod
-    async def find_by_user_nickname(cls, user_nickname: str) -> list[OrderDocument] | None:
-        order = await cls._collection.find({"user.nickname": user_nickname}).to_list(None)
+    async def find_by_user_id(cls, user_id: ObjectId) -> list[OrderDocument] | None:
+        order = await cls._collection.find({"user._id": user_id}).to_list(None)
         return [cls._parse(order_one) for order_one in order if order_one is not None]
 
     @classmethod
@@ -83,13 +91,15 @@ class OrderCollection:
         return OrderDocument(
             _id=result["_id"],
             user=result["user"],
-            ordering_date=result["ordering_date"] + timedelta(hours=9),
-            ordering_request=result["ordering_request"],
-            ordering_item=result["ordering_item"],
-            ordering_item_mount=result["ordering_item_mount"],
+            payment_item=result["payment_item"],
+            merchant_id=result["merchant_id"],
             post_code=result["post_code"],
             address=result["address"],
             detail_address=result["detail_address"],
+            post_text=result["post_text"],
+            orderer_name=result["orderer_name"],
+            phone_num=result["phone_num"],
             payment_method=result["payment_method"],
-            total_price=result["total_price"],
+            ordering_date=result["ordering_date"] + timedelta(hours=9),
+            is_payment=result["is_payment"],
         )

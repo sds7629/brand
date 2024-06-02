@@ -17,6 +17,9 @@ import pandas as pd
 from faker import Faker
 
 from app.entities.category.category_codes import CategoryCode
+from app.utils.enums.size_codes import SizeCode
+from app.utils.enums.color_codes import ColorCode
+
 
 fake = Faker("ko_KR")
 fake.add_provider(faker_commerce.Provider)
@@ -29,9 +32,15 @@ category_list: list[CategoryCode] = [
     CategoryCode.CAP,
     CategoryCode.SHOES,
 ]
-size_list: list[str] = ["s", "m", "l", "xl", "xls", "xlsx"]
-color: list[str] = ["Black", "White"]
 
+size_list: list[SizeCode] = [
+    SizeCode.ONE,
+    SizeCode.TWO,
+]
+color_list: list[ColorCode] = [
+    ColorCode.BLACK,
+    ColorCode.WHITE,
+]
 data_mount = 10000
 
 
@@ -42,7 +51,7 @@ description = [fake.paragraph() for _ in range(data_mount)]
 registration_date = [fake.date_time_between() for _ in range(data_mount)]
 item_quantity = [100 for _ in range(data_mount)]
 size = [random.choice(size_list) for _ in range(data_mount)]
-color = [random.choice(color) for _ in range(data_mount)]
+color = [random.choice(color_list) for _ in range(data_mount)]
 category_codes = [[random.choice(category_list)] for _ in range(data_mount)]
 
 

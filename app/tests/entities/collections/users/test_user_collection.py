@@ -12,9 +12,8 @@ async def test_유저_회원가입() -> None:
     nickname = "admin1"
     delivery_area = [
         DeliveryDocument(
-            user_id="admin",
-            recipient="user1",
-            code="03100",
+            name="김땡땡",
+            post_code="03100",
             address="서울시 종로구 창신동",
             detail_address="지층동",
             recipient_phone="010-0000-1111",

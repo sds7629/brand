@@ -5,7 +5,7 @@ from bson import ObjectId
 
 
 async def test_cart_insert_one() -> None:
-    user = await UserCollection.find_by_nickname(nickname="admin")
+    user = await UserCollection.find_by_nickname(nickname="admin1")
     items = await ItemCollection.find_all_item(offset=0)
     mount = len(items[:3])
     price = sum([item.price for item in items[:3]])

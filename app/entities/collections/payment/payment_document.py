@@ -17,3 +17,4 @@ class PaymentDocument:
     total_price: int
     payment_time: datetime
     is_reviewed: bool
+

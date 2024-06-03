@@ -10,9 +10,8 @@ from app.entities.collections.base_document import BaseDocument
 
 @dataclasses.dataclass(config=Config)
 class DeliveryDocument:
-    user_id: str
-    recipient: str
-    code: str
+    name: str
+    post_code: str
     address: str
     detail_address: str
     recipient_phone: str

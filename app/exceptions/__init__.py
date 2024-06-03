@@ -7,6 +7,9 @@ class UserNotFoundException(BaseException):
     pass
 
 
+class NoSuchElementException(BaseException):
+    pass
+
 class QnANotFoundException(BaseException):
     pass
 

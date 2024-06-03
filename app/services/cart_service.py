@@ -22,7 +22,7 @@ async def get_user_carts(user_data: ShowUserDocument) -> Sequence[CartDocument]:
 async def create_cart(
     user_data: ShowUserDocument, cart_creation_request: CartCreationRequest
 ) -> tuple[CartDocument, ...]:
-    user = await UserCollection.find_by_id(ObjectId(user_data.id))
+    user = await UserCollection.find_by_id(user_data.id)
     item_list = [ItemCollection.find_by_id(ObjectId(item.item_id)) for item in cart_creation_request.items]
     insert_cart_data = [
         CartCollection.insert_one(

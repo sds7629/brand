@@ -3,24 +3,22 @@ from typing import Sequence
 
 from pydantic import dataclasses
 from app.config import Config
-from app.dtos.item.item_response import OneItemResponse
-from app.entities.collections.users.user_document import DeliveryDocument
 
 
 @dataclasses.dataclass
 class BaseOrderResponse:
     id: str
+    user_id: str
+    merchant_id: str | None
+    post_code: str | None
+    address: str | None
+    detail_address: str | None
+    orderer_name: str | None
+    phone_num: str | None
+    requirements: str | None
+    payment_method: str | None
     ordering_date: datetime
-    ordering_request: str
-    ordering_item: OneItemResponse
-    ordering_item_mount: int
-    post_code: str
-    address: DeliveryDocument
-    detail_address: str
-    payment_method: str
-    total_price: int
-    merchant_uid: str
-
+    is_payment: bool
 
 @dataclasses.dataclass(config=Config, kw_only=True)
 class OrderResponse:

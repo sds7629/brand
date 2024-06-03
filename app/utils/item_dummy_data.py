@@ -17,9 +17,8 @@ import pandas as pd
 from faker import Faker
 
 from app.entities.category.category_codes import CategoryCode
-from app.utils.enums.size_codes import SizeCode
 from app.utils.enums.color_codes import ColorCode
-
+from app.utils.enums.size_codes import SizeCode
 
 fake = Faker("ko_KR")
 fake.add_provider(faker_commerce.Provider)

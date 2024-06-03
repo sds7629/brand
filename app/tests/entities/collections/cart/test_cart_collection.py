@@ -1,7 +1,7 @@
-from app.entities.collections import UserCollection, ItemCollection
-from app.entities.collections.carts.cart_collection import CartCollection
-
 from bson import ObjectId
+
+from app.entities.collections import ItemCollection, UserCollection
+from app.entities.collections.carts.cart_collection import CartCollection
 
 
 async def test_cart_insert_one() -> None:

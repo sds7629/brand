@@ -8,7 +8,6 @@ from app.entities.collections.users.user_document import ShowUserDocument
 
 
 @dataclasses.dataclass
-
 class PaymentDocument:
     user: ShowUserDocument
     order: OrderDocument
@@ -17,4 +16,3 @@ class PaymentDocument:
     total_price: int
     payment_time: datetime
     is_reviewed: bool
-

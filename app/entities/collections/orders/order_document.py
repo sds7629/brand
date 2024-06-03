@@ -2,12 +2,9 @@ from datetime import datetime
 
 from pydantic import dataclasses
 
-from app.entities.collections.base_document import BaseDocument
-from app.entities.collections.users.user_document import (
-    ShowUserDocument,
-)
-
 from app.config import Config
+from app.entities.collections.base_document import BaseDocument
+from app.entities.collections.users.user_document import ShowUserDocument
 
 
 @dataclasses.dataclass(config=Config)

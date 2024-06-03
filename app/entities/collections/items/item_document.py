@@ -4,9 +4,9 @@ from typing import Annotated
 from pydantic import AfterValidator, HttpUrl, dataclasses
 
 from app.entities.category.category_codes import CategoryCode
-from app.utils.enums.size_codes import SizeCode
-from app.utils.enums.color_codes import ColorCode
 from app.entities.collections.base_document import BaseDocument
+from app.utils.enums.color_codes import ColorCode
+from app.utils.enums.size_codes import SizeCode
 
 HttpUrlString = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 

@@ -1,11 +1,9 @@
 from dataclasses import asdict
-from typing import Sequence, Any, cast
+from typing import Any, Sequence, cast
 
 import pymongo
-from motor.motor_asyncio import AsyncIOMotorCollection
-
 from bson import ObjectId
-
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 from app.entities.collections.carts.cart_document import CartDocument
 from app.entities.collections.items.item_document import ItemDocument
@@ -51,6 +49,7 @@ class CartCollection:
     async def find_by_id(cls, cart_id: ObjectId) -> CartDocument:
         cart = await cls._collection.find_one({"_id": cart_id})
         return cls._parse(cart) if cart is not None else None
+
     @classmethod
     async def delete_by_id(cls, cart_id: ObjectId) -> int:
         result = await cls._collection.delete_one({"_id": cart_id})

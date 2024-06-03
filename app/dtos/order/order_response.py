@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Sequence
 
 from pydantic import dataclasses
+
 from app.config import Config
 
 
@@ -19,6 +20,7 @@ class BaseOrderResponse:
     payment_method: str | None
     ordering_date: datetime
     is_payment: bool
+
 
 @dataclasses.dataclass(config=Config, kw_only=True)
 class OrderResponse:

@@ -1,10 +1,10 @@
 import asyncio
 
+from app.entities.collections.carts.cart_collection import CartCollection
 from app.entities.collections.items.item_collection import ItemCollection
+from app.entities.collections.orders.order_collection import OrderCollection
 from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.users.user_collection import UserCollection
-from app.entities.collections.orders.order_collection import OrderCollection
-from app.entities.collections.carts.cart_collection import CartCollection
 
 
 async def set_indexes() -> None:

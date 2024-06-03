@@ -1,6 +1,6 @@
 from typing import Sequence
 
-from pydantic import dataclasses, HttpUrl
+from pydantic import HttpUrl, dataclasses
 
 
 @dataclasses.dataclass

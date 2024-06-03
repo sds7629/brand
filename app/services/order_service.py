@@ -1,17 +1,14 @@
 import asyncio
 
+from bson import ObjectId
+
 from app.dtos.order.order_creation_request import OrderCreationRequest
 from app.dtos.order.order_request import OrderRequest
 from app.entities.collections import CartCollection, UserCollection
-
-from app.entities.collections.orders.order_document import OrderDocument
 from app.entities.collections.orders.order_collection import OrderCollection
+from app.entities.collections.orders.order_document import OrderDocument
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import OrderNotFoundException, NoSuchElementException
-
-
-
-from bson import ObjectId
+from app.exceptions import NoSuchElementException, OrderNotFoundException
 
 
 async def get_user_orders(order_request: OrderRequest) -> list[OrderDocument] | None:
@@ -35,18 +32,17 @@ async def create_order(user: ShowUserDocument, order_creation_request: OrderCrea
     user_base_delivery = [delivery for delivery in user_document.delivery_area if delivery.is_base_delivery == True]
     if user_base_delivery:
         order = await OrderCollection.insert_one(
-            user = user,
-            post_code = user_base_delivery[0].post_code,
-            address = user_base_delivery[0].address,
-            detail_address = user_base_delivery[0].detail_address,
-            phone_num = user_base_delivery[0].recipient_phone,
-            orderer_name = user_base_delivery[0].name,
-            requirements = user_base_delivery[0].requirements,
+            user=user,
+            post_code=user_base_delivery[0].post_code,
+            address=user_base_delivery[0].address,
+            detail_address=user_base_delivery[0].detail_address,
+            phone_num=user_base_delivery[0].recipient_phone,
+            orderer_name=user_base_delivery[0].name,
+            requirements=user_base_delivery[0].requirements,
         )
     else:
         order = await OrderCollection.insert_one(
-            user = user,
-
+            user=user,
         )
 
     return order

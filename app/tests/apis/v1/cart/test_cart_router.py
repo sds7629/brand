@@ -1,6 +1,7 @@
 from httpx import AsyncClient
-from app.main import app
+
 from app.dtos.cart.cart_creation_request import CartCreationRequest
+from app.main import app
 
 
 async def test_get_cart_api() -> None:
@@ -21,26 +22,10 @@ async def test_create_cart_api() -> None:
 
     cart_creation_request = {
         "items": [
-            {
-                "item_id": "665b07704f4f6490716bced6",
-                "quantity": 1,
-                "color": "Black"
-            },
-            {
-                "item_id": "665b07704f4f6490716bced7",
-                "quantity": 2,
-                "color": "Black"
-            },
-            {
-                "item_id": "665b07704f4f6490716bced8",
-                "quantity": 1,
-                "color": "White"
-            },
-            {
-                "item_id": "665b07704f4f6490716bceda",
-                "quantity": 1,
-                "color": "White"
-            }
+            {"item_id": "665b07704f4f6490716bced6", "quantity": 1, "color": "Black"},
+            {"item_id": "665b07704f4f6490716bced7", "quantity": 2, "color": "Black"},
+            {"item_id": "665b07704f4f6490716bced8", "quantity": 1, "color": "White"},
+            {"item_id": "665b07704f4f6490716bceda", "quantity": 1, "color": "White"},
         ]
     }
 

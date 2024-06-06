@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
 
@@ -9,23 +9,28 @@ from app.dtos.order.order_creation_request import (
     OrderCreationRequest,
     PreOrderCreationRequest,
 )
-from app.dtos.order.order_request import OrderRequest
 from app.dtos.order.order_response import (
     BaseOrderResponse,
     CreateOrderResponse,
     OrderResponse,
-    PreOrderResponse,
+    PreOrderResponse, OrderItemResponse,
 )
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import (
     ItemQuantityException,
     NoPermissionException,
     NoSuchElementException,
-    OrderNotFoundException,
     ValidationException,
 )
-from app.services.item_service import get_item_by_id
 from app.services.order_service import create_order, get_user_orders, pre_order
+from app.config import PORT_ONE_SECRET_KEY
+
+from iamport import Iamport
+
+Iamport = Iamport(
+    imp_key = ...,
+    imp_secret = PORT_ONE_SECRET_KEY,
+)
 
 router = APIRouter(prefix="/v1/orders", tags=["orders"], redirect_slashes=False)
 
@@ -43,12 +48,19 @@ async def api_get_user_orders(user: Annotated[ShowUserDocument, Depends(get_curr
         order_list=[
             BaseOrderResponse(
                 id=str(order.id),
+                merchant_id = order.merchant_id,
                 address=order.address,
                 detail_address=order.detail_address,
                 order_name=order.order_name,
                 requirements=order.requirements,
                 ordering_date=order.ordering_date,
-                item=[str(item_id) for item_id in order.ordering_item],
+                item=[OrderItemResponse(
+                    name = item.name,
+                    price = item.price,
+                    size = item.size,
+                    color = item.color,
+                    image_url = item.image_url,
+                )for item in order.ordering_item],
             )
             for order in orders
         ]

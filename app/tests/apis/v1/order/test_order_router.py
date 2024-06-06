@@ -33,7 +33,7 @@ async def test_api_pre_order() -> None:
 
 async def test_api_create_order() -> None:
     headers = {
-        "Authorization": f"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjYwNjcxYmU1Y2QxZmMyMmM3NDMwOTYiLCJ1c2VyX2lkIjoiYWRtaW4iLCJnZW5kZXIiOiJtYWxlIiwibmlja25hbWUiOiJhZG1pbiIsImV4cCI6MTcxNzY1ODY4N30.YmNjS2mG0e91e404JWoCwXYnlLTk7LAGgsCPaF2AryI"
+        "Authorization": f"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjYwNjcxYmU1Y2QxZmMyMmM3NDMwOTYiLCJ1c2VyX2lkIjoiYWRtaW4iLCJnZW5kZXIiOiJtYWxlIiwibmlja25hbWUiOiJhZG1pbiIsImV4cCI6MTcxNzY4NzAwNn0.pfLVG9vVd4wDN1PK_51YIrqE12wccxHVIIO9ZrsJTss"
     }
 
     order_data = {
@@ -45,8 +45,8 @@ async def test_api_create_order() -> None:
         "order_name": "김아무개",
         "requirements": "문 앞에 놔주세요",
         "payment_method": "Card",
-        "total_price": 65858,
-        "cart_id": ["666155af5c23e1afa2863036", "666155af5c23e1afa2863035"],
+        "total_price": 32000,
+        "cart_id": ["666172ed2a8f4a68534577e7"],
     }
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post("/v1/orders/create", headers=headers, json=order_data)

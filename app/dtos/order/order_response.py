@@ -24,22 +24,26 @@ class CreateOrderResponse:
     order_id: str
 
 
-# @dataclasses.dataclass
-# class OrderItemResponse:
-#     name: str
-#     price: int
-#     image_url: str
+@dataclasses.dataclass
+class OrderItemResponse:
+    name: str
+    price: int
+    size: str
+    color: str
+    price: int
+    image_url: str
 
 
 @dataclasses.dataclass
 class BaseOrderResponse:
     id: str
+    merchant_id: str
     address: str
     detail_address: str
     order_name: str
     requirements: str
     ordering_date: datetime
-    item: Sequence[str]
+    item: Sequence[OrderItemResponse]
 
 
 @dataclasses.dataclass(config=Config, kw_only=True)

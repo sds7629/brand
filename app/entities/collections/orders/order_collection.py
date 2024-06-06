@@ -6,6 +6,7 @@ import pymongo
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
+from app.entities.collections.items.item_document import ItemDocument
 from app.entities.collections.orders.order_document import OrderDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.connection import db
@@ -34,7 +35,7 @@ class OrderCollection:
         phone_num: str,
         payment_method: str,
         requirements: str,
-        ordering_item: Sequence[ObjectId],
+        ordering_item: Sequence[ItemDocument],
         ordering_date: datetime = datetime.utcnow(),
         is_payment: bool = False,
     ) -> OrderDocument:
@@ -51,7 +52,7 @@ class OrderCollection:
                 "phone_num": phone_num,
                 "payment_method": payment_method,
                 "total_price": total_price,
-                "ordering_item": ordering_item,
+                "ordering_item": [asdict(item) for item in ordering_item],
                 "ordering_date": ordering_date,
                 "is_payment": is_payment,
             }

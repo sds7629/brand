@@ -4,7 +4,7 @@ from app.dtos.order.order_creation_request import (
     OrderCreationRequest,
     PreOrderCreationRequest,
 )
-from app.entities.collections import CartCollection, UserCollection
+from app.entities.collections import CartCollection, UserCollection, ItemCollection
 from app.entities.collections.orders.order_collection import OrderCollection
 from app.entities.collections.orders.order_document import (
     OrderDocument,
@@ -97,7 +97,7 @@ async def create_order(user: ShowUserDocument, order_creation_request: OrderCrea
             payment_method=order_creation_request.payment_method,
             requirements=order_creation_request.requirements,
             total_price=order_creation_request.total_price,
-            ordering_item=[cart.item.id for cart in carts],
+            ordering_item= [await ItemCollection.find_by_id(ObjectId(cart.item.id)) for cart in carts],
         )
     else:
         raise ValidationException(response_message="잘못된 요청입니다.")

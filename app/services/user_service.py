@@ -9,10 +9,11 @@ from app.config import (
     REFRESH_SECRET_KEY,
     REFRESH_TOKEN_EXFIRE,
 )
+from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
-from app.entities.collections.users.user_document import UserDocument
+from app.entities.collections.users.user_document import UserDocument, ShowUserDocument
 from app.exceptions import UserNotFoundException, ValidationException
 from app.utils.utility import Util
 
@@ -79,7 +80,19 @@ async def signin_user(user_signin_request: UserSigninRequest) -> dict | None:
     return None
 
 
-async def delete_user(user_id: ObjectId) -> None:
-    if not (shop := await UserCollection.find_by_id(user_id)):
-        raise ValueError(f"{user_id}User not found")
+async def delete_user(user: ShowUserDocument, user_id: ObjectId) -> None:
+    if not (user == await UserCollection.find_by_id(user_id)):
+        raise ValueError(f"Permission Denied")
     await UserCollection.delete_by_id(user_id)
+
+
+async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
+    user = await UserCollection.find_by_user_id(refresh.user_id)
+    token_expire = await Util.check_token_expire(refresh.refresh_token, REFRESH_SECRET_KEY)
+    if token_expire["is_expire"]:
+        raise ValidationException(response_message="Token is expired")
+    access_token = await Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
+    data = {
+        "access_token": access_token
+    }
+    return data

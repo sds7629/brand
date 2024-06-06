@@ -2,7 +2,7 @@ from typing import Annotated
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Depends, Security, status
+from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
 from fastapi.security import OAuth2PasswordBearer
@@ -10,14 +10,15 @@ from starlette.responses import Response
 
 from app.auth.auth_bearer import get_current_user
 from app.dtos.user.user_profile_response import UserProfileResponse
+from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signin_response import Token, UserSigninResponse
 from app.dtos.user.user_signout_request import UserSignOutRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.dtos.user.user_signup_response import UserSignupResponse
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import UserNotFoundException
-from app.services.user_service import delete_user, signin_user, signup_user
+from app.exceptions import UserNotFoundException, ValidationException
+from app.services.user_service import delete_user, signin_user, signup_user, refresh_access_token
 
 router = APIRouter(
     prefix="/v1/users",
@@ -117,10 +118,31 @@ async def api_logout_user(response: Response) -> None:
     response_class=Response,
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def api_signout(user_signout_request: UserSignOutRequest) -> None:
+async def api_signout(user: Annotated[ShowUserDocument, Depends(get_current_user)],user_signout_request: UserSignOutRequest) -> None:
     try:
-        await delete_user(ObjectId(user_signout_request.base_user_id))
+        await delete_user(user, ObjectId(user_signout_request.base_user_id))
     except UserNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
     except InvalidId:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail={"message": "id invalid user"})
+
+
+@router.post(
+    "/refresh",
+    description = "refresh token 사용",
+    response_class = ORJSONResponse,
+    status_code = status.HTTP_201_CREATED,
+)
+async def api_refresh_access_token(response: Response, refresh_token_request: RefreshAccessRequest) -> None:
+    try:
+        token = await refresh_access_token(refresh_token_request)
+    except ValidationException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
+
+    response.set_cookie(
+        key="access_token",
+        value=token["access_token"],
+        secure=True,
+        httponly=True,
+        samesite="lax",
+    )

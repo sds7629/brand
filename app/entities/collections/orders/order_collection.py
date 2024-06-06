@@ -7,9 +7,7 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
 from app.entities.collections.orders.order_document import OrderDocument
-from app.entities.collections.users.user_document import (
-    ShowUserDocument,
-)
+from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.connection import db
 
 
@@ -62,7 +60,7 @@ class OrderCollection:
         return OrderDocument(
             _id=order.inserted_id,
             user=user,
-            email = email,
+            email=email,
             merchant_id=merchant_id,
             post_code=post_code,
             address=address,
@@ -71,18 +69,14 @@ class OrderCollection:
             order_name=order_name,
             phone_num=phone_num,
             payment_method=payment_method,
-            total_price = total_price,
-            ordering_item = ordering_item,
+            total_price=total_price,
+            ordering_item=ordering_item,
             ordering_date=ordering_date + timedelta(hours=9),
             is_payment=is_payment,
         )
 
     @classmethod
-    async def update_by_order_id(
-            cls,
-            object_id: ObjectId,
-            data: dict[str, Any]
-    ) -> int:
+    async def update_by_order_id(cls, object_id: ObjectId, data: dict[str, Any]) -> int:
         result = await cls._collection.update_one({"_id": object_id}, {"$set": data}, upsert=False)
         return result.matched_count
 
@@ -101,7 +95,7 @@ class OrderCollection:
         return OrderDocument(
             _id=result["_id"],
             user=result["user"],
-            email = result["email"],
+            email=result["email"],
             merchant_id=result["merchant_id"],
             post_code=result["post_code"],
             address=result["address"],
@@ -110,9 +104,8 @@ class OrderCollection:
             order_name=result["order_name"],
             phone_num=result["phone_num"],
             payment_method=result["payment_method"],
-            total_price = result["total_price"],
-            ordering_item = result["ordering_item"],
+            total_price=result["total_price"],
+            ordering_item=result["ordering_item"],
             ordering_date=result["ordering_date"] + timedelta(hours=9),
             is_payment=result["is_payment"],
         )
-

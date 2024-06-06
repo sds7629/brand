@@ -39,17 +39,14 @@ async def test_api_create_order() -> None:
     order_data = {
         "email": "wwww22@naver.com",
         "post_code": "01122",
-        "address" : "가나다동",
+        "address": "가나다동",
         "detail_address": "지층동",
         "phone_num": "010-9999-1111",
         "order_name": "김아무개",
         "requirements": "문 앞에 놔주세요",
         "payment_method": "Card",
         "total_price": 65858,
-        "cart_id": [
-            "666155af5c23e1afa2863036",
-            "666155af5c23e1afa2863035"
-        ]
+        "cart_id": ["666155af5c23e1afa2863036", "666155af5c23e1afa2863035"],
     }
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post("/v1/orders/create", headers=headers, json=order_data)

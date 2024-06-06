@@ -10,8 +10,10 @@ class UserNotFoundException(BaseException):
 class NoSuchElementException(BaseException):
     pass
 
+
 class NoPermissionException(BaseException):
     pass
+
 
 class QnANotFoundException(BaseException):
     pass
@@ -20,8 +22,10 @@ class QnANotFoundException(BaseException):
 class QnAValidationException(BaseException):
     pass
 
+
 class ItemNotFoundException(BaseException):
     pass
+
 
 class ItemQuantityException(BaseException):
     pass

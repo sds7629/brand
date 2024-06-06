@@ -5,14 +5,27 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
 
 from app.auth.auth_bearer import get_current_user
-from app.dtos.order.order_creation_request import OrderCreationRequest, PreOrderCreationRequest
+from app.dtos.order.order_creation_request import (
+    OrderCreationRequest,
+    PreOrderCreationRequest,
+)
 from app.dtos.order.order_request import OrderRequest
-from app.dtos.order.order_response import BaseOrderResponse, OrderResponse, PreOrderResponse, CreateOrderResponse
+from app.dtos.order.order_response import (
+    BaseOrderResponse,
+    CreateOrderResponse,
+    OrderResponse,
+    PreOrderResponse,
+)
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NoSuchElementException, OrderNotFoundException, NoPermissionException, ValidationException, \
-    ItemQuantityException
+from app.exceptions import (
+    ItemQuantityException,
+    NoPermissionException,
+    NoSuchElementException,
+    OrderNotFoundException,
+    ValidationException,
+)
 from app.services.item_service import get_item_by_id
-from app.services.order_service import pre_order, create_order, get_user_orders
+from app.services.order_service import create_order, get_user_orders, pre_order
 
 router = APIRouter(prefix="/v1/orders", tags=["orders"], redirect_slashes=False)
 
@@ -26,23 +39,20 @@ router = APIRouter(prefix="/v1/orders", tags=["orders"], redirect_slashes=False)
 async def api_get_user_orders(user: Annotated[ShowUserDocument, Depends(get_current_user)]) -> OrderResponse:
     orders = await get_user_orders(user)
 
-
     return OrderResponse(
-        order_list = [
+        order_list=[
             BaseOrderResponse(
-                id = str(order.id),
-                address = order.address,
-                detail_address = order.detail_address,
-                order_name = order.order_name,
-                requirements = order.requirements,
-                ordering_date = order.ordering_date,
-                item = [str(item_id) for item_id in order.ordering_item]
+                id=str(order.id),
+                address=order.address,
+                detail_address=order.detail_address,
+                order_name=order.order_name,
+                requirements=order.requirements,
+                ordering_date=order.ordering_date,
+                item=[str(item_id) for item_id in order.ordering_item],
             )
             for order in orders
         ]
-
     )
-
 
 
 @router.post(
@@ -67,30 +77,33 @@ async def api_pre_order(
             detail={"message": e.response_message},
         )
     return PreOrderResponse(
-        user_id = order.user.user_id,
-        email = order.email,
-        post_code = order.post_code,
-        address = order.address,
-        detail_address = order.detail_address,
+        user_id=order.user.user_id,
+        email=order.email,
+        post_code=order.post_code,
+        address=order.address,
+        detail_address=order.detail_address,
         phone_num=order.phone_num,
         order_name=order.order_name,
-        requirements = order.requirements,
-        total_price = order.total_price,
+        requirements=order.requirements,
+        total_price=order.total_price,
     )
+
 
 @router.post(
     "/create",
     description="결제 주문 생성",
-    response_class = ORJSONResponse,
+    response_class=ORJSONResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def api_create_order(user: Annotated[ShowUserDocument, Depends(get_current_user)], order_creation_request:OrderCreationRequest) -> CreateOrderResponse:
+async def api_create_order(
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], order_creation_request: OrderCreationRequest
+) -> CreateOrderResponse:
     try:
         order = await create_order(user, order_creation_request)
     except ItemQuantityException as e:
         raise HTTPException(
-            status_code = status.HTTP_400_BAD_REQUEST,
-            detail = {"message": e.response_message},
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": e.response_message},
         )
 
     except ValidationException as e:
@@ -99,7 +112,4 @@ async def api_create_order(user: Annotated[ShowUserDocument, Depends(get_current
             detail={"message": e.response_message},
         )
 
-    return CreateOrderResponse(
-        order_id=str(order.id)
-    )
-
+    return CreateOrderResponse(order_id=str(order.id))

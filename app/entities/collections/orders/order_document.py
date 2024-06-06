@@ -1,13 +1,13 @@
 from datetime import datetime
 from typing import Sequence
 
+from bson import ObjectId
 from pydantic import dataclasses
 
 from app.config import Config
 from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 
-from bson import ObjectId
 
 @dataclasses.dataclass(config=Config)
 class OrderDocument(BaseDocument):

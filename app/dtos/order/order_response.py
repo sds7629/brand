@@ -18,15 +18,18 @@ class PreOrderResponse:
     requirements: str | None
     total_price: int
 
+
 @dataclasses.dataclass
 class CreateOrderResponse:
     order_id: str
+
 
 # @dataclasses.dataclass
 # class OrderItemResponse:
 #     name: str
 #     price: int
 #     image_url: str
+
 
 @dataclasses.dataclass
 class BaseOrderResponse:

@@ -13,13 +13,13 @@ async def test_유저_회원가입() -> None:
     delivery_area = [
         DeliveryDocument(
             name="김땡",
-            email = "admin@naver.com",
+            email="admin@naver.com",
             post_code="03100",
             address="서울시 종로구 신동",
             detail_address="3층 102호",
             recipient_phone="010-1111-1111",
             requirements="빠른 배송 부탁드려요",
-            is_base_delivery=True
+            is_base_delivery=True,
         )
     ]
 

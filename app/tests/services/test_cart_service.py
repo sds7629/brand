@@ -9,11 +9,11 @@ from app.services.cart_service import create_cart
 
 
 async def test_create_cart_service() -> None:
-    user_data = await UserCollection.find_by_id(ObjectId("6645800603f02da82f318d98"))
+    user_data = await UserCollection.find_by_id(ObjectId("6660671be5cd1fc22c743096"))
     cart_creation_request = CartCreationRequest(
         items=[
-            OneCartCreationRequest(item_id="66583322dc30becfdbf5c51b", quantity=1, color="Black"),
-            OneCartCreationRequest(item_id="66583322dc30becfdbf5c51e", quantity=3, color="White"),
+            OneCartCreationRequest(item_id="665b07704f4f6490716bced6", quantity=1, color="Black"),
+            OneCartCreationRequest(item_id="665b07704f4f6490716bced7", quantity=3, color="White"),
         ]
     )
 

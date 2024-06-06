@@ -10,12 +10,20 @@ class UserNotFoundException(BaseException):
 class NoSuchElementException(BaseException):
     pass
 
+class NoPermissionException(BaseException):
+    pass
 
 class QnANotFoundException(BaseException):
     pass
 
 
+class QnAValidationException(BaseException):
+    pass
+
 class ItemNotFoundException(BaseException):
+    pass
+
+class ItemQuantityException(BaseException):
     pass
 
 
@@ -24,10 +32,6 @@ class OrderNotFoundException(BaseException):
 
 
 class ValidationException(BaseException):
-    pass
-
-
-class QnAValidationException(BaseException):
     pass
 
 

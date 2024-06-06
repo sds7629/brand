@@ -37,7 +37,7 @@ class CartCollection:
         )
 
         return CartDocument(
-            _id=result.inserted_id, user=user, item=item, quantity=quantity, color=color, total_price=total_price
+            _id=result.inserted_id, user=user, item=item, quantity=quantity, color=color, total_price=total_price,
         )
 
     @classmethod

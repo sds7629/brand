@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 class PaymentUtil:
     @classmethod
-    async def create_uuid_to_sting(cls) -> str:
+    async def generate_merchant_id(cls) -> str:
         now = datetime.utcnow() + timedelta(hours=9)
         now_date_stripe = now.strftime("%Y-%m-%d")
         now_date = now_date_stripe.replace("-", "")

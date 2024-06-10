@@ -19,3 +19,4 @@ ALGORITHM = os.environ.get("ALGORITHM")
 
 KAKAO_REST_API_KEY = os.environ.get("KAKAO_REST_API_KEY")
 PORT_ONE_SECRET_KEY = os.environ.get("PORT_ONE_V2_SECRET_KEY")
+STORE_ID = os.environ.get("STORE_ID")

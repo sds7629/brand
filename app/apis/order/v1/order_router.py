@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import aiohttp
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
@@ -15,6 +16,7 @@ from app.dtos.order.order_response import (
     OrderResponse,
     PreOrderResponse, OrderItemResponse,
 )
+from app.dtos.payment.payment_request import PaymentRequest
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import (
     ItemQuantityException,
@@ -22,15 +24,10 @@ from app.exceptions import (
     NoSuchElementException,
     ValidationException,
 )
-from app.services.order_service import create_order, get_user_orders, pre_order
-from app.config import PORT_ONE_SECRET_KEY
+from app.services.order_service import create_order, get_user_orders, pre_order, find_payment
+from app.config import PORT_ONE_SECRET_KEY, STORE_ID
 
-from iamport import Iamport
 
-Iamport = Iamport(
-    imp_key = ...,
-    imp_secret = PORT_ONE_SECRET_KEY,
-)
 
 router = APIRouter(prefix="/v1/orders", tags=["orders"], redirect_slashes=False)
 
@@ -125,3 +122,30 @@ async def api_create_order(
         )
 
     return CreateOrderResponse(order_id=str(order.id))
+
+
+@router.post(
+    "/payments/{payment_id}",
+    description="결제 확인",
+    response_class = ORJSONResponse,
+    status_code = status.HTTP_200_OK,
+)
+async def api_find_payment(payment_id: str, user: Annotated[ShowUserDocument, Depends(get_current_user)], payment_request: PaymentRequest) -> int:
+    headers = {
+        "Authentication": f"PortOne {PORT_ONE_SECRET_KEY}",
+    }
+    params = {
+        "storeId": STORE_ID
+    }
+    async with aiohttp.ClientSession(headers=headers) as session:
+        async with session.get(f"https://api.portone.io/payments/{payment_id}", params = params) as res:
+            if res.status == "PAID":
+                try:
+                    return await find_payment(user, payment_request)
+                except NoPermissionException as e:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail={"message": e.response_message},
+                    )
+        # 결제 진행중
+

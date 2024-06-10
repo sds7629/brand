@@ -4,6 +4,7 @@ from app.dtos.order.order_creation_request import (
     OrderCreationRequest,
     PreOrderCreationRequest,
 )
+from app.dtos.payment.payment_request import PaymentRequest
 from app.entities.collections import CartCollection, UserCollection, ItemCollection
 from app.entities.collections.orders.order_collection import OrderCollection
 from app.entities.collections.orders.order_document import (
@@ -101,3 +102,11 @@ async def create_order(user: ShowUserDocument, order_creation_request: OrderCrea
         )
     else:
         raise ValidationException(response_message="잘못된 요청입니다.")
+
+
+async def find_payment(user: ShowUserDocument, payment_request: PaymentRequest) -> int:
+    order = await OrderCollection.find_by_id(ObjectId(payment_request.order_id))
+    if order.user == user:
+        result = await OrderCollection.update_by_order_id(ObjectId(payment_request.order_id), {"is_payment": True})
+        return result
+    raise NoPermissionException(response_message = "결제 유저와 요청 유저가 다릅니다.")

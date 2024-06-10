@@ -31,6 +31,7 @@ async def create_cart(
             total_price=item.quantity * item_dto.price,
         )
         for item_dto, item in zip(await asyncio.gather(*item_list), cart_creation_request.items)
+        if item.quantity <= item_dto.quantity
     ]
     result = await asyncio.gather(*insert_cart_data)
     if result:

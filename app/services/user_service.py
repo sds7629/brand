@@ -13,7 +13,7 @@ from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
-from app.entities.collections.users.user_document import UserDocument, ShowUserDocument
+from app.entities.collections.users.user_document import ShowUserDocument, UserDocument
 from app.exceptions import UserNotFoundException, ValidationException
 from app.utils.utility import Util
 
@@ -92,7 +92,5 @@ async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
     if token_expire["is_expire"]:
         raise ValidationException(response_message="Token is expired")
     access_token = await Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
-    data = {
-        "access_token": access_token
-    }
+    data = {"access_token": access_token}
     return data

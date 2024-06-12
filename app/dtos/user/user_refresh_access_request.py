@@ -1,5 +1,6 @@
 from pydantic import dataclasses
 
+
 @dataclasses.dataclass
 class RefreshAccessRequest:
     user_id: str

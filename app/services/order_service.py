@@ -5,7 +5,7 @@ from app.dtos.order.order_creation_request import (
     PreOrderCreationRequest,
 )
 from app.dtos.payment.payment_request import PaymentRequest
-from app.entities.collections import CartCollection, UserCollection, ItemCollection
+from app.entities.collections import CartCollection, ItemCollection, UserCollection
 from app.entities.collections.orders.order_collection import OrderCollection
 from app.entities.collections.orders.order_document import (
     OrderDocument,
@@ -86,6 +86,7 @@ async def create_order(user: ShowUserDocument, order_creation_request: OrderCrea
 
     cart_price_data = sum([cart.total_price for cart in carts])
     if cart_price_data == order_creation_request.total_price:
+
         return await OrderCollection.insert_one(
             user=user,
             merchant_id=merchant_id,
@@ -98,15 +99,7 @@ async def create_order(user: ShowUserDocument, order_creation_request: OrderCrea
             payment_method=order_creation_request.payment_method,
             requirements=order_creation_request.requirements,
             total_price=order_creation_request.total_price,
-            ordering_item= [await ItemCollection.find_by_id(ObjectId(cart.item.id)) for cart in carts],
+            ordering_item=[await ItemCollection.find_by_id(ObjectId(cart.item.id)) for cart in carts],
         )
     else:
         raise ValidationException(response_message="잘못된 요청입니다.")
-
-
-async def find_payment(user: ShowUserDocument, payment_request: PaymentRequest) -> int:
-    order = await OrderCollection.find_by_id(ObjectId(payment_request.order_id))
-    if order.user == user:
-        result = await OrderCollection.update_by_order_id(ObjectId(payment_request.order_id), {"is_payment": True})
-        return result
-    raise NoPermissionException(response_message = "결제 유저와 요청 유저가 다릅니다.")

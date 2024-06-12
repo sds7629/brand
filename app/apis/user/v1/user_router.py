@@ -18,7 +18,12 @@ from app.dtos.user.user_signup_request import UserSignupRequest
 from app.dtos.user.user_signup_response import UserSignupResponse
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import UserNotFoundException, ValidationException
-from app.services.user_service import delete_user, signin_user, signup_user, refresh_access_token
+from app.services.user_service import (
+    delete_user,
+    refresh_access_token,
+    signin_user,
+    signup_user,
+)
 
 router = APIRouter(
     prefix="/v1/users",
@@ -118,7 +123,9 @@ async def api_logout_user(response: Response) -> None:
     response_class=Response,
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def api_signout(user: Annotated[ShowUserDocument, Depends(get_current_user)],user_signout_request: UserSignOutRequest) -> None:
+async def api_signout(
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
+) -> None:
     try:
         await delete_user(user, ObjectId(user_signout_request.base_user_id))
     except UserNotFoundException as e:
@@ -129,9 +136,9 @@ async def api_signout(user: Annotated[ShowUserDocument, Depends(get_current_user
 
 @router.post(
     "/refresh",
-    description = "refresh token 사용",
-    response_class = ORJSONResponse,
-    status_code = status.HTTP_201_CREATED,
+    description="refresh token 사용",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_201_CREATED,
 )
 async def api_refresh_access_token(response: Response, refresh_token_request: RefreshAccessRequest) -> None:
     try:

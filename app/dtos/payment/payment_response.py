@@ -4,7 +4,7 @@ from pydantic import dataclasses
 
 
 @dataclasses.dataclass
-class PaymentRequest:
-    order_id: str
+class PaymentResponse:
+    user_name: str
+    item_name: Sequence[str]
     total_price: int
-    cart_id: Sequence[str]

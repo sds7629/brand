@@ -8,6 +8,7 @@ from app.entities.collections import CartCollection, OrderCollection
 from app.entities.collections.payment.payment_collection import PaymentCollection
 from app.entities.collections.payment.payment_document import PaymentDocument
 from app.entities.collections.users.user_document import ShowUserDocument
+
 from app.exceptions import NoPermissionException, NoSuchElementException
 
 
@@ -31,3 +32,9 @@ async def find_payment(user: ShowUserDocument, payment_request: PaymentRequest) 
         [await CartCollection.delete_by_id(ObjectId(cart_id)) for cart_id in payment_request.cart_id]
         return (payment_result, updated_data)
     raise NoPermissionException(response_message="결제 유저와 요청 유저가 다릅니다.")
+
+
+async def get_history(user:ShowUserDocument) -> Sequence[PaymentDocument]:
+    if (user_history:=await PaymentCollection.find_by_user_id(user.id)) is None :
+        raise NoSuchElementException(response_message="주문 내역이 없습니다.")
+    return user_history

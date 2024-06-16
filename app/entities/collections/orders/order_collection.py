@@ -10,6 +10,7 @@ from app.entities.collections.items.item_document import ItemDocument
 from app.entities.collections.orders.order_document import OrderDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.connection import db
+from app.utils.enums.payment_codes import PaymentMethodCode
 
 
 class OrderCollection:
@@ -33,7 +34,7 @@ class OrderCollection:
         detail_address: str,
         order_name: str,
         phone_num: str,
-        payment_method: str,
+        payment_method: PaymentMethodCode,
         requirements: str,
         ordering_item: Sequence[ItemDocument],
         ordering_date: datetime = datetime.utcnow(),

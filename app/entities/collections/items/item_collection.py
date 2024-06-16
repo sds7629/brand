@@ -10,6 +10,8 @@ from app.entities.category.category_codes import CategoryCode
 from app.entities.collections.items.item_document import ItemDocument
 from app.utils.connection import db
 
+from app.utils.enums.color_codes import ColorCode
+from app.utils.enums.size_codes import SizeCode
 
 class ItemCollection:
     _collection = AsyncIOMotorCollection(db, "item")
@@ -27,12 +29,12 @@ class ItemCollection:
     async def insert_one(
         cls,
         name: str,
-        color: str,
+        color: ColorCode,
         price: int,
         image_url: HttpUrl,
         description: str,
         item_quantity: int,
-        size: str,
+        size: SizeCode,
         category_codes: list[CategoryCode],
         registration_date: datetime = datetime.utcnow(),
     ) -> ItemDocument:

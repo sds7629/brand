@@ -7,7 +7,7 @@ from app.config import Config
 from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.items.item_document import ItemDocument
 from app.entities.collections.users.user_document import ShowUserDocument
-
+from app.utils.enums.payment_codes import PaymentMethodCode
 
 @dataclasses.dataclass(config=Config)
 class OrderDocument(BaseDocument):
@@ -20,7 +20,7 @@ class OrderDocument(BaseDocument):
     requirements: str
     order_name: str
     phone_num: str
-    payment_method: str
+    payment_method: PaymentMethodCode
     total_price: int
     ordering_item: Sequence[ItemDocument]
     ordering_date: datetime
@@ -38,6 +38,6 @@ class PreOrderDocument:
     requirements: str | None
     order_name: str | None
     phone_num: str | None
-    payment_method: str | None
+    payment_method: PaymentMethodCode | None
     total_price: int
     is_payment: bool

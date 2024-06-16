@@ -3,6 +3,7 @@ from typing import Sequence
 from pydantic import dataclasses
 
 from app.config import Config
+from app.utils.enums.payment_codes import PaymentMethodCode
 
 
 @dataclasses.dataclass(config=Config)
@@ -19,6 +20,6 @@ class OrderCreationRequest:
     phone_num: str
     order_name: str
     requirements: str | None
-    payment_method: str
+    payment_method: PaymentMethodCode
     total_price: int
     cart_id: Sequence[str]

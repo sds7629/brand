@@ -3,7 +3,7 @@ from typing import Annotated
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.responses import ORJSONResponse
 
 from app.auth.auth_bearer import get_current_user
@@ -48,9 +48,10 @@ async def api_get_qna() -> QnAResponse:
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_get_qna_detail(qna_id: str) -> OnlyOneQnAResponse:
+async def api_get_qna_detail(response: Response, qna_id: str) -> OnlyOneQnAResponse:
     try:
         result = await find_qna_by_id(ObjectId(qna_id))
+        response.set_cookie(key = "view_count")
         return OnlyOneQnAResponse(
             id=str(result.id),
             title=result.title,

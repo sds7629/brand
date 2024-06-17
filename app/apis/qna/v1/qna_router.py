@@ -18,6 +18,7 @@ from app.services.qna_service import (
     qna_list,
     update_qna,
 )
+from app.entities.redis_repositories.view_count_repository import ViewCountRedisRepository
 
 router = APIRouter(prefix="/v1/qna", tags=["qna"], redirect_slashes=False)
 
@@ -49,9 +50,14 @@ async def api_get_qna() -> QnAResponse:
     status_code=status.HTTP_200_OK,
 )
 async def api_get_qna_detail(response: Response, qna_id: str) -> OnlyOneQnAResponse:
+    view_count = await ViewCountRedisRepository.get(qna_id)
+    new_view_count = int(view_count) + 1
+    await ViewCountRedisRepository.set(qna_id, str(new_view_count))
+    
+    # 유저별 쿠키 값을 통해 조회한 qna 리스트 가져오기 로직 구현해야함
     try:
         result = await find_qna_by_id(ObjectId(qna_id))
-        response.set_cookie(key = "view_count")
+        response.set_cookie(key="view_count")
         return OnlyOneQnAResponse(
             id=str(result.id),
             title=result.title,
@@ -73,7 +79,7 @@ async def api_get_qna_detail(response: Response, qna_id: str) -> OnlyOneQnARespo
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_qna(
-    qna_request: QnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
+        qna_request: QnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
 ) -> OnlyOneQnAResponse:
     try:
         qna = await create_qna(qna_request, user)
@@ -117,7 +123,7 @@ async def api_delete_qna(qna_id: str, user: Annotated[ShowUserDocument, Depends(
     status_code=status.HTTP_200_OK,
 )
 async def api_update_qna(
-    qna_id: str, qna_request: UpdateQnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
+        qna_id: str, qna_request: UpdateQnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
 ) -> None:
     qna = {key: val for key, val in asdict(qna_request).items() if val is not None}
     if len(qna) >= 1:

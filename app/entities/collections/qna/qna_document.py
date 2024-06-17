@@ -26,5 +26,6 @@ class QnADocument(BaseDocument):
     qna_password: str | None
     writer: ShowUserDocument
     image_url: HttpUrlString | None
+    view_count: int
     reply: list[ReplyDocument] | None = Field(default_factory=list)
     updated_at: Optional[datetime] = None

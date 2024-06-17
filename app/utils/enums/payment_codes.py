@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class PaymentMethodCode(str, Enum):
     CARD = "card"
     VIRTUAL_ACCOUNT = "virtual_account"

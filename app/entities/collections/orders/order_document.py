@@ -9,6 +9,7 @@ from app.entities.collections.items.item_document import ItemDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.enums.payment_codes import PaymentMethodCode
 
+
 @dataclasses.dataclass(config=Config)
 class OrderDocument(BaseDocument):
     user: ShowUserDocument

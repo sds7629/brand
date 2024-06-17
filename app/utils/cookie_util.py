@@ -1,6 +1,7 @@
 from datetime import datetime, time, timedelta
 from uuid import uuid4
-from fastapi import Response, Request
+
+from fastapi import Request, Response
 
 
 class CookieUtil:
@@ -24,4 +25,3 @@ class CookieUtil:
             next_midnight = datetime.combine(now.date(), time(0, 0))
 
         response.set_cookie(key="view_count", value=str(user_cookie_uuid), httponly=True, expires=next_midnight)
-

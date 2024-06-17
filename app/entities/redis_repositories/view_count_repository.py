@@ -16,7 +16,7 @@ class ViewCountRedisRepository:
     @classmethod
     async def get_list(cls, key) -> Sequence[str]:
         length = await redis.llen(key)
-        return await redis.lrange(key, 0, length-1) if length else None
+        return await redis.lrange(key, 0, length - 1) if length else None
 
     @classmethod
     async def set(cls, key: str, value: str) -> None:

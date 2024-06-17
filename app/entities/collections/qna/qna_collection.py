@@ -22,13 +22,13 @@ class QnACollection:
 
     @classmethod
     async def insert_one(
-            cls,
-            title: str,
-            payload: str,
-            image_url: str | None,
-            qna_password: str,
-            writer: ShowUserDocument,
-            view_count: int = 0
+        cls,
+        title: str,
+        payload: str,
+        image_url: str | None,
+        qna_password: str,
+        writer: ShowUserDocument,
+        view_count: int = 0,
     ) -> QnADocument:
         result = await cls._collection.insert_one(
             {
@@ -48,7 +48,7 @@ class QnACollection:
             image_url=HttpUrl(image_url),
             qna_password=qna_password,
             writer=writer,
-            view_count=view_count
+            view_count=view_count,
         )
 
     @classmethod
@@ -86,5 +86,5 @@ class QnACollection:
             image_url=result["image_url"],
             qna_password=result["qna_password"],
             writer=result["writer"],
-            view_count=result["view_count"]
+            view_count=result["view_count"],
         )

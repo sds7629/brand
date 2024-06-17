@@ -1,13 +1,12 @@
 from dataclasses import asdict
 from datetime import datetime, timedelta
-from typing import Sequence, Any
+from typing import Any, Sequence
 
 import pymongo
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
 from app.entities.collections.items.item_document import ItemDocument
-
 from app.entities.collections.payment.payment_document import PaymentDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.connection import db
@@ -23,7 +22,6 @@ class PaymentCollection:
                 ("id", pymongo.ASCENDING),
             ]
         )
-
 
     @classmethod
     async def find_by_id(cls, payment_id: ObjectId) -> PaymentDocument:
@@ -68,11 +66,11 @@ class PaymentCollection:
     @classmethod
     def _parse(cls, result: dict[Any, Any]) -> PaymentDocument:
         return PaymentDocument(
-            _id = result["_id"],
-            user  = result["user"],
-            order = result["order"],
-            items = result["items"],
-            total_price = result["total_price"],
-            payment_time = result["payment_time"] + timedelta(hours=9),
-            is_reviewed = result["is_reviewed"],
+            _id=result["_id"],
+            user=result["user"],
+            order=result["order"],
+            items=result["items"],
+            total_price=result["total_price"],
+            payment_time=result["payment_time"] + timedelta(hours=9),
+            is_reviewed=result["is_reviewed"],
         )

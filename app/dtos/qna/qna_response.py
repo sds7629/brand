@@ -10,7 +10,8 @@ class OnlyOneQnAResponse:
     id: str
     title: str
     payload: str
-    writer: ShowUserDocument
+    writer: str
+    view_count: int
     image_url: str | None = None
 
 

@@ -7,7 +7,7 @@ from app.dtos.qna.qna_request import QnARequest
 from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NotPermissionException, QnANotFoundException
+from app.exceptions import NotPermissionException, QnANotFoundException, NoSuchElementException
 
 
 async def qna_list() -> list[QnADocument]:
@@ -15,7 +15,9 @@ async def qna_list() -> list[QnADocument]:
 
 
 async def find_qna_by_id(qna_id: ObjectId) -> QnADocument | None:
-    return await QnACollection.find_by_id(qna_id)
+    if (qna := await QnACollection.find_by_id(qna_id)) is None:
+        raise NoSuchElementException(response_message="QnA를 찾을 수 없습니다.")
+    return qna
 
 
 async def find_qna_by_title(title: str) -> list[QnADocument]:

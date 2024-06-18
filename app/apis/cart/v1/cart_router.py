@@ -6,7 +6,6 @@ from fastapi.responses import ORJSONResponse
 from app.auth.auth_bearer import get_current_user
 from app.dtos.cart.cart_creation_request import CartCreationRequest
 from app.dtos.cart.cart_response import CartItemResponse, CartResponse
-from app.entities.collections.carts.cart_document import CartDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import ValidationException
 from app.services.cart_service import create_cart, get_user_carts

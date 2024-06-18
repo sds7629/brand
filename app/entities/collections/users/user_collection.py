@@ -10,8 +10,8 @@ from app.entities.collections.users.user_document import (
     ShowUserDocument,
     UserDocument,
 )
+from app.utils.utility import TotalUtil
 from app.utils.connection import db
-from app.utils.utility import Util
 
 
 class UserCollection:
@@ -47,7 +47,7 @@ class UserCollection:
                 "user_id": user_id,
                 "email": email,
                 "name": name,
-                "hash_pw": await Util.get_hashed_password(password),
+                "hash_pw": await TotalUtil.get_hashed_password(password),
                 "gender": gender,
                 "nickname": nickname,
                 "phone_num": phone_num,
@@ -62,7 +62,7 @@ class UserCollection:
             _id=result.inserted_id,
             user_id=user_id,
             name=name,
-            hash_pw=await Util.get_hashed_password(password),
+            hash_pw=await TotalUtil.get_hashed_password(password),
             email=email,
             gender=gender,
             nickname=nickname,

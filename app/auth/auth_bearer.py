@@ -9,7 +9,7 @@ from app.config import ACCESS_SECRET_KEY
 from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import UserNotFoundException, ValidationException
-from app.utils.utility import Util
+from app.utils.utility import TotalUtil
 
 oauth2_scheme = OAuth2PasswordBearer("/v1/users/signin")
 
@@ -21,7 +21,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Sho
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        token_expire = await Util.check_token_expire(token, ACCESS_SECRET_KEY)
+        token_expire = await TotalUtil.check_token_expire(token, ACCESS_SECRET_KEY)
         if token_expire["is_expired"]:
             raise ValidationException(response_message="Token is expired")
         user = await UserCollection.find_by_nickname(token_expire["payload"]["nickname"])

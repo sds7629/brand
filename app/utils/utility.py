@@ -1,6 +1,6 @@
 import re
 from dataclasses import asdict
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from typing import Any
 
 from jose import jwt
@@ -12,7 +12,7 @@ from app.dtos.user.user_jwt_payload import UserJWT
 from app.entities.collections.users.user_document import UserDocument
 
 
-class Util:
+class TotalUtil:
     _pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     _algorithm = "HS256"
 
@@ -36,13 +36,13 @@ class Util:
 
     @classmethod
     async def encode(
-        cls,
-        data: dict[Any, Any] | UserDocument,
-        secret_key: str,
-        expires_time: str,
-        algorithm: str = "HS256",
+            cls,
+            data: dict[Any, Any] | UserDocument,
+            secret_key: str,
+            expires_time: str,
+            algorithm: str = "HS256",
     ) -> str:
-        if type(data) == UserDocument:
+        if type(data) is UserDocument:
             to_encode = asdict(
                 UserJWT(
                     _id=str(data.id),
@@ -73,9 +73,9 @@ class Util:
 
     @classmethod
     async def check_token_expire(
-        cls,
-        token: str,
-        secret_key: str,
+            cls,
+            token: str,
+            secret_key: str,
     ) -> dict[Any, Any] | None:
         payload = await cls.decode(token, secret_key)
         now_time = datetime.timestamp(datetime.now(timezone("Asia/Seoul")))
@@ -108,3 +108,19 @@ class Util:
     async def check_passwords(cls, check_passwd: str) -> bool:
         passwd_regex = "^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
         return bool(re.fullmatch(passwd_regex, check_passwd))
+
+
+class TimeUtil:
+    @classmethod
+    async def to_midnight_seconds(cls) -> tuple[timezone, ...]:
+
+        now = datetime.utcnow() + timedelta(hours=9)
+
+        if now.time() > time(0, 0):
+            next_midnight = datetime.combine(now.date() + timedelta(days=1), time(0, 0))
+        else:
+            next_midnight = datetime.combine(now.date(), time(0, 0))
+
+        seconds_to_midnight = (next_midnight - now)
+
+        return seconds_to_midnight, next_midnight

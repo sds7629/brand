@@ -25,16 +25,16 @@ class QnACollection:
         cls,
         title: str,
         payload: str,
-        image_url: str | None,
         qna_password: str,
         writer: ShowUserDocument,
+        image_url: str | None = None,
         view_count: int = 0,
     ) -> QnADocument:
         result = await cls._collection.insert_one(
             {
                 "title": title,
                 "payload": payload,
-                "image_url": HttpUrl(image_url),
+                "image_url": image_url,
                 "qna_password": qna_password,
                 "writer": asdict(writer),
                 "view_count": view_count,
@@ -45,7 +45,7 @@ class QnACollection:
             _id=result.inserted_id,
             title=title,
             payload=payload,
-            image_url=HttpUrl(image_url),
+            image_url=image_url,
             qna_password=qna_password,
             writer=writer,
             view_count=view_count,

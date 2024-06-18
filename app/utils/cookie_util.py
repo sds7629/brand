@@ -3,25 +3,24 @@ from uuid import uuid4
 
 from fastapi import Request, Response
 
+from app.utils.utility import TimeUtil
+
 
 class CookieUtil:
 
     @classmethod
     async def get_view_count_cookie(cls, request: Request, response: Response) -> str:
-        cookies = request.cookies["view_count"]
+        cookies = request.cookies.get("view_count")
         if cookies is None:
-            await cls.create_cookies(response)
+            cookies = await cls.create_cookies(response)
         return cookies
 
     @classmethod
-    async def create_cookies(cls, response: Response) -> None:
+    async def create_cookies(cls, response: Response) -> str:
         user_cookie_uuid = uuid4()
 
-        now = datetime.utcnow()
+        midnight_seconds, next_midnight = await TimeUtil.to_midnight_seconds()
 
-        if now.time() > time(0, 0):
-            next_midnight = datetime.combine(now.date() + timedelta(days=1), time(0, 0))
-        else:
-            next_midnight = datetime.combine(now.date(), time(0, 0))
+        response.set_cookie(key="view_count", value=str(user_cookie_uuid), httponly=True, expires=midnight_seconds)
 
-        response.set_cookie(key="view_count", value=str(user_cookie_uuid), httponly=True, expires=next_midnight)
+        return str(user_cookie_uuid)

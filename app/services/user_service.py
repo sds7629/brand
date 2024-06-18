@@ -15,20 +15,20 @@ from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import ShowUserDocument, UserDocument
 from app.exceptions import UserNotFoundException, ValidationException
-from app.utils.utility import Util
+from app.utils.utility import TotalUtil
 
 
 async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | None:
     user_validator = await asyncio.gather(
-        Util.is_valid_email(user_signup_request.email),
-        Util.phone_validator(user_signup_request.phone_num),
+        TotalUtil.is_valid_email(user_signup_request.email),
+        TotalUtil.phone_validator(user_signup_request.phone_num),
     )
 
     if not all(user_validator):
         raise ValidationException(response_message="Invalid email or phone number")
 
     id_pw_validator = await asyncio.gather(
-        Util.check_special_words(user_signup_request.user_id), Util.check_passwords(user_signup_request.password)
+        TotalUtil.check_special_words(user_signup_request.user_id), TotalUtil.check_passwords(user_signup_request.password)
     )
 
     if not all(id_pw_validator):
@@ -65,10 +65,10 @@ async def signin_user(user_signin_request: UserSigninRequest) -> dict | None:
         if user.is_delete:
             raise UserNotFoundException(f"가입된 유저가 아닙니다.")
 
-    if await Util.is_valid_password(user_signin_request.password, user.hash_pw):
+    if await TotalUtil.is_valid_password(user_signin_request.password, user.hash_pw):
         access_token, refresh_token = await asyncio.gather(
-            Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM),
-            Util.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM),
+            TotalUtil.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM),
+            TotalUtil.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM),
         )
 
         data = {
@@ -88,9 +88,9 @@ async def delete_user(user: ShowUserDocument, user_id: ObjectId) -> None:
 
 async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
     user = await UserCollection.find_by_user_id(refresh.user_id)
-    token_expire = await Util.check_token_expire(refresh.refresh_token, REFRESH_SECRET_KEY)
+    token_expire = await TotalUtil.check_token_expire(refresh.refresh_token, REFRESH_SECRET_KEY)
     if token_expire["is_expire"]:
         raise ValidationException(response_message="Token is expired")
-    access_token = await Util.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
+    access_token = await TotalUtil.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
     data = {"access_token": access_token}
     return data

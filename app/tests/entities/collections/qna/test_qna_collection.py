@@ -4,7 +4,7 @@ from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_collection import UserCollection
 from app.services.qna_service import find_qna_by_id, qna_list
-from app.utils.utility import Util
+from app.utils.utility import TotalUtil
 
 
 async def test_insert_one() -> None:
@@ -37,7 +37,7 @@ async def test_find_by_title() -> None:
     assert len(result) == 2
 
 
-async def test_QnA_find_all() -> None:
+async def test_qnq_find_all() -> None:
     result = await qna_list()
 
     assert len(result) == 2
@@ -45,8 +45,8 @@ async def test_QnA_find_all() -> None:
     assert result[0].title == "안녕하세요"
 
 
-async def test_QnA_find_by_id() -> None:
-    find_id = "663cb269b430f78fdb5f006b"
+async def test_qna_find_by_id() -> None:
+    find_id = "66458901ac83c88c194b2dca"
     result = await find_qna_by_id(ObjectId(find_id))
 
     assert result is not None

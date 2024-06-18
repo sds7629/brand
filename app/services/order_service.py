@@ -4,7 +4,6 @@ from app.dtos.order.order_creation_request import (
     OrderCreationRequest,
     PreOrderCreationRequest,
 )
-from app.dtos.payment.payment_request import PaymentRequest
 from app.entities.collections import CartCollection, ItemCollection, UserCollection
 from app.entities.collections.orders.order_collection import OrderCollection
 from app.entities.collections.orders.order_document import (

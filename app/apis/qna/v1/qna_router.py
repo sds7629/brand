@@ -41,8 +41,11 @@ async def api_get_qna() -> QnAResponse:
             payload=qna.payload,
             image_url=qna.image_url,
             writer=qna.writer.nickname,
-            view_count=int(counting) if (counting := await ViewCountRedisRepository.get(
-                "view_count_" + str(qna.id))) is not None else 0,
+            view_count=(
+                int(counting)
+                if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
+                else 0
+            ),
         )
         for qna in await qna_list()
     ]
@@ -75,7 +78,7 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
         payload=result.payload,
         writer=result.writer.nickname,
         image_url=result.image_url,
-        view_count=int(await ViewCountRedisRepository.get("view_count_" + str(result.id)))
+        view_count=int(await ViewCountRedisRepository.get("view_count_" + str(result.id))),
     )
 
 
@@ -86,7 +89,7 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_qna(
-        qna_request: QnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
+    qna_request: QnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
 ) -> OnlyOneQnAResponse:
     try:
         qna = await create_qna(qna_request, user)
@@ -131,7 +134,7 @@ async def api_delete_qna(qna_id: str, user: Annotated[ShowUserDocument, Depends(
     status_code=status.HTTP_200_OK,
 )
 async def api_update_qna(
-        qna_id: str, qna_request: UpdateQnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
+    qna_id: str, qna_request: UpdateQnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
 ) -> None:
     qna = {key: val for key, val in asdict(qna_request).items() if val is not None}
     if len(qna) >= 1:

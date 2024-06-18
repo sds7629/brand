@@ -28,7 +28,8 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | 
         raise ValidationException(response_message="Invalid email or phone number")
 
     id_pw_validator = await asyncio.gather(
-        TotalUtil.check_special_words(user_signup_request.user_id), TotalUtil.check_passwords(user_signup_request.password)
+        TotalUtil.check_special_words(user_signup_request.user_id),
+        TotalUtil.check_passwords(user_signup_request.password),
     )
 
     if not all(id_pw_validator):

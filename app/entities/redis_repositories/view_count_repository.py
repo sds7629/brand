@@ -1,3 +1,5 @@
+from typing import Sequence
+
 from app.utils.redis_ import redis
 from app.utils.utility import TimeUtil
 
@@ -10,6 +12,11 @@ class ViewCountRedisRepository:
             return None
         if not cached:
             return
+        return cached
+
+    @classmethod
+    async def get_all(cls) -> Sequence[str] | None:
+        cached = await redis.keys("view_count_*")
         return cached
 
     @classmethod

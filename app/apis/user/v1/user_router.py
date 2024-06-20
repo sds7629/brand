@@ -59,7 +59,13 @@ async def api_profile(user: Annotated[ShowUserDocument, Depends(get_current_user
     status_code=status.HTTP_201_CREATED,
 )
 async def api_signup_user(user_signup_request: UserSignupRequest) -> UserSignupResponse:
-    user = await signup_user(user_signup_request)
+    try:
+        user = await signup_user(user_signup_request)
+    except ValidationException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.response_message
+        )
     if user is not None:
         return UserSignupResponse(
             id=str(user.id),
@@ -68,8 +74,6 @@ async def api_signup_user(user_signup_request: UserSignupRequest) -> UserSignupR
             nickname=user.nickname,
             gender=user.gender,
         )
-    else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="유효하지 않은 요청입니다.")
 
 
 @router.post(
@@ -79,7 +83,13 @@ async def api_signup_user(user_signup_request: UserSignupRequest) -> UserSignupR
     status_code=status.HTTP_200_OK,
 )
 async def api_signin_user(response: Response, user_signin_request: UserSigninRequest) -> UserSigninResponse:
-    user = await signin_user(user_signin_request)
+    try:
+        user = await signin_user(user_signin_request)
+    except UserNotFoundException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.response_message,
+        )
     if user is not None:
         response.set_cookie(
             key="access_token",
@@ -101,8 +111,6 @@ async def api_signin_user(response: Response, user_signin_request: UserSigninReq
             name=user["user_data"].name,
             nickname=user["user_data"].nickname,
         )
-    else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="잘못된 요청입니다.")
 
 
 @router.post(

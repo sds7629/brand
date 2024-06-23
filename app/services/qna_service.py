@@ -7,7 +7,11 @@ from app.dtos.qna.qna_request import QnARequest
 from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NotPermissionException, QnANotFoundException, NoSuchElementException
+from app.exceptions import (
+    NoSuchElementException,
+    NotPermissionException,
+    QnANotFoundException,
+)
 
 
 async def qna_list() -> list[QnADocument]:

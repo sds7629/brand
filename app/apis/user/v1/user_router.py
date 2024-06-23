@@ -2,13 +2,14 @@ from typing import Annotated
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Depends, status, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import Response
 
 from app.auth.auth_bearer import get_current_user
+from app.dtos.user.user_duplicated_request import DuplicatedNicknameRequest
 from app.dtos.user.user_find_password import EmailSchema
 from app.dtos.user.user_profile_response import UserProfileResponse
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
@@ -63,10 +64,7 @@ async def api_signup_user(user_signup_request: UserSignupRequest) -> UserSignupR
     try:
         user = await signup_user(user_signup_request)
     except ValidationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.response_message
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.response_message)
     if user is not None:
         return UserSignupResponse(
             id=str(user.id),
@@ -132,7 +130,7 @@ async def api_logout_user(response: Response) -> None:
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def api_signout(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
 ) -> None:
     try:
         await delete_user(user, ObjectId(user_signout_request.base_user_id))
@@ -144,7 +142,7 @@ async def api_signout(
 
 @router.post(
     "/refresh",
-    description="refresh token 사용",
+    description="refresh token",
     response_class=ORJSONResponse,
     status_code=status.HTTP_201_CREATED,
 )
@@ -169,6 +167,15 @@ async def api_refresh_access_token(response: Response, refresh_token_request: Re
 
 
 @router.post(
+    "/check_nickname",
+    description="닉네임 중복 체크",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_check_nickname(check_nickname_request: DuplicatedNicknameRequest) -> bool: ...
+
+
+@router.post(
     "/find-password",
     description="비밀번호 찾기 - 이메일 전송",
     response_class=ORJSONResponse,
@@ -181,8 +188,7 @@ async def api_find_password(data: EmailSchema, background_task: BackgroundTasks)
 @router.post(
     "/set_new_password",
     description="비밀번호 찾기 - 새로운 비밀번호",
-     response_class=ORJSONResponse,
+    response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_set_new_password():
-    ...
+async def api_set_new_password(): ...

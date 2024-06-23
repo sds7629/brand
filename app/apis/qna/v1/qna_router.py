@@ -14,7 +14,7 @@ from app.entities.collections.users.user_document import ShowUserDocument
 from app.entities.redis_repositories.view_count_repository import (
     ViewCountRedisRepository,
 )
-from app.exceptions import QnANotFoundException, NoSuchElementException
+from app.exceptions import NoSuchElementException, QnANotFoundException
 from app.services.qna_service import (
     create_qna,
     delete_qna_by_id,

@@ -86,7 +86,7 @@ async def delete_user(user: ShowUserDocument, user_id: ObjectId) -> None:
 
 
 async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
-    user = await UserCollection.find_by_user_id(refresh.user_id)
+    user = await TotalUtil.decode(refresh.refresh_token, REFRESH_SECRET_KEY)
     token_expire = await TotalUtil.check_token_expire(refresh.refresh_token, REFRESH_SECRET_KEY)
     if token_expire["is_expired"]:
         raise ValidationException(response_message="Token is expired")

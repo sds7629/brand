@@ -32,10 +32,7 @@ async def test_유저_생성_테스트() -> None:
 
 
 async def test_유저_로그인_테스트() -> None:
-    request_body = {
-        "user_id": "admin2",
-        "password": "1234"
-    }
+    request_body = {"user_id": "admin2", "password": "1234"}
 
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post("/v1/users/signin", json=request_body)
@@ -60,5 +57,16 @@ async def test_유저_마이페이지() -> None:
     }
     async with AsyncClient(app=app, base_url="http://test", headers=header) as client:
         response = await client.get("/v1/users/me")
+
+        assert response.status_code == status.HTTP_200_OK
+
+
+async def test_리프레시_토큰() -> None:
+    request_body = {
+        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2Njc4MDBmODBjZDE2MDZhMzNlODFjNDciLCJ1c2VyX2lkIjoiYWRtaW4yIiwibmlja25hbWUiOiJhZG1pbjIiLCJleHAiOjE3MTkxNTE2MzV9.vXaN1RP-bbmmibxBEYfmZNsiBz_qdS7fj3PMQr6vxvU"
+    }
+
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post("/v1/users/refresh", json=request_body)
 
         assert response.status_code == status.HTTP_200_OK

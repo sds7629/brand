@@ -10,8 +10,8 @@ from app.entities.collections.users.user_document import (
     ShowUserDocument,
     UserDocument,
 )
-from app.utils.utility import TotalUtil
 from app.utils.connection import db
+from app.utils.utility import TotalUtil
 
 
 class UserCollection:

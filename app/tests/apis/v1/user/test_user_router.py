@@ -70,3 +70,15 @@ async def test_리프레시_토큰() -> None:
         response = await client.post("/v1/users/refresh", json=request_body)
 
         assert response.status_code == status.HTTP_200_OK
+
+
+async def test_닉네임_중복() -> None:
+    request_body = {
+        "nickname": "admin"
+    }
+
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post("/v1/users/check-nickname", json=request_body)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["result"] == "not_found"

@@ -10,6 +10,7 @@ from starlette.responses import Response
 
 from app.auth.auth_bearer import get_current_user
 from app.dtos.user.user_duplicated_request import DuplicatedNicknameRequest
+from app.dtos.user.user_duplicated_response import DuplicatedNicknameResponse
 from app.dtos.user.user_find_password import EmailSchema
 from app.dtos.user.user_profile_response import UserProfileResponse
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
@@ -19,12 +20,12 @@ from app.dtos.user.user_signout_request import UserSignOutRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.dtos.user.user_signup_response import UserSignupResponse
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import UserNotFoundException, ValidationException
+from app.exceptions import UserNotFoundException, ValidationException, UserAlreadyExistException
 from app.services.user_service import (
     delete_user,
     refresh_access_token,
     signin_user,
-    signup_user,
+    signup_user, check_nickname,
 )
 from app.utils.send_mail import find_password_to_email_send
 
@@ -130,7 +131,7 @@ async def api_logout_user(response: Response) -> None:
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def api_signout(
-    user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
+        user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
 ) -> None:
     try:
         await delete_user(user, ObjectId(user_signout_request.base_user_id))
@@ -167,12 +168,16 @@ async def api_refresh_access_token(response: Response, refresh_token_request: Re
 
 
 @router.post(
-    "/check_nickname",
+    "/check-nickname",
     description="닉네임 중복 체크",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_check_nickname(check_nickname_request: DuplicatedNicknameRequest) -> bool: ...
+async def api_check_nickname(check_nickname_request: DuplicatedNicknameRequest) -> DuplicatedNicknameResponse:
+    result = await check_nickname(check_nickname_request)
+    return DuplicatedNicknameResponse(
+        result=result
+    )
 
 
 @router.post(

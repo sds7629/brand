@@ -1,4 +1,5 @@
 import asyncio
+from typing import Any
 
 from bson import ObjectId
 
@@ -9,12 +10,13 @@ from app.config import (
     REFRESH_SECRET_KEY,
     REFRESH_TOKEN_EXFIRE,
 )
+from app.dtos.user.user_duplicated_request import DuplicatedNicknameRequest
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import ShowUserDocument, UserDocument
-from app.exceptions import UserNotFoundException, ValidationException
+from app.exceptions import UserNotFoundException, ValidationException, UserAlreadyExistException
 from app.utils.utility import TotalUtil
 
 
@@ -55,7 +57,7 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | 
     return user
 
 
-async def signin_user(user_signin_request: UserSigninRequest) -> dict:
+async def signin_user(user_signin_request: UserSigninRequest) -> dict[Any, Any]:
     user = await UserCollection.find_by_user_id(user_signin_request.user_id)
 
     if not user:
@@ -93,3 +95,9 @@ async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
     access_token = await TotalUtil.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
     data = {"access_token": access_token}
     return data
+
+
+async def check_nickname(check_nickname_request: DuplicatedNicknameRequest) -> str:
+    if await UserCollection.find_by_nickname(check_nickname_request.nickname):
+        return "is_duplicated"
+    return "not_found"

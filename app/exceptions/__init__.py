@@ -45,3 +45,7 @@ class NotPermissionException(BaseException):
 
 class NoContentException(BaseException):
     pass
+
+
+class UserAlreadyExistException(BaseException):
+    pass

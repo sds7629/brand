@@ -3,50 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
-    <script>
-   // 객체 초기화
-        var IMP = window.IMP;
-        IMP.init("imp01289213");
-
-        function requestPay() {
-          // 결제창 호출
-          IMP.request_pay(
-            {
-              // 파라미터 값 설정
-              pg: "html5_inicis",
-              pay_method: "card",
-              merchant_uid: "57008833-33004", // 상점 고유 주문번호
-              name: "포트원 테스트",
-              amount: 1004,
-              buyer_email: "good@portone.io",
-              buyer_name: "포트원 기술지원팀",
-              buyer_tel: "010-1234-5678",
-              buyer_addr: "서울특별시 강남구 삼성동",
-              buyer_postcode: "123-456",
-            },
-            (rsp) => {
-                if (rsp.success) {
-                    axios.post(`http://localhost:8080/v1/payment/${rsp.imp_uid}`), {
-                        orderId: orderInfo.orderId,
-                        total_price: orderInfo.total_price,
-                        cart_id: [orderInfo.cart_id]
-                    }
-                }
-              // callback
-              //rsp.imp_uid 값으로 결제 단건조회 API를 호출하여 결제결과를 판단합니다.
-            }
-          );
-      }
-      </script>
+    <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
 </head>
 <body>
+    <script>
+        function checkPortOneLoaded() {
+
+            if (typeof PortOne === 'undefined') {
+                console.error('PortOne SDK가 로드되지 않았습니다.');
+                return false;
+            }
+            return true;
+        }
+
+        async function requestConfirm() {
+            console.log('requestConfirm 함수 호출됨'); // 함수 호출 확인
+
+            if (!checkPortOneLoaded()) {
+                return;
+            }
+
+            try {
+                await PortOne.requestIdentityVerification({
+                    storeId: "store-d24ae279-ddd3-4bf4-abc7-a0fb5f257f24",
+                    identityVerificationId: `identity-verification-${crypto.randomUUID()}`,
+                    channelKey: "channel-key-75fe8dff-e361-46e8-b39d-9ed8f590b08b",
+                    // pgProvider: "DANAL"
+                });
+                console.log('본인인증 요청 성공');
+            } catch (error) {
+                console.error("본인인증 요청 실패: ", error)
+                console.error("본인인증 요청 실패 메세지: ", error.message)
+                console.error("본인인증 요청 실패 코드: ", error.code)
+            }
+        }
+    </script>
     <form action = "http://localhost:8080/v1/oauth/kakao" method = "post">
         <div>
             카카오 로그인
         </div>
         <button type = "submit">보내기</button>
     </form>
-    <button onclick = "requestPay()">결제하기</button>
+    <button onclick="requestConfirm()">본인인증</button>
 </body>
 </html>

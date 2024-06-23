@@ -24,6 +24,7 @@ class TotalUtil:
     async def is_valid_password(cls, input_password: str, save_password: str) -> bool:
         return cls._pwd_context.verify(input_password, save_password)
 
+
     @classmethod
     async def phone_validator(cls, phone_number: str) -> bool:
         phone_regex = r"\d{2,3}-\d{3,4}-\d{4}$"
@@ -47,7 +48,6 @@ class TotalUtil:
                 UserJWT(
                     _id=str(data.id),
                     user_id=data.user_id,
-                    gender=data.gender,
                     nickname=data.nickname,
                 )
             )
@@ -56,7 +56,6 @@ class TotalUtil:
                 UserJWT(
                     _id=str(data["id"]),
                     user_id=data["user_id"],
-                    gender=data["gender"],
                     nickname=data["nickname"],
                 )
             )
@@ -102,7 +101,7 @@ class TotalUtil:
     @classmethod
     async def check_special_words(cls, check_str: str) -> bool:
         special_words = "[${}()\[\]]"
-        return bool(re.search(special_words, check_str))
+        return not bool(re.search(special_words, check_str))
 
     @classmethod
     async def check_passwords(cls, check_passwd: str) -> bool:

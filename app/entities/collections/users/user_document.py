@@ -27,7 +27,6 @@ class UserDocument(BaseDocument):
     email: str
     name: str
     hash_pw: str
-    gender: str
     nickname: str
     phone_num: str
     login_method: str
@@ -41,7 +40,6 @@ class ShowUserDocument(BaseDocument):
     user_id: str
     email: str
     name: str
-    gender: str
     nickname: str
     is_delete: bool
     delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")

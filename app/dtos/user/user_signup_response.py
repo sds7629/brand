@@ -7,4 +7,3 @@ class UserSignupResponse:
     name: str
     email: str
     nickname: str
-    gender: str

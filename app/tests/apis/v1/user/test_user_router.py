@@ -33,8 +33,8 @@ async def test_유저_생성_테스트() -> None:
 
 async def test_유저_로그인_테스트() -> None:
     request_body = {
-        "user_id": "admin",
-        "password": "1234",
+        "user_id": "admin2",
+        "password": "1234"
     }
 
     async with AsyncClient(app=app, base_url="http://test") as client:

@@ -17,10 +17,13 @@ async def save_view_count() -> None:
     view_count_list: Sequence[int] = [int(await redis.get(view_count_key)) for view_count_key in
                                       view_count_key_list]
     co_list = [
-                QnACollection.update_by_id(ObjectId(qna_id), {"view_count": view_count})
-                for qna_id, view_count in zip(qna_id_list, view_count_list)
-               ]
+        QnACollection.update_by_id(ObjectId(qna_id), {"view_count": view_count})
+        for qna_id, view_count in zip(qna_id_list, view_count_list)
+    ]
     await asyncio.gather(*co_list)
 
 
-scheduler.add_job(lambda: asyncio.run(save_view_count()), trigger="interval", seconds=180)
+def start_scheduler() -> None:
+    loop = asyncio.get_event_loop()
+    scheduler.add_job(lambda: loop.create_task(save_view_count()), trigger="interval", seconds=180)
+    scheduler.start()

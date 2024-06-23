@@ -13,11 +13,13 @@ from app.apis.payment.v1.payment_router import router as payment_router
 from app.apis.qna.v1.qna_router import router as qna_router
 from app.apis.user.v1.user_router import router as user_router
 from app.entities.collections import set_indexes
+from app.utils.redis_scheduler import start_scheduler
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("시작되었어요!")
+    start_scheduler()
     await set_indexes()
     yield
     print("종료되었어요!")

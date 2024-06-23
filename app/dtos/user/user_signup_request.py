@@ -9,6 +9,5 @@ class UserSignupRequest:
     email: str
     name: str
     password: str
-    gender: str
     nickname: str
     phone_num: str

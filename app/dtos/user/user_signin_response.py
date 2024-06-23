@@ -1,4 +1,4 @@
-from pydantic import Field, dataclasses
+from pydantic import dataclasses
 
 from app.config import Config
 

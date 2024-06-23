@@ -2,13 +2,14 @@ from typing import Annotated
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, BackgroundTasks
 from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
 from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import Response
 
 from app.auth.auth_bearer import get_current_user
+from app.dtos.user.user_find_password import EmailSchema
 from app.dtos.user.user_profile_response import UserProfileResponse
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
@@ -24,6 +25,7 @@ from app.services.user_service import (
     signin_user,
     signup_user,
 )
+from app.utils.send_mail import find_password_to_email_send
 
 router = APIRouter(
     prefix="/v1/users",
@@ -47,7 +49,6 @@ async def api_profile(user: Annotated[ShowUserDocument, Depends(get_current_user
             name=user.name,
             nickname=user.nickname,
             email=user.email,
-            gender=user.gender,
             delivery_area=user.delivery_area,
         )
 
@@ -72,7 +73,6 @@ async def api_signup_user(user_signup_request: UserSignupRequest) -> UserSignupR
             name=user.name,
             email=user.email,
             nickname=user.nickname,
-            gender=user.gender,
         )
 
 
@@ -132,7 +132,7 @@ async def api_logout_user(response: Response) -> None:
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def api_signout(
-    user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
+        user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
 ) -> None:
     try:
         await delete_user(user, ObjectId(user_signout_request.base_user_id))
@@ -148,7 +148,7 @@ async def api_signout(
     response_class=ORJSONResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def api_refresh_access_token(response: Response, refresh_token_request: RefreshAccessRequest) -> None:
+async def api_refresh_access_token(response: Response, refresh_token_request: RefreshAccessRequest) -> Token:
     try:
         token = await refresh_access_token(refresh_token_request)
     except ValidationException as e:
@@ -161,3 +161,28 @@ async def api_refresh_access_token(response: Response, refresh_token_request: Re
         httponly=True,
         samesite="lax",
     )
+
+    return Token(
+        access_token=token["access_token"],
+        refresh_token=refresh_token_request.refresh_token,
+    )
+
+
+@router.post(
+    "/find-password",
+    description="비밀번호 찾기 - 이메일 전송",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_find_password(data: EmailSchema, background_task: BackgroundTasks) -> None:
+    background_task.add_task(find_password_to_email_send, data.email)
+
+
+@router.post(
+    "/set_new_password",
+    description="비밀번호 찾기 - 새로운 비밀번호",
+     response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_set_new_password():
+    ...

@@ -48,7 +48,6 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | 
         user_signup_request.email,
         user_signup_request.name,
         user_signup_request.password,
-        user_signup_request.gender,
         user_signup_request.nickname,
         user_signup_request.phone_num,
     )
@@ -56,7 +55,7 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | 
     return user
 
 
-async def signin_user(user_signin_request: UserSigninRequest) -> dict | None:
+async def signin_user(user_signin_request: UserSigninRequest) -> dict:
     user = await UserCollection.find_by_user_id(user_signin_request.user_id)
 
     if not user:
@@ -71,14 +70,13 @@ async def signin_user(user_signin_request: UserSigninRequest) -> dict | None:
             TotalUtil.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM),
             TotalUtil.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE, ALGORITHM),
         )
-
         data = {
             "user_data": user,
             "access_token": access_token,
             "refresh_token": refresh_token,
         }
         return data
-    return None
+    raise UserNotFoundException(response_message="패스워드가 맞지 않습니다.")
 
 
 async def delete_user(user: ShowUserDocument, user_id: ObjectId) -> None:
@@ -90,7 +88,7 @@ async def delete_user(user: ShowUserDocument, user_id: ObjectId) -> None:
 async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
     user = await UserCollection.find_by_user_id(refresh.user_id)
     token_expire = await TotalUtil.check_token_expire(refresh.refresh_token, REFRESH_SECRET_KEY)
-    if token_expire["is_expire"]:
+    if token_expire["is_expired"]:
         raise ValidationException(response_message="Token is expired")
     access_token = await TotalUtil.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
     data = {"access_token": access_token}

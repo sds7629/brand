@@ -10,13 +10,13 @@ from app.config import (
     REFRESH_SECRET_KEY,
     REFRESH_TOKEN_EXFIRE,
 )
-from app.dtos.user.user_duplicated_request import DuplicatedNicknameRequest
+from app.dtos.user.user_duplicated_request import DuplicatedRequest
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import ShowUserDocument, UserDocument
-from app.exceptions import UserNotFoundException, ValidationException, UserAlreadyExistException
+from app.exceptions import UserNotFoundException, ValidationException
 from app.utils.utility import TotalUtil
 
 
@@ -97,7 +97,17 @@ async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
     return data
 
 
-async def check_nickname(check_nickname_request: DuplicatedNicknameRequest) -> str:
-    if await UserCollection.find_by_nickname(check_nickname_request.nickname):
-        return "is_duplicated"
-    return "not_found"
+async def check_nickname_or_email(nickname_or_email_request: DuplicatedRequest) -> str:
+    if not (nickname_or_email_request.nickname or nickname_or_email_request.email):
+        raise ValidationException(response_message="한 개 이상의 값을 입력해주세요")
+    if nickname_or_email_request.nickname:
+        if await UserCollection.find_by_nickname(nickname_or_email_request.nickname):
+            return "is_duplicated"
+        else:
+            return "not_found"
+
+    if nickname_or_email_request.email:
+        if await UserCollection.find_by_email(nickname_or_email_request.email):
+            return "is_duplicated"
+        else:
+            return "not_found"

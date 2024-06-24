@@ -2,5 +2,5 @@ from pydantic import dataclasses
 
 
 @dataclasses.dataclass
-class DuplicatedNicknameResponse:
+class DuplicatedResponse:
     result: str

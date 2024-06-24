@@ -2,5 +2,6 @@ from pydantic import dataclasses
 
 
 @dataclasses.dataclass
-class DuplicatedNicknameRequest:
-    nickname: str
+class DuplicatedRequest:
+    nickname: str | None
+    email: str | None

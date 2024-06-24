@@ -86,6 +86,11 @@ class UserCollection:
         return cls._result_show_user_document_dto(result) if result else None
 
     @classmethod
+    async def find_by_email(cls, email: str) -> ShowUserDocument | None:
+        result = await cls._collection.find_one({"email": email})
+        return cls._result_show_user_document_dto(result) if result else None
+
+    @classmethod
     async def delete_by_id(cls, object_id: ObjectId) -> ShowUserDocument | None:
         result = await cls._collection.update_one(
             {"_id": object_id},

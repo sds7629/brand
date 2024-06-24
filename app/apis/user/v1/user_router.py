@@ -9,8 +9,8 @@ from fastapi.security import OAuth2PasswordBearer
 from starlette.responses import Response
 
 from app.auth.auth_bearer import get_current_user
-from app.dtos.user.user_duplicated_request import DuplicatedNicknameRequest
-from app.dtos.user.user_duplicated_response import DuplicatedNicknameResponse
+from app.dtos.user.user_duplicated_request import DuplicatedRequest
+from app.dtos.user.user_duplicated_response import DuplicatedResponse
 from app.dtos.user.user_find_password import EmailSchema
 from app.dtos.user.user_profile_response import UserProfileResponse
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
@@ -20,12 +20,13 @@ from app.dtos.user.user_signout_request import UserSignOutRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.dtos.user.user_signup_response import UserSignupResponse
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import UserNotFoundException, ValidationException, UserAlreadyExistException
+from app.exceptions import UserNotFoundException, ValidationException
 from app.services.user_service import (
+    check_nickname_or_email,
     delete_user,
     refresh_access_token,
     signin_user,
-    signup_user, check_nickname,
+    signup_user,
 )
 from app.utils.send_mail import find_password_to_email_send
 
@@ -131,7 +132,7 @@ async def api_logout_user(response: Response) -> None:
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def api_signout(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
 ) -> None:
     try:
         await delete_user(user, ObjectId(user_signout_request.base_user_id))
@@ -168,16 +169,17 @@ async def api_refresh_access_token(response: Response, refresh_token_request: Re
 
 
 @router.post(
-    "/check-nickname",
-    description="닉네임 중복 체크",
+    "/check",
+    description="닉네임, 이메일 중복 체크",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_check_nickname(check_nickname_request: DuplicatedNicknameRequest) -> DuplicatedNicknameResponse:
-    result = await check_nickname(check_nickname_request)
-    return DuplicatedNicknameResponse(
-        result=result
-    )
+async def api_check_nickname(nickname_or_email_request: DuplicatedRequest) -> DuplicatedResponse:
+    try:
+        result = await check_nickname_or_email(nickname_or_email_request)
+    except ValidationException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.response_message)
+    return DuplicatedResponse(result=result)
 
 
 @router.post(
@@ -192,8 +194,8 @@ async def api_find_password(data: EmailSchema, background_task: BackgroundTasks)
 
 @router.post(
     "/set_new_password",
-    description="비밀번호 찾기 - 새로운 비밀번호",
+    description="비밀번호 찾기 - 새로운 비밀번호 설정",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_set_new_password(): ...
+async def api_set_new_password() -> None: ...

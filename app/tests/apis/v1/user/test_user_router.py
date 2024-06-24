@@ -73,12 +73,10 @@ async def test_리프레시_토큰() -> None:
 
 
 async def test_닉네임_중복() -> None:
-    request_body = {
-        "nickname": "admin"
-    }
+    request_body = {"nickname": "admin"}
 
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/v1/users/check-nickname", json=request_body)
+        response = await client.get("/v1/users/check?email=admin")
 
         assert response.status_code == status.HTTP_200_OK
-        assert response.json()["result"] == "not_found"
+        assert response.json()["result"] == "is_duplicated"

@@ -151,7 +151,7 @@ async def api_refresh_access_token(response: Response, refresh_token_request: Re
     try:
         token = await refresh_access_token(refresh_token_request)
     except ValidationException as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={"message": e.response_message})
 
     response.set_cookie(
         key="access_token",

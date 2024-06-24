@@ -27,7 +27,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Sho
         user = await UserCollection.find_by_nickname(token_expire["payload"]["nickname"])
         # 이메일로 변경 필요
         if not user:
-            raise UserNotFoundException
+            raise UserNotFoundException(response_message="유저를 찾을 수 없습니다.")
         return user
     except JWTError:
         raise credentials_exception

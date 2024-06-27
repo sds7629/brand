@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Sequence
 
 from pydantic import AfterValidator, HttpUrl, dataclasses
 from pydantic.dataclasses import Field
@@ -15,7 +15,7 @@ HttpUrlString = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 class ReplyDocument(BaseDocument):
     writer: ShowUserDocument
     payload: str
-    image_url: HttpUrlString | None
+    image_urls: HttpUrlString | None
     updated_at: Optional[datetime] = None
 
 
@@ -23,9 +23,9 @@ class ReplyDocument(BaseDocument):
 class QnADocument(BaseDocument):
     title: str
     payload: str
-    qna_password: str | None
     writer: ShowUserDocument
-    image_url: HttpUrlString | None
+    image_urls: Sequence[HttpUrlString] | None
     view_count: int
+    is_secret: bool
     reply: list[ReplyDocument] | None = Field(default_factory=list)
     updated_at: Optional[datetime] = None

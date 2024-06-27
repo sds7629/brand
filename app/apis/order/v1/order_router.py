@@ -53,7 +53,7 @@ async def api_get_user_orders(user: Annotated[ShowUserDocument, Depends(get_curr
                         price=item.price,
                         size=item.size,
                         color=item.color,
-                        image_url=item.image_url,
+                        image_urls=item.image_urls,
                     )
                     for item in order.ordering_item
                 ],

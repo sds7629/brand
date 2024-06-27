@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Sequence
 
 from bson import ObjectId
 
@@ -14,8 +14,9 @@ from app.exceptions import (
 )
 
 
-async def qna_list() -> list[QnADocument]:
-    return await QnACollection.find_all_qna()
+async def qna_list(page: int) -> list[QnADocument]:
+    offset = (page - 1) * 15
+    return await QnACollection.find_all_qna(offset)
 
 
 async def find_qna_by_id(qna_id: ObjectId) -> QnADocument | None:
@@ -24,8 +25,22 @@ async def find_qna_by_id(qna_id: ObjectId) -> QnADocument | None:
     return qna
 
 
-async def find_qna_by_title(title: str) -> list[QnADocument]:
-    return await QnACollection.find_by_title(title)
+async def find_qna_by_title(keyword: str, page: int) -> Sequence[QnADocument]:
+    offset = (page - 1) * 15
+    filtering_item = await QnACollection.find_by_title(keyword, offset)
+    return filtering_item
+
+
+async def find_qna_by_payload(keyword: str, page: int) -> Sequence[QnADocument]:
+    offset = (page - 1) * 15
+    filtering_item = await QnACollection.find_by_payload(keyword, offset)
+    return filtering_item
+
+
+async def find_qna_by_writer(keyword: str, page: int) -> Sequence[QnADocument]:
+    offset = (page - 1) * 15
+    filtering_item = await QnACollection.find_by_writer(keyword, offset)
+    return filtering_item
 
 
 async def delete_qna_by_id(qna_id: ObjectId, user: ShowUserDocument) -> None:
@@ -42,8 +57,8 @@ async def create_qna(qna_data: QnARequest, user: ShowUserDocument) -> QnADocumen
     return await QnACollection.insert_one(
         title=qna_data.title,
         payload=qna_data.payload,
-        image_url=qna_data.image_url,
-        qna_password=qna_data.password,
+        image_urls=qna_data.image_urls,
+        is_secret=qna_data.is_secret,
         writer=user,
     )
 

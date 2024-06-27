@@ -7,7 +7,7 @@ from pydantic import HttpUrl, dataclasses
 class CartItemResponse:
     item_id: str
     item_name: str
-    image_url: HttpUrl
+    image_urls: Sequence[HttpUrl]
     size: str
     color: str
 
@@ -18,3 +18,8 @@ class CartResponse:
     item: CartItemResponse
     quantity: int
     total_price: int
+
+
+@dataclasses.dataclass
+class CartCreationResponse:
+    cart_id: Sequence[str]

@@ -10,15 +10,13 @@ from app.utils.utility import TotalUtil
 async def test_insert_one() -> None:
     # Given
     user = await UserCollection.find_by_nickname("admin")
-    title = "안녕하세요"
-    payload = "안녕하세요, 진우입니다ㅡ.ㅡ"
-    qna_password = "12343"
+    title = "안녕"
+    payload = "잘가세요, 푸루입니다3ㅡ.ㅡ"
 
     await QnACollection.insert_one(
         title=title,
         payload=payload,
-        qna_password=qna_password,
-        image_url=None,
+        image_urls=None,
         writer=user,
     )
 

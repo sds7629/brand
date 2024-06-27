@@ -15,23 +15,29 @@ async def test_item_get_name_api() -> None:
 
 async def test_all_item_get_api() -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/v1/items")
+        response = await client.get("/v1/items?page=1")
 
         new_list = [elem for elem in response.json()["item"]]
 
         assert response.status_code == 200
-        assert len(new_list) == 50
+        assert len(new_list) == 15
 
 
 async def test_create_item_api() -> None:
     item_creation_request = {
         "name": "api test2",
         "price": 100000,
-        "image_url": "https://cdn.imweb.me/thumbnail/20221103/cb05eb08e7fc9.jpg",
+        "image_urls": ["https://cdn.imweb.me/thumbnail/20221103/cb05eb08e7fc9.jpg"],
         "description": "api test pants",
         "item_quantity": 100,
-        "size": "s",
-        "category": [CategoryCode.BOTTOM],
+        "size": "1",
+        "color": "black",
+        "category": "bottom",
+        "details": [
+            "높은 밀도의 코튼 소재",
+            "웨이스트 밴드 드로우 스트링",
+            "밑단 스트링 조절 가능",
+        ],
     }
     async with AsyncClient(app=app, base_url="http://test") as client:
         response = await client.post("/v1/items/create", json=item_creation_request)
@@ -48,3 +54,12 @@ async def test_delete_item_api() -> None:
         response = await client.delete(f"/v1/items/{item_deleted_id}/delete")
 
     assert response.status_code == 204
+
+
+async def test_한개_데이터_가져오기() -> None:
+    item_id = "667ba0968328374933ae6d30"
+
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.get(f"/v1/items/{item_id}")
+
+        assert response.status_code == 200

@@ -12,7 +12,7 @@ class OnlyOneQnAResponse:
     payload: str
     writer: str
     view_count: int
-    image_url: str | None = None
+    image_urls: Sequence[str] | None = None
 
 
 @dataclasses.dataclass

@@ -1,10 +1,14 @@
 import asyncio
+import math
 from typing import Sequence
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from bson import ObjectId
 
 from app.entities.collections import QnACollection
+from app.entities.collections.items.item_collection import ItemCollection
+from app.entities.collections.qna.qna_collection import QnACollection
+from app.entities.redis_repositories.page_repository import PageRepository
 from app.entities.redis_repositories.view_count_repository import (
     ViewCountRedisRepository,
 )
@@ -24,7 +28,15 @@ async def save_view_count() -> None:
     await asyncio.gather(*co_list)
 
 
+async def set_item_page_count() -> None:
+    item_page_count = math.ceil(await ItemCollection.get_all_item_mount() / 15)
+    if await PageRepository.get("item_page_count") is None:
+        await PageRepository.set("item_page_count", "0")
+    await PageRepository.set("item_page_count", str(item_page_count))
+
+
 def start_scheduler() -> None:
     loop = asyncio.get_event_loop()
     scheduler.add_job(lambda: loop.create_task(save_view_count()), trigger="interval", seconds=180)
+    scheduler.add_job(lambda: loop.create_task(set_item_page_count()), trigger="interval", seconds=180)
     scheduler.start()

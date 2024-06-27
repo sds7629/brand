@@ -5,7 +5,11 @@ from fastapi.responses import ORJSONResponse
 
 from app.auth.auth_bearer import get_current_user
 from app.dtos.cart.cart_creation_request import CartCreationRequest
-from app.dtos.cart.cart_response import CartItemResponse, CartResponse
+from app.dtos.cart.cart_response import (
+    CartCreationResponse,
+    CartItemResponse,
+    CartResponse,
+)
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import ValidationException
 from app.services.cart_service import create_cart, get_user_carts
@@ -27,7 +31,7 @@ async def api_get_user_carts(user: Annotated[ShowUserDocument, Depends(get_curre
             item=CartItemResponse(
                 item_id=str(cart.item.id),
                 item_name=cart.item.name,
-                image_url=cart.item.image_url,
+                image_urls=cart.item.image_urls,
                 size=cart.item.size,
                 color=cart.item.color,
             ),
@@ -47,11 +51,12 @@ async def api_get_user_carts(user: Annotated[ShowUserDocument, Depends(get_curre
 )
 async def api_create_cart(
     user: Annotated[ShowUserDocument, Depends(get_current_user)], cart_creation_request: CartCreationRequest
-) -> None:
+) -> CartCreationResponse:
     try:
-        await create_cart(user, cart_creation_request)
+        cart_id_list = await create_cart(user, cart_creation_request)
     except ValidationException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"message": e.response_message},
         )
+    return CartCreationResponse(cart_id=[str(cart.id) for cart in cart_id_list])

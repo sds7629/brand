@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Any, Sequence
 
 from pydantic import AfterValidator, HttpUrl, dataclasses
 
@@ -16,11 +16,12 @@ class ItemDocument(BaseDocument):
     name: str
     color: ColorCode
     price: int
-    image_url: HttpUrlString
+    image_urls: Sequence[HttpUrlString]
     description: str
     registration_date: datetime
     item_quantity: int
+    details: Sequence[str]
     size: SizeCode
-    category_codes: list[CategoryCode]
+    category_codes: CategoryCode
     updated_at: datetime | None = None
     is_deleted: bool = False

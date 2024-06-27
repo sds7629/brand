@@ -31,7 +31,7 @@ class OrderItemResponse:
     size: str
     color: str
     price: int
-    image_url: str
+    image_urls: Sequence[str]
 
 
 @dataclasses.dataclass

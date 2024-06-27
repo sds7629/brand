@@ -99,7 +99,8 @@ async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
 
 async def check_nickname_or_email(nickname_or_email_request: DuplicatedRequest) -> str:
     if not (nickname_or_email_request.nickname or nickname_or_email_request.email):
-        raise ValidationException(response_message="한 개 이상의 값을 입력해주세요")
+        raise ValidationException(response_message="한 개의 값을 입력해주세요")
+
     if nickname_or_email_request.nickname:
         if await UserCollection.find_by_nickname(nickname_or_email_request.nickname):
             return "is_duplicated"

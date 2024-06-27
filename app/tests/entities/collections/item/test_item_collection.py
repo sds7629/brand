@@ -5,27 +5,33 @@ from bson import ObjectId
 
 from app.entities.category.category_codes import CategoryCode
 from app.entities.collections.items.item_collection import ItemCollection
+from app.utils.enums.color_codes import ColorCode
+from app.utils.enums.size_codes import SizeCode
 
 
 async def test_insert_item() -> None:
     name = "겁나 멋진 상의"
     price = 30000
-    image_url = "https://www.calvinklein.co.kr/dw/image/v2/BGLQ_PRD/on/demandware.static/-/Sites-ck-sea-master-catalog/default/dw6f9397b1/images/CK/KR/C28_01_4MS4K189020_FL-TP-F2.jpg?sw=548&sh=685&q=90"
+    image_urls = [
+        "https://www.calvinklein.co.kr/dw/image/v2/BGLQ_PRD/on/demandware.static/-/Sites-ck-sea-master-catalog/default/dw6f9397b1/images/CK/KR/C28_01_4MS4K189020_FL-TP-F2.jpg?sw=548&sh=685&q=90"
+    ]
     description = "겁나게 멋진 옷입니다."
     registration_date = datetime.utcnow()
     item_quantity = 100
-    size = "L"
+    color = ColorCode.BLACK
+    size = SizeCode.ONE
     category = [CategoryCode.TOP]
 
     result = await ItemCollection.insert_one(
         name=name,
         price=price,
-        image_url=image_url,
+        image_urls=image_urls,
         description=description,
         registration_date=registration_date,
         item_quantity=item_quantity,
+        color=color,
         size=size,
-        category=category,
+        category_codes=category,
     )
 
     assert result._id is not None

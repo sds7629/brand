@@ -19,6 +19,9 @@ from app.services.qna_service import (
     create_qna,
     delete_qna_by_id,
     find_qna_by_id,
+    find_qna_by_payload,
+    find_qna_by_title,
+    find_qna_by_writer,
     qna_list,
     update_qna,
 )
@@ -33,13 +36,70 @@ router = APIRouter(prefix="/v1/qna", tags=["qna"], redirect_slashes=False)
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_get_qna() -> QnAResponse:
-    item = [
+async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, page: int = 1) -> QnAResponse:
+    if qna_type == "title" and keyword is not None:
+        title_qna = await find_qna_by_title(keyword, page)
+        title_qna_res = [
+            OnlyOneQnAResponse(
+                id=str(qna.id),
+                title=qna.title,
+                payload=qna.payload,
+                image_urls=qna.image_urls,
+                writer=qna.writer.nickname,
+                view_count=(
+                    int(counting)
+                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
+                    else 0
+                ),
+            )
+            for qna in title_qna
+        ]
+        return QnAResponse(qna=title_qna_res)
+
+    if qna_type == "payload" and keyword is not None:
+        payload_qna = await find_qna_by_payload(keyword, page)
+        payload_qna_list = [
+            OnlyOneQnAResponse(
+                id=str(qna.id),
+                title=qna.title,
+                payload=qna.payload,
+                image_urls=qna.image_urls,
+                writer=qna.writer.nickname,
+                view_count=(
+                    int(counting)
+                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
+                    else 0
+                ),
+            )
+            for qna in payload_qna
+        ]
+        return QnAResponse(qna=payload_qna_list)
+
+    if qna_type == "writer" and keyword is not None:
+        writer_qna = await find_qna_by_writer(keyword, page)
+        writer_qna_list = [
+            OnlyOneQnAResponse(
+                id=str(qna.id),
+                title=qna.title,
+                payload=qna.payload,
+                image_urls=qna.image_urls,
+                writer=qna.writer.nickname,
+                view_count=(
+                    int(counting)
+                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
+                    else 0
+                ),
+            )
+            for qna in writer_qna
+        ]
+        return QnAResponse(qna=writer_qna_list)
+
+    qna = [
         OnlyOneQnAResponse(
             id=str(qna.id),
             title=qna.title,
             payload=qna.payload,
-            image_url=qna.image_url,
+            image_urls=qna.image_urls,
             writer=qna.writer.nickname,
             view_count=(
                 int(counting)
@@ -47,9 +107,9 @@ async def api_get_qna() -> QnAResponse:
                 else 0
             ),
         )
-        for qna in await qna_list()
+        for qna in await qna_list(page)
     ]
-    return QnAResponse(qna=item)
+    return QnAResponse(qna=qna)
 
 
 @router.get(
@@ -77,7 +137,7 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
         title=result.title,
         payload=result.payload,
         writer=result.writer.nickname,
-        image_url=result.image_url,
+        image_urls=result.image_urls,
         view_count=int(await ViewCountRedisRepository.get("view_count_" + str(result.id))),
     )
 
@@ -98,7 +158,7 @@ async def api_create_qna(
             title=qna.title,
             payload=qna.payload,
             writer=qna.writer.nickname,
-            image_url=qna.image_url,
+            image_urls=qna.image_urls,
             view_count=qna.view_count,
         )
     except Exception as e:

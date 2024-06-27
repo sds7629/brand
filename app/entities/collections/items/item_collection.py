@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, cast
+from typing import Any, Sequence, cast
 
 import pymongo
 from bson import ObjectId
@@ -31,11 +31,12 @@ class ItemCollection:
         name: str,
         color: ColorCode,
         price: int,
-        image_url: HttpUrl,
+        image_urls: Sequence[HttpUrl],
         description: str,
         item_quantity: int,
         size: SizeCode,
-        category_codes: list[CategoryCode],
+        category_codes: CategoryCode,
+        details: Sequence[str],
         registration_date: datetime = datetime.utcnow(),
     ) -> ItemDocument:
         result = await cls._collection.insert_one(
@@ -43,12 +44,13 @@ class ItemCollection:
                 "name": name,
                 "color": color,
                 "price": price,
-                "image_url": str(image_url),
+                "image_url": [str(image_url) for image_url in image_urls],
                 "description": description,
                 "registration_date": registration_date,
                 "item_quantity": item_quantity,
                 "size": size,
-                "category": category_codes,
+                "category_codes": category_codes,
+                "details": details,
             }
         )
 
@@ -57,18 +59,23 @@ class ItemCollection:
             name=name,
             color=color,
             price=price,
-            image_url=image_url,
+            image_urls=image_urls,
             description=description,
             registration_date=registration_date + timedelta(hours=9),
             item_quantity=item_quantity,
             size=size,
             category_codes=category_codes,
+            details=details,
         )
 
     @classmethod
-    async def find_all_item(cls, offset: int | None = None) -> list[ItemDocument] | None:
-        all_item = await cls._collection.find({}).limit(50).skip(offset).to_list(length=50)
+    async def find_all_item(cls, offset: int) -> list[ItemDocument] | None:
+        all_item = await cls._collection.find({}).limit(15).skip(offset).to_list(length=15)
         return [cls._parse(item) for item in all_item if item is not None]
+
+    @classmethod
+    async def get_all_item_mount(cls) -> int:
+        return len(await cls._collection.find({}).to_list(None))
 
     @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> ItemDocument | None:
@@ -77,7 +84,7 @@ class ItemCollection:
 
     @classmethod
     async def find_by_name(cls, name: str) -> list[ItemDocument] | None:
-        filtering_item = await cls._collection.find({"name": {"$regex": name, "$options": "i"}}).to_list(length=50)
+        filtering_item = await cls._collection.find({"name": {"$regex": name, "$options": "i"}}).to_list(length=15)
         return [cls._parse(item) for item in filtering_item if item is not None]
 
     @classmethod
@@ -97,10 +104,15 @@ class ItemCollection:
             name=result["name"],
             color=result["color"],
             price=result["price"],
-            image_url=result["image_url"],
+            image_urls=result["image_urls"],
             description=result["description"],
             registration_date=result["registration_date"] + timedelta(hours=9),
             item_quantity=result["item_quantity"],
             size=result["size"],
             category_codes=result["category_codes"],
+            details=result["details"],
         )
+
+    @property
+    def collection(self):
+        return self._collection

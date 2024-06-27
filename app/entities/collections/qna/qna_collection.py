@@ -1,10 +1,9 @@
 from dataclasses import asdict
-from typing import Any, cast
+from typing import Any, Sequence, cast
 
 import pymongo
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
-from pydantic import HttpUrl
 
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
@@ -25,18 +24,18 @@ class QnACollection:
         cls,
         title: str,
         payload: str,
-        qna_password: str,
         writer: ShowUserDocument,
-        image_url: str | None = None,
+        image_urls: Sequence[str] | None = None,
+        is_secret: bool = False,
         view_count: int = 0,
     ) -> QnADocument:
         result = await cls._collection.insert_one(
             {
                 "title": title,
                 "payload": payload,
-                "image_url": image_url,
-                "qna_password": qna_password,
+                "image_urls": image_urls,
                 "writer": asdict(writer),
+                "is_secret": is_secret,
                 "view_count": view_count,
             }
         )
@@ -45,15 +44,22 @@ class QnACollection:
             _id=result.inserted_id,
             title=title,
             payload=payload,
-            image_url=image_url,
-            qna_password=qna_password,
+            image_urls=image_urls,
             writer=writer,
+            is_secret=is_secret,
             view_count=view_count,
         )
 
     @classmethod
-    async def find_all_qna(cls) -> list[QnADocument]:
-        return [cls._result_dto(result) for result in await cls._collection.find({}).to_list(None)]
+    async def find_all_qna(cls, offset: int) -> list[QnADocument]:
+        return [
+            cls._result_dto(result)
+            for result in await cls._collection.find({}).limit(15).skip(offset).to_list(length=15)
+        ]
+
+    @classmethod
+    async def get_all_qna_count(cls) -> int:
+        return len(await cls._collection.find({}).to_list(None))
 
     @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> QnADocument | None:
@@ -66,10 +72,33 @@ class QnACollection:
         return cast(int, result.deleted_count)
 
     @classmethod
-    async def find_by_title(cls, title: str) -> list[QnADocument]:
+    async def find_by_title(cls, title_keyword: str, offset: int) -> list[QnADocument]:
         return [
             cls._result_dto(result)
-            for result in await cls._collection.find({"title": {"$regex": title, "$options": "i"}}).to_list(None)
+            for result in await cls._collection.find({"title": {"$regex": title_keyword, "$options": "i"}})
+            .limit(15)
+            .skip(offset)
+            .to_list(None)
+        ]
+
+    @classmethod
+    async def find_by_payload(cls, payload_keyword: str, offset: int) -> Sequence[QnADocument]:
+        return [
+            cls._result_dto(result)
+            for result in await cls._collection.find({"payload": {"$regex": payload_keyword, "$options": "i"}})
+            .limit(15)
+            .skip(offset)
+            .to_list(None)
+        ]
+
+    @classmethod
+    async def find_by_writer(cls, writer_keyword: str, offset: int) -> Sequence[QnADocument]:
+        return [
+            cls._result_dto(result)
+            for result in await cls._collection.find({"writer": {"$regex": writer_keyword, "$options": "i"}})
+            .limit(15)
+            .skip(offset)
+            .to_list(None)
         ]
 
     @classmethod
@@ -83,8 +112,8 @@ class QnACollection:
             _id=result["_id"],
             title=result["title"],
             payload=result["payload"],
-            image_url=result["image_url"],
-            qna_password=result["qna_password"],
+            image_urls=result["image_urls"],
             writer=result["writer"],
+            is_secret=result["is_secret"],
             view_count=result["view_count"],
         )

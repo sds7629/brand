@@ -7,7 +7,7 @@ from app.main import app
 
 async def test_QnA_모두_가져오기() -> None:
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.get("/v1/qna")
+        response = await client.get("/v1/qna?qna_type=payload&keyword=푸루")
 
         assert response.status_code == status.HTTP_200_OK
 

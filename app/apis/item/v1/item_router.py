@@ -1,5 +1,5 @@
 import json
-from typing import Any, Sequence
+from typing import  Sequence
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -152,9 +152,26 @@ async def api_create_item(
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_update_item(item_id: str, item_update_request: ItemUpdateRequest) -> None:
+async def api_update_item(
+        item_id: str,
+        item_update_request: Request,
+        item_update_images: Sequence[UploadFile] = File(...),
+) -> None:
+    if item_update_images[0].filename == "":
+        item_update_images = None
     try:
-        await updated_item(ObjectId(item_id), item_update_request)
+        item_update_form = await item_update_request.form()
+        item_update_form_to_dict = {key: val for key, val in item_update_form.items() if key != "item_update_images"}
+        item_update_json_data = json.loads(item_update_form_to_dict["item_update_request"])
+        item_update_validate_data = ItemUpdateRequest(**item_update_json_data)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": str(e)},
+        )
+    try:
+        await updated_item(ObjectId(item_id), item_update_validate_data, item_update_images)
     except NoContentException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
     except InvalidId:

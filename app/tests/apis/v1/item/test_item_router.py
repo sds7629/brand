@@ -27,7 +27,6 @@ async def test_create_item_api() -> None:
     item_creation_request = {
         "name": "api test2",
         "price": 100000,
-        "image_urls": ["https://cdn.imweb.me/thumbnail/20221103/cb05eb08e7fc9.jpg"],
         "description": "api test pants",
         "item_quantity": 100,
         "size": "1",
@@ -39,8 +38,10 @@ async def test_create_item_api() -> None:
             "밑단 스트링 조절 가능",
         ],
     }
+    image_path = "screenshot.png"
+
     async with AsyncClient(app=app, base_url="http://test") as client:
-        response = await client.post("/v1/items/create", json=item_creation_request)
+        response = await client.post("/v1/items/create", data=item_creation_request, files={"image": image_path})
 
     json_data = response.json()
 

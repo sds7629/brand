@@ -1,6 +1,8 @@
 from dataclasses import asdict
+from typing import Sequence
 
 from bson import ObjectId
+from fastapi import File, UploadFile
 
 from app.dtos.item.item_creation_request import ItemCreationRequest
 from app.dtos.item.item_update_request import ItemUpdateRequest
@@ -11,13 +13,18 @@ from app.exceptions import (
     NoContentException,
     NoSuchElementException,
 )
+from app.utils.connection_aws import upload_image
 
 
-async def create_item(item_creation_request: ItemCreationRequest) -> ItemDocument:
+async def create_item(
+    item_creation_request: ItemCreationRequest, item_creation_images: Sequence[UploadFile] = File(...)
+) -> ItemDocument:
+    if bool(item_creation_images) is not None:
+        item_creation_image_urls_from_aws = [(await upload_image(image))["url"] for image in item_creation_images]
     item = await ItemCollection.insert_one(
         name=item_creation_request.name,
         price=item_creation_request.price,
-        image_urls=item_creation_request.image_urls,
+        image_urls=item_creation_image_urls_from_aws,
         description=item_creation_request.description,
         item_quantity=item_creation_request.item_quantity,
         size=item_creation_request.size,

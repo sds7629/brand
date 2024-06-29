@@ -1,6 +1,17 @@
+import json
+from typing import Any, Sequence
+
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, HTTPException, status
+from fastapi import (
+    APIRouter,
+    File,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+    status,
+)
 from fastapi.responses import ORJSONResponse
 
 from app.dtos.item.item_creation_request import ItemCreationRequest
@@ -11,6 +22,7 @@ from app.exceptions import (
     ItemNotFoundException,
     NoContentException,
     NoSuchElementException,
+    ValidationException,
 )
 from app.services.item_service import (
     create_item,
@@ -99,8 +111,26 @@ async def api_get_one_item(item_id: str) -> OneItemResponse:
     response_class=ORJSONResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def api_create_item(item_creation_request: ItemCreationRequest) -> OneItemResponse:
-    item = await create_item(item_creation_request)
+async def api_create_item(
+    item_request: Request,
+    item_creation_images: Sequence[UploadFile] = File(...),
+) -> OneItemResponse:
+    try:
+        item_request_form_data = await item_request.form()
+        item_data = {key: val for key, val in item_request_form_data.items() if key != "item_creation_images"}
+        item_data_to_json = json.loads(item_data["item_creation_request"])
+        item_validated_data: ItemCreationRequest = ItemCreationRequest(**item_data_to_json)
+    except ValidationException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": str(e)},
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": str(e)},
+        )
+    item = await create_item(item_validated_data, item_creation_images)
     return OneItemResponse(
         id=str(item.id),
         name=item.name,
@@ -136,13 +166,12 @@ async def api_update_item(item_id: str, item_update_request: ItemUpdateRequest) 
 @router.delete(
     "/{item_id}/delete",
     description="아이템 삭제",
-    response_class=ORJSONResponse,
+    response_class=Response,
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def api_delete_item(item_id: str) -> None:
     try:
         await delete_item(ObjectId(item_id))
-
     except ItemNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

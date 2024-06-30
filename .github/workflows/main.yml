@@ -51,7 +51,7 @@ jobs:
 
       steps:
         - name: ssh and deploy
-          uses: appleboy/ssh-action@master
+          uses: docker/login-action@v2
           with:
             registry: ghcr.io
             username: ${{ github.actor }}

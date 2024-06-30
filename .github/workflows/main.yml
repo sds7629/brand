@@ -57,7 +57,7 @@ jobs:
             username: ${{ github.actor }}
             password: ${{ secrets.GHCR_TOKEN }}
 
-        - name: Docker Compose up
+        - name: Docker Compose
           run: |
             docker compose down && docker rmi {{ env.DOCKER_IMAGE }}:latest
             docker compose up -d --build

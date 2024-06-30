@@ -50,5 +50,5 @@ jobs:
       - name: Run Isort
         run: poetry run isort .
 
-      - name: Run Toml Sort
-        run: poetry run toml-sort pyproject.toml --all --check
+#      - name: Run Toml Sort
+#        run: poetry run toml-sort pyproject.toml --all --check

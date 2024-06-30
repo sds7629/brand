@@ -3,7 +3,7 @@ import os
 from redis.asyncio import ConnectionError, Redis
 
 redis: "Redis[str]" = Redis.from_url(
-    os.environ.get("REDIS_URL", "redis://localhost:6379"),
+    os.environ.get("REDIS_URL"),
     decode_responses=True,
     socket_timeout=5,
     retry_on_timeout=True,

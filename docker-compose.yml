@@ -3,11 +3,13 @@ version: '3.11'
 services:
   redis:
     image: redis:7.0.12
+    hostname: redis
+    command: redis-server --port 6379
+    restart: always
     ports:
       - "6379:6379"
     networks:
       - fso_network
-
     container_name: fso-redis
     volumes:
       - ./app/redis:/data
@@ -23,14 +25,6 @@ services:
       - app
     networks:
       - fso_network
-
-#  db:
-#    image: mongo:6
-#    ports:
-#      - "27017:27017"
-#    networks:
-#      - fso_network
-#    container_name: fso-db
 
   app:
     restart: always

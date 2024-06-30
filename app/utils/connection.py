@@ -2,10 +2,10 @@ import os
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
-DB_NAME = os.environ.get("MONGO_DB", "weeber")
+DB_NAME = os.environ.get("MONGO_DB")
 
-client = AsyncIOMotorClient()
-db = client[DB_NAME]
+client = AsyncIOMotorClient(DB_NAME)
+db = client["FSO"]
 
 # import asyncio
 

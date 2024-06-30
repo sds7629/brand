@@ -24,13 +24,13 @@ services:
     networks:
       - fso_network
 
-  db:
-    image: mongo:6
-    ports:
-      - "27017:27017"
-    networks:
-      - fso_network
-    container_name: fso-db
+#  db:
+#    image: mongo:6
+#    ports:
+#      - "27017:27017"
+#    networks:
+#      - fso_network
+#    container_name: fso-db
 
   app:
     restart: always

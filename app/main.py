@@ -38,7 +38,6 @@ templates = Jinja2Templates(directory="app/templates")
 
 origins = ["http://localhost:3000"]
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

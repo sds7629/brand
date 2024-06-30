@@ -45,7 +45,7 @@ services:
       - "8080:8080"
     depends_on:
       - redis
-      - db
+#      - db
     networks:
       - fso_network
     container_name: fso-server

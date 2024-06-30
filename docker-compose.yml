@@ -7,6 +7,8 @@ services:
       - "6379:6379"
     networks:
       - fso_network
+
+    container_name: fso-redis
     volumes:
       - ./app/redis:/data
 
@@ -14,6 +16,7 @@ services:
     image: nginx
     ports:
       - "8081:8081"
+    container_name: fso-nginx
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
@@ -27,6 +30,7 @@ services:
       - "27017:27017"
     networks:
       - fso_network
+    container_name: fso-db
 
   app:
     restart: always
@@ -44,6 +48,7 @@ services:
       - db
     networks:
       - fso_network
+    container_name: fso-server
     command: /start.sh
 
 networks:

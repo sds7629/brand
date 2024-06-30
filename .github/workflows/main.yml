@@ -34,7 +34,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secret.GHCR_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and push
         id: docker-buildx
@@ -55,7 +55,7 @@ jobs:
           with:
             registry: ghcr.io
             username: ${{ github.actor }}
-            password: ${{ secret.GHCR_TOKEN }}
+            password: ${{ secrets.GHCR_TOKEN }}
 
         - name: Docker Compose up
           run: |

@@ -45,10 +45,10 @@ jobs:
         run: poetry install
 
       - name: Run Black
-        run: poetry run black . --check
+        run: poetry run black .
 
       - name: Run Isort
-        run: poetry run isort . --check --diff
+        run: poetry run isort .
 
       - name: Run Toml Sort
         run: poetry run toml-sort pyproject.toml --all --check

@@ -41,7 +41,7 @@ async def upload_image(file: UploadFile = File(...)) -> dict[Any, Any]:
     if not file:
         return {"detail": "파일이 없습니다."}
     image_file = await validate_image_file(file)
-
+    ...
     import uuid
 
     file_name = f"{str(uuid.uuid4())}.jpg"

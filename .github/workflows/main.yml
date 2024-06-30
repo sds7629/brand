@@ -58,7 +58,7 @@ jobs:
             key: ${{ secrets.EC2_SSH_KEY }}
             script: |
               cd /home/ubuntu/brand
-              git pull
+              git pull origin main
               if docker-compose ps | grep -q "Up"; then
                   docker-compose down
               fi

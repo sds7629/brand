@@ -39,6 +39,7 @@ class UserCollection:
         login_method: str = "page",
         is_authenticated: bool = False,
         is_delete: bool = False,
+        is_admin: bool = False,
         delivery_area: list[DeliveryDocument] = [],
     ) -> UserDocument:
         result = await cls._collection.insert_one(
@@ -52,6 +53,7 @@ class UserCollection:
                 "login_method": login_method,
                 "is_authenticated": is_authenticated,
                 "is_delete": is_delete,
+                "is_admin": is_admin,
                 "delivery_area": [asdict(area) for area in delivery_area],
             }
         )
@@ -67,6 +69,7 @@ class UserCollection:
             phone_num=phone_num,
             is_authenticated=is_authenticated,
             is_delete=is_delete,
+            is_admin=is_admin,
             delivery_area=delivery_area,
         )
 
@@ -107,6 +110,7 @@ class UserCollection:
             name=result["name"],
             nickname=result["nickname"],
             is_delete=result["is_delete"],
+            is_admin=result["is_admin"],
             delivery_area=result["delivery_area"],
         )
 
@@ -123,5 +127,6 @@ class UserCollection:
             login_method=result["login_method"],
             is_authenticated=result["is_authenticated"],
             is_delete=result["is_delete"],
+            is_admin=result["is_admin"],
             delivery_area=result["delivery_area"],
         )

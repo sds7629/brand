@@ -42,10 +42,12 @@ async def delete_item(item_id: ObjectId) -> int:
     return deleted_item
 
 
-async def updated_item(item_id: ObjectId, item_update_request: ItemUpdateRequest, item_update_images: Sequence[UploadFile] | None) -> int:
+async def updated_item(item_id: ObjectId, item_update_request: ItemUpdateRequest, item_update_images: Sequence[UploadFile] | None,) -> int:
     if len(data := {key: val for key, val in asdict(item_update_request).items() if val is not None}) > 0:
         if bool(item_update_images):
-            item_update_image_urls_from_aws = [(await upload_image(image))["url"] for image in item_update_images if image.filename != '']
+            item_update_image_urls_from_aws = [
+                (await upload_image(image))["url"]
+                for image in item_update_images if image.filename != '']
             data["image_urls"] = item_update_image_urls_from_aws
         updated_item_count = await ItemCollection.update_by_id(item_id, data)
         return updated_item_count

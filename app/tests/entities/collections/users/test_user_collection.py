@@ -3,13 +3,13 @@ from app.entities.collections.users.user_document import DeliveryDocument
 
 
 async def test_유저_회원가입() -> None:
-    user_id = "admin"
+    user_id = "admin2"
     email = "admin@naver.com"
-    name = "어드민"
+    name = "어드민2"
     password = "1234"
     gender = "male"
     phone_num = "010-4444-1322"
-    nickname = "admin"
+    nickname = "admin2"
     delivery_area = [
         DeliveryDocument(
             name="김땡",
@@ -24,7 +24,8 @@ async def test_유저_회원가입() -> None:
     ]
 
     user = await UserCollection.insert_one(
-        user_id, email, name, password, gender, nickname, phone_num, login_method="naver", delivery_area=delivery_area
+        user_id=user_id,  email=email, name=name, password=password,
+        nickname=nickname, phone_num=phone_num, login_method="naver", delivery_area=delivery_area, is_admin=False
     )
     results = await UserCollection._collection.find({}).to_list(None)
 
@@ -38,10 +39,9 @@ async def test_유저_회원가입() -> None:
 
 
 async def test_유저_가져오기() -> None:
-    user_id = "admin"
+    user_id1 = "admin"
+    user_id2 = "admin2"
 
-    # user = await UserCollection.find_by_user_id(user_id=user_id)
-    user = await UserCollection._collection.find_one({"user_id": user_id})
-    assert user is not None
-    assert user["user_id"] == user_id
-    assert user["email"] == "admin@naver.com"
+    user1 = await UserCollection.find_by_user_id(user_id=user_id1)
+    user2 = await UserCollection.find_by_user_id(user_id=user_id2)
+    assert user1 == user2

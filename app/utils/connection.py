@@ -6,7 +6,7 @@ DB_NAME = os.environ.get("MONGO_DB")
 
 client = AsyncIOMotorClient(DB_NAME)
 db = client["FSO"]
-
+# db = client["weeber"]
 # import asyncio
 
 # async def print_mongo_version():

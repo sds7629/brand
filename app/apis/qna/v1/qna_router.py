@@ -1,10 +1,11 @@
 import asyncio
+import json
 from dataclasses import asdict
-from typing import Annotated
+from typing import Annotated, Sequence, Union
 
 from bson import ObjectId
 from bson.errors import InvalidId
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, UploadFile, File
 from fastapi.responses import ORJSONResponse
 
 from app.auth.auth_bearer import get_current_user
@@ -14,7 +15,7 @@ from app.entities.collections.users.user_document import ShowUserDocument
 from app.entities.redis_repositories.view_count_repository import (
     ViewCountRedisRepository,
 )
-from app.exceptions import NoSuchElementException, QnANotFoundException
+from app.exceptions import NoSuchElementException, QnANotFoundException, ValidationException, NoContentException
 from app.services.qna_service import (
     create_qna,
     delete_qna_by_id,
@@ -36,7 +37,11 @@ router = APIRouter(prefix="/v1/qna", tags=["qna"], redirect_slashes=False)
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, page: int = 1) -> QnAResponse:
+async def api_get_qna(
+        qna_type: str | None = None,
+        keyword: str | None = None,
+        page: int = 1
+) -> QnAResponse:
     if qna_type == "title" and keyword is not None:
         title_qna = await find_qna_by_title(keyword, page)
         title_qna_res = [
@@ -51,8 +56,10 @@ async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, p
                     if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
                     else 0
                 ),
+                is_secret=qna.is_secret,
+                is_notice=qna.is_notice,
             )
-            for qna in title_qna
+            for qna in title_qna if qna.is_secret is False
         ]
         return QnAResponse(qna=title_qna_res)
 
@@ -70,6 +77,8 @@ async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, p
                     if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
                     else 0
                 ),
+                is_secret=qna.is_secret,
+                is_notice=qna.is_notice,
             )
             for qna in payload_qna
         ]
@@ -89,6 +98,8 @@ async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, p
                     if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
                     else 0
                 ),
+                is_secret=qna.is_secret,
+                is_notice=qna.is_notice,
             )
             for qna in writer_qna
         ]
@@ -106,8 +117,105 @@ async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, p
                 if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
                 else 0
             ),
+            is_secret=qna.is_secret,
+            is_notice=qna.is_notice,
         )
-        for qna in await qna_list(page)
+        for qna in await qna_list(page) if qna.is_secret is False
+    ]
+    return QnAResponse(qna=qna)
+
+
+@router.get(
+    "/secret",
+    description="QnA 게시판",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_get_qna(
+        user: Annotated[ShowUserDocument, Depends(get_current_user)],
+        qna_type: str | None = None,
+        keyword: str | None = None,
+        page: int = 1
+) -> QnAResponse:
+    if qna_type == "title" and keyword is not None:
+        title_qna = await find_qna_by_title(keyword, page)
+        title_qna_res = [
+            OnlyOneQnAResponse(
+                id=str(qna.id),
+                title=qna.title,
+                payload=qna.payload,
+                image_urls=qna.image_urls,
+                writer=qna.writer.nickname,
+                view_count=(
+                    int(counting)
+                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
+                    else 0
+                ),
+                is_secret=qna.is_secret,
+                is_notice=qna.is_notice,
+            )
+            for qna in title_qna if (qna.is_secret is False) or (qna.writer == user)
+        ]
+        return QnAResponse(qna=title_qna_res)
+
+    if qna_type == "payload" and keyword is not None:
+        payload_qna = await find_qna_by_payload(keyword, page)
+        payload_qna_list = [
+            OnlyOneQnAResponse(
+                id=str(qna.id),
+                title=qna.title,
+                payload=qna.payload,
+                image_urls=qna.image_urls,
+                writer=qna.writer.nickname,
+                view_count=(
+                    int(counting)
+                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
+                    else 0
+                ),
+                is_secret=qna.is_secret,
+                is_notice=qna.is_notice,
+            )
+            for qna in payload_qna if (qna.is_secret is False) or (qna.writer == user)
+        ]
+        return QnAResponse(qna=payload_qna_list)
+
+    if qna_type == "writer" and keyword is not None:
+        writer_qna = await find_qna_by_writer(keyword, page)
+        writer_qna_list = [
+            OnlyOneQnAResponse(
+                id=str(qna.id),
+                title=qna.title,
+                payload=qna.payload,
+                image_urls=qna.image_urls,
+                writer=qna.writer.nickname,
+                view_count=(
+                    int(counting)
+                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
+                    else 0
+                ),
+                is_secret=qna.is_secret,
+                is_notice=qna.is_notice,
+            )
+            for qna in writer_qna if (qna.is_secret is False) or (qna.writer == user)
+        ]
+        return QnAResponse(qna=writer_qna_list)
+
+    qna = [
+        OnlyOneQnAResponse(
+            id=str(qna.id),
+            title=qna.title,
+            payload=qna.payload,
+            image_urls=qna.image_urls,
+            writer=qna.writer.nickname,
+            view_count=(
+                int(counting)
+                if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
+                else 0
+            ),
+            is_secret=qna.is_secret,
+            is_notice=qna.is_notice,
+        )
+        for qna in await qna_list(page) if (qna.is_secret is False) or (qna.writer == user)
     ]
     return QnAResponse(qna=qna)
 
@@ -139,6 +247,8 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
         writer=result.writer.nickname,
         image_urls=result.image_urls,
         view_count=int(await ViewCountRedisRepository.get("view_count_" + str(result.id))),
+        is_secret=result.is_secret,
+        is_notice=result.is_notice,
     )
 
 
@@ -149,10 +259,21 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_qna(
-    qna_request: QnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
+        qna_request: Request, user: Annotated[ShowUserDocument, Depends(get_current_user)],
+        qna_creation_images: Sequence[UploadFile] = File(...)
 ) -> OnlyOneQnAResponse:
     try:
-        qna = await create_qna(qna_request, user)
+        qna_request_form_data = await qna_request.form()
+        qna_data = {key: val for key, val in qna_request_form_data.items() if key != "qna_creation_images"}
+        qna_data_to_json = json.loads(qna_data["qna_creation_request"])
+        qna_validate_data = QnARequest(**qna_data_to_json)
+    except ValidationException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": str(e)}
+        )
+    try:
+        qna = await create_qna(qna_validate_data, qna_creation_images, user)
         return OnlyOneQnAResponse(
             id=str(qna.id),
             title=qna.title,
@@ -160,6 +281,8 @@ async def api_create_qna(
             writer=qna.writer.nickname,
             image_urls=qna.image_urls,
             view_count=qna.view_count,
+            is_notice=qna.is_notice,
+            is_secret=qna.is_secret
         )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -194,15 +317,32 @@ async def api_delete_qna(qna_id: str, user: Annotated[ShowUserDocument, Depends(
     status_code=status.HTTP_200_OK,
 )
 async def api_update_qna(
-    qna_id: str, qna_request: UpdateQnARequest, user: Annotated[ShowUserDocument, Depends(get_current_user)]
+        qna_id: str,
+        qna_request: Request,
+        user: Annotated[ShowUserDocument, Depends(get_current_user)],
+        qna_update_images: Sequence[UploadFile] = File(...),
 ) -> None:
-    qna = {key: val for key, val in asdict(qna_request).items() if val is not None}
-    if len(qna) >= 1:
-        try:
-            await update_qna(ObjectId(qna_id), qna, user)
-        except QnANotFoundException as e:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={"message": e.response_message},
-            )
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": "QnA Validation Error"})
+    if qna_update_images[0].filename == "":
+        qna_update_images = None
+    try:
+        qna_request_form_data = await qna_request.form()
+        qna_data = {key: val for key, val in qna_request_form_data.items() if key != "qna_update_images"}
+        qna_data_to_json = json.loads(qna_data["qna_update_request"])
+        qna_validate_data = UpdateQnARequest(**qna_data_to_json)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": str(e)},
+        )
+    try:
+        await update_qna(ObjectId(qna_id), qna_validate_data, qna_update_images, user)
+    except QnANotFoundException as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": e.response_message},
+        )
+    except NoContentException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=e.response_message,
+        )

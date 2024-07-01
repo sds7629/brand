@@ -12,6 +12,8 @@ class OnlyOneQnAResponse:
     payload: str
     writer: str
     view_count: int
+    is_secret: bool
+    is_notice: bool
     image_urls: Sequence[str] | None = None
 
 

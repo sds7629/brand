@@ -27,5 +27,6 @@ class QnADocument(BaseDocument):
     image_urls: Sequence[HttpUrlString] | None
     view_count: int
     is_secret: bool
+    is_notice: bool
     reply: list[ReplyDocument] | None = Field(default_factory=list)
     updated_at: Optional[datetime] = None

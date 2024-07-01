@@ -5,6 +5,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi import (
     APIRouter,
+    Depends,
     File,
     HTTPException,
     Request,
@@ -14,6 +15,7 @@ from fastapi import (
 )
 from fastapi.responses import ORJSONResponse
 
+from app.auth.auth_bearer import get_admin_user
 from app.dtos.item.item_creation_request import ItemCreationRequest
 from app.dtos.item.item_response import ItemResponse, OneItemResponse
 from app.dtos.item.item_update_request import ItemUpdateRequest
@@ -110,6 +112,7 @@ async def api_get_one_item(item_id: str) -> OneItemResponse:
     description="아이템 생성",
     response_class=ORJSONResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(get_admin_user)]
 )
 async def api_create_item(
     item_request: Request,
@@ -151,6 +154,7 @@ async def api_create_item(
     description="아이템 수정",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(get_admin_user)]
 )
 async def api_update_item(
         item_id: str,
@@ -164,7 +168,6 @@ async def api_update_item(
         item_update_form_to_dict = {key: val for key, val in item_update_form.items() if key != "item_update_images"}
         item_update_json_data = json.loads(item_update_form_to_dict["item_update_request"])
         item_update_validate_data = ItemUpdateRequest(**item_update_json_data)
-
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -185,6 +188,7 @@ async def api_update_item(
     description="아이템 삭제",
     response_class=Response,
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(get_admin_user)]
 )
 async def api_delete_item(item_id: str) -> None:
     try:

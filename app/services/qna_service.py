@@ -57,6 +57,7 @@ async def delete_qna_by_id(qna_id: ObjectId, user: ShowUserDocument) -> None:
 
 
 async def create_qna(qna_data: QnARequest, qna_creation_images: Sequence[UploadFile], user: ShowUserDocument) -> QnADocument:
+    qna_creation_image_urls_from_aws = []
     if bool(qna_creation_images):
         qna_creation_image_urls_from_aws = [
             (await upload_image(image))["url"]

@@ -157,7 +157,7 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
 )
 async def api_create_qna(
         qna_request: Request, user: Annotated[ShowUserDocument, Depends(get_current_user)],
-        qna_creation_images: Sequence[UploadFile] = File(...)
+        qna_creation_images: Sequence[UploadFile] = File(default=[])
 ) -> OnlyOneQnAResponse:
     try:
         qna_request_form_data = await qna_request.form()

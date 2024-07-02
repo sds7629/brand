@@ -20,3 +20,4 @@ class OnlyOneQnAResponse:
 @dataclasses.dataclass
 class QnAResponse:
     qna: Sequence[OnlyOneQnAResponse]
+    page_count: int

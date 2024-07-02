@@ -12,6 +12,7 @@ from app.auth.auth_bearer import get_current_user
 from app.dtos.qna.qna_request import QnARequest, UpdateQnARequest
 from app.dtos.qna.qna_response import OnlyOneQnAResponse, QnAResponse
 from app.entities.collections.users.user_document import ShowUserDocument
+from app.entities.redis_repositories.page_repository import PageRepository
 from app.entities.redis_repositories.view_count_repository import (
     ViewCountRedisRepository,
 )
@@ -42,68 +43,15 @@ async def api_get_qna(
         keyword: str | None = None,
         page: int = 1
 ) -> QnAResponse:
+    all_qna_data = qna_list(page)
     if qna_type == "title" and keyword is not None:
-        title_qna = await find_qna_by_title(keyword, page)
-        title_qna_res = [
-            OnlyOneQnAResponse(
-                id=str(qna.id),
-                title=qna.title,
-                payload=qna.payload,
-                image_urls=qna.image_urls,
-                writer=qna.writer.nickname,
-                view_count=(
-                    int(counting)
-                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
-                    else 0
-                ),
-                is_secret=qna.is_secret,
-                is_notice=qna.is_notice,
-            )
-            for qna in title_qna if qna.is_secret is False
-        ]
-        return QnAResponse(qna=title_qna_res)
+        all_qna_data = await find_qna_by_title(keyword, page)
 
     if qna_type == "payload" and keyword is not None:
-        payload_qna = await find_qna_by_payload(keyword, page)
-        payload_qna_list = [
-            OnlyOneQnAResponse(
-                id=str(qna.id),
-                title=qna.title,
-                payload=qna.payload,
-                image_urls=qna.image_urls,
-                writer=qna.writer.nickname,
-                view_count=(
-                    int(counting)
-                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
-                    else 0
-                ),
-                is_secret=qna.is_secret,
-                is_notice=qna.is_notice,
-            )
-            for qna in payload_qna
-        ]
-        return QnAResponse(qna=payload_qna_list)
+        all_qna_data = await find_qna_by_payload(keyword, page)
 
     if qna_type == "writer" and keyword is not None:
-        writer_qna = await find_qna_by_writer(keyword, page)
-        writer_qna_list = [
-            OnlyOneQnAResponse(
-                id=str(qna.id),
-                title=qna.title,
-                payload=qna.payload,
-                image_urls=qna.image_urls,
-                writer=qna.writer.nickname,
-                view_count=(
-                    int(counting)
-                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
-                    else 0
-                ),
-                is_secret=qna.is_secret,
-                is_notice=qna.is_notice,
-            )
-            for qna in writer_qna
-        ]
-        return QnAResponse(qna=writer_qna_list)
+        all_qna_data = await find_qna_by_writer(keyword, page)
 
     qna = [
         OnlyOneQnAResponse(
@@ -120,9 +68,9 @@ async def api_get_qna(
             is_secret=qna.is_secret,
             is_notice=qna.is_notice,
         )
-        for qna in await qna_list(page) if qna.is_secret is False
+        for qna in await all_qna_data if qna.is_secret is False
     ]
-    return QnAResponse(qna=qna)
+    return QnAResponse(qna=qna, page_count=int(await PageRepository.get("qna_page_count")))
 
 
 @router.get(
@@ -137,51 +85,18 @@ async def api_get_qna(
         keyword: str | None = None,
         page: int = 1
 ) -> QnAResponse:
+    all_secret_qna = await qna_list(page)
+
     if qna_type == "title" and keyword is not None:
-        title_qna = await find_qna_by_title(keyword, page)
-        title_qna_res = [
-            OnlyOneQnAResponse(
-                id=str(qna.id),
-                title=qna.title,
-                payload=qna.payload,
-                image_urls=qna.image_urls,
-                writer=qna.writer.nickname,
-                view_count=(
-                    int(counting)
-                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
-                    else 0
-                ),
-                is_secret=qna.is_secret,
-                is_notice=qna.is_notice,
-            )
-            for qna in title_qna if (qna.is_secret is False) or (qna.writer == user)
-        ]
-        return QnAResponse(qna=title_qna_res)
+        all_secret_qna = await find_qna_by_title(keyword, page)
 
     if qna_type == "payload" and keyword is not None:
-        payload_qna = await find_qna_by_payload(keyword, page)
-        payload_qna_list = [
-            OnlyOneQnAResponse(
-                id=str(qna.id),
-                title=qna.title,
-                payload=qna.payload,
-                image_urls=qna.image_urls,
-                writer=qna.writer.nickname,
-                view_count=(
-                    int(counting)
-                    if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
-                    else 0
-                ),
-                is_secret=qna.is_secret,
-                is_notice=qna.is_notice,
-            )
-            for qna in payload_qna if (qna.is_secret is False) or (qna.writer == user)
-        ]
-        return QnAResponse(qna=payload_qna_list)
+        all_secret_qna = await find_qna_by_payload(keyword, page)
 
     if qna_type == "writer" and keyword is not None:
-        writer_qna = await find_qna_by_writer(keyword, page)
-        writer_qna_list = [
+        all_secret_qna = await find_qna_by_writer(keyword, page)
+
+    qna = [
             OnlyOneQnAResponse(
                 id=str(qna.id),
                 title=qna.title,
@@ -196,28 +111,10 @@ async def api_get_qna(
                 is_secret=qna.is_secret,
                 is_notice=qna.is_notice,
             )
-            for qna in writer_qna if (qna.is_secret is False) or (qna.writer == user)
+            for qna in all_secret_qna if (qna.is_secret is False) or (qna.writer == user)
         ]
-        return QnAResponse(qna=writer_qna_list)
 
-    qna = [
-        OnlyOneQnAResponse(
-            id=str(qna.id),
-            title=qna.title,
-            payload=qna.payload,
-            image_urls=qna.image_urls,
-            writer=qna.writer.nickname,
-            view_count=(
-                int(counting)
-                if (counting := await ViewCountRedisRepository.get("view_count_" + str(qna.id))) is not None
-                else 0
-            ),
-            is_secret=qna.is_secret,
-            is_notice=qna.is_notice,
-        )
-        for qna in await qna_list(page) if (qna.is_secret is False) or (qna.writer == user)
-    ]
-    return QnAResponse(qna=qna)
+    return QnAResponse(qna=qna, page_count=int(await PageRepository.get("qna_page_count")))
 
 
 @router.get(
@@ -262,6 +159,7 @@ async def api_create_qna(
         qna_request: Request, user: Annotated[ShowUserDocument, Depends(get_current_user)],
         qna_creation_images: Sequence[UploadFile] = File(...)
 ) -> OnlyOneQnAResponse:
+    print(await qna_request.form())
     try:
         qna_request_form_data = await qna_request.form()
         qna_data = {key: val for key, val in qna_request_form_data.items() if key != "qna_creation_images"}

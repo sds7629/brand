@@ -31,12 +31,20 @@ async def save_view_count() -> None:
 async def set_item_page_count() -> None:
     item_page_count = math.ceil(await ItemCollection.get_all_item_mount() / 15)
     if await PageRepository.get("item_page_count") is None:
-        await PageRepository.set("item_page_count", "0")
+        await PageRepository.set("item_page_count", "1")
     await PageRepository.set("item_page_count", str(item_page_count))
+
+
+async def set_qna_page_count() -> None:
+    qna_page_count = math.ceil(await QnACollection.get_all_qna_count() / 15)
+    if await PageRepository.get("qna_page_count") is None:
+        await PageRepository.set("qna_page_count", "1")
+    await PageRepository.set("qna_page_count", str(qna_page_count))
 
 
 def start_scheduler() -> None:
     loop = asyncio.get_event_loop()
     scheduler.add_job(lambda: loop.create_task(save_view_count()), trigger="interval", seconds=180)
     scheduler.add_job(lambda: loop.create_task(set_item_page_count()), trigger="interval", seconds=180)
+    scheduler.add_job(lambda: loop.create_task(set_qna_page_count()), trigger="interval", seconds=45)
     scheduler.start()

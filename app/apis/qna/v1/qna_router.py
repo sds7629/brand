@@ -159,7 +159,6 @@ async def api_create_qna(
         qna_request: Request, user: Annotated[ShowUserDocument, Depends(get_current_user)],
         qna_creation_images: Sequence[UploadFile] = File(...)
 ) -> OnlyOneQnAResponse:
-    print(await qna_request.form())
     try:
         qna_request_form_data = await qna_request.form()
         qna_data = {key: val for key, val in qna_request_form_data.items() if key != "qna_creation_images"}

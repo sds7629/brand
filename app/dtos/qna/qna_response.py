@@ -15,7 +15,7 @@ class OnlyOneQnAResponse:
     view_count: int
     is_secret: bool
     is_notice: bool
-    created_at: str
+    created_at: datetime
     image_urls: Sequence[str] | None = None
 
 

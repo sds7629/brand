@@ -124,7 +124,7 @@ class TimeUtil:
         return seconds_to_midnight, next_midnight
 
     @classmethod
-    async def get_created_at_from_id(cls, object_id: str) -> str:
+    async def get_created_at_from_id(cls, object_id: str) -> datetime:
         to_time = object_id[:8]
         time_to_ten = int(to_time, 16)
         timestamp_created_at = datetime.fromtimestamp(time_to_ten)

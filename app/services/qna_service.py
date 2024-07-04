@@ -2,17 +2,18 @@ from dataclasses import asdict
 from datetime import datetime
 from typing import Any, Sequence
 
-from fastapi import UploadFile
 from bson import ObjectId
+from fastapi import UploadFile
 
 from app.dtos.qna.qna_request import QnARequest, UpdateQnARequest
 from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import (
+    NoContentException,
     NoSuchElementException,
     NotPermissionException,
-    QnANotFoundException, NoContentException,
+    QnANotFoundException,
 )
 from app.utils.connection_aws import upload_image
 
@@ -56,12 +57,13 @@ async def delete_qna_by_id(qna_id: ObjectId, user: ShowUserDocument) -> None:
     await QnACollection.delete_by_id(qna_id)
 
 
-async def create_qna(qna_data: QnARequest, qna_creation_images: Sequence[UploadFile], user: ShowUserDocument) -> QnADocument:
+async def create_qna(
+    qna_data: QnARequest, qna_creation_images: Sequence[UploadFile], user: ShowUserDocument
+) -> QnADocument:
     qna_creation_image_urls_from_aws = []
     if bool(qna_creation_images):
         qna_creation_image_urls_from_aws = [
-            (await upload_image(image))["url"]
-            for image in qna_creation_images if image.filename != ''
+            (await upload_image(image))["url"] for image in qna_creation_images if image.filename != ""
         ]
     return await QnACollection.insert_one(
         title=qna_data.title,
@@ -72,10 +74,12 @@ async def create_qna(qna_data: QnARequest, qna_creation_images: Sequence[UploadF
     )
 
 
-async def update_qna(qna_id: ObjectId,
-                     validate_data: UpdateQnARequest,
-                     qna_update_images: Sequence[UploadFile] | None,
-                     user: ShowUserDocument) -> None:
+async def update_qna(
+    qna_id: ObjectId,
+    validate_data: UpdateQnARequest,
+    qna_update_images: Sequence[UploadFile] | None,
+    user: ShowUserDocument,
+) -> None:
     if not (qna := await QnACollection.find_by_id(qna_id)):
         raise QnANotFoundException(f"No QnA found with id: {qna_id}")
 
@@ -85,8 +89,8 @@ async def update_qna(qna_id: ObjectId,
     if len(data := {key: val for key, val in asdict(validate_data).items() if val is not None}) > 0:
         if bool(qna_update_images):
             item_update_image_urls_from_aws = [
-                (await upload_image(image))["url"]
-                for image in qna_update_images if image.filename != '']
+                (await upload_image(image))["url"] for image in qna_update_images if image.filename != ""
+            ]
             data["image_urls"] = item_update_image_urls_from_aws
         updated_item_count = await QnACollection.update_by_id(qna_id, data)
     else:

@@ -1,5 +1,6 @@
 from typing import Annotated, Sequence
 
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse
 
@@ -11,10 +12,8 @@ from app.dtos.cart.cart_response import (
     CartResponse,
 )
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import ValidationException, NotPermissionException
-from app.services.cart_service import create_cart, get_user_carts, delete_cart
-
-from bson import ObjectId
+from app.exceptions import NotPermissionException, ValidationException
+from app.services.cart_service import create_cart, delete_cart, get_user_carts
 
 router = APIRouter(prefix="/v1/cart", tags=["cart"], redirect_slashes=False)
 
@@ -69,10 +68,7 @@ async def api_create_cart(
     response_class=ORJSONResponse,
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def api_delete_cart(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)],
-        cart_id: str
-) -> None:
+async def api_delete_cart(user: Annotated[ShowUserDocument, Depends(get_current_user)], cart_id: str) -> None:
     try:
         await delete_cart(user, ObjectId(cart_id))
     except NotPermissionException as e:

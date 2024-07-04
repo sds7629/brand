@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Sequence, Any
+from typing import Any, Sequence
 
 from app.entities.category.category_codes import CategoryCode
 from app.utils.enums.color_codes import ColorCode

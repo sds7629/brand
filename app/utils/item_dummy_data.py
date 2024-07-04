@@ -1,28 +1,26 @@
 import asyncio
 import os
-
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
-from pymongo.errors import BulkWriteError
 import random
 
+import certifi
 import faker_commerce
 import pandas as pd
 from faker import Faker
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+from pymongo.errors import BulkWriteError
 
 from app.entities.category.category_codes import CategoryCode
 from app.utils.enums.color_codes import ColorCode
 from app.utils.enums.size_codes import SizeCode
 
-import certifi
-
 ca = certifi.where()
 DB_NAME = os.environ.get("MONGO_DB")
 
-# client = AsyncIOMotorClient(DB_NAME, tlsCAFile=ca)
-# db = client["FSO"]
+client = AsyncIOMotorClient(DB_NAME, tlsCAFile=ca)
+db = client["FSO"]
 
-client = AsyncIOMotorClient()
-db = client["weeber"]
+# client = AsyncIOMotorClient()
+# db = client["weeber"]
 
 item_collection = AsyncIOMotorCollection(db, "item")
 
@@ -77,15 +75,17 @@ name = [fake.ecommerce_name() for _ in range(data_mount)]
 price = [fake.random_int(min=8000, max=20000) for _ in range(data_mount)]
 image_urls = [[random.choice(image_urls_list) for _ in range(3)] for _ in range(data_mount)]
 options = [{option: 25 for option in options} for _ in range(data_mount)]
-item_detail_menu = [{
-    "details": {f"detail-{_}": random.choice(details) for _ in range(3)},
-    "fit_sizing": {
-        "model_fit": model_fit,
-        "item_size": item_size,
-        "fabric": fabric,
+item_detail_menu = [
+    {
+        "details": {f"detail-{_}": random.choice(details) for _ in range(3)},
+        "fit_sizing": {
+            "model_fit": model_fit,
+            "item_size": item_size,
+            "fabric": fabric,
+        },
     }
-} for _ in range(100)
-    ]
+    for _ in range(100)
+]
 description = [fake.paragraph() for _ in range(data_mount)]
 registration_date = [fake.date_time_between() for _ in range(data_mount)]
 category_codes = [random.choice(category_list) for _ in range(data_mount)]

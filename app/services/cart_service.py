@@ -8,7 +8,7 @@ from app.entities.collections import ItemCollection, UserCollection
 from app.entities.collections.carts.cart_collection import CartCollection
 from app.entities.collections.carts.cart_document import CartDocument
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import ValidationException, NotPermissionException
+from app.exceptions import NotPermissionException, ValidationException
 
 
 async def get_user_carts(user_data: ShowUserDocument) -> Sequence[CartDocument]:
@@ -18,7 +18,7 @@ async def get_user_carts(user_data: ShowUserDocument) -> Sequence[CartDocument]:
 
 
 async def create_cart(
-        user_data: ShowUserDocument, cart_creation_request: OneCartCreationRequest
+    user_data: ShowUserDocument, cart_creation_request: OneCartCreationRequest
 ) -> tuple[CartDocument, ...]:
     user = await UserCollection.find_by_id(user_data.id)
     item = await ItemCollection.find_by_id(ObjectId(cart_creation_request.item_id))
@@ -39,7 +39,7 @@ async def create_cart(
             item=item,
             quantity=option.quantity,
             options=option.color_size,
-            total_price=item.price * option.quantity
+            total_price=item.price * option.quantity,
         )
         for option in cart_creation_request.options
         if item.options[option.color_size] >= option.quantity

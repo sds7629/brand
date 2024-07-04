@@ -24,8 +24,15 @@ async def test_유저_회원가입() -> None:
     ]
 
     user = await UserCollection.insert_one(
-        user_id=user_id,  email=email, name=name, password=password,
-        nickname=nickname, phone_num=phone_num, login_method="naver", delivery_area=delivery_area, is_admin=False
+        user_id=user_id,
+        email=email,
+        name=name,
+        password=password,
+        nickname=nickname,
+        phone_num=phone_num,
+        login_method="naver",
+        delivery_area=delivery_area,
+        is_admin=False,
     )
     results = await UserCollection._collection.find({}).to_list(None)
 

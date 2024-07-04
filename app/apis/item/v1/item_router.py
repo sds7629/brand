@@ -16,7 +16,11 @@ from fastapi import (
 from fastapi.responses import ORJSONResponse
 
 from app.auth.auth_bearer import get_admin_user
-from app.dtos.item.item_creation_request import ItemCreationRequest, FitSizing, ItemOptions
+from app.dtos.item.item_creation_request import (
+    FitSizing,
+    ItemCreationRequest,
+    ItemOptions,
+)
 from app.dtos.item.item_response import ItemResponse, OneItemResponse
 from app.dtos.item.item_update_request import ItemUpdateRequest
 from app.entities.redis_repositories.page_repository import PageRepository
@@ -96,7 +100,7 @@ async def api_get_one_item(item_id: str) -> OneItemResponse:
     description="아이템 생성",
     response_class=ORJSONResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(get_admin_user)]
+    dependencies=[Depends(get_admin_user)],
 )
 async def api_create_item(
     item_request: Request,
@@ -112,10 +116,7 @@ async def api_create_item(
             description=item_data_to_json["description"],
             details=item_data_to_json["details"],
             fit_sizing=FitSizing(**item_data_to_json["fit_sizing"]),
-            options=[
-                ItemOptions(**items)
-                for items in item_data_to_json["options"]
-            ],
+            options=[ItemOptions(**items) for items in item_data_to_json["options"]],
             fabric=item_data_to_json["fabric"],
             category=item_data_to_json["category"],
         )
@@ -149,12 +150,12 @@ async def api_create_item(
     description="아이템 수정",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(get_admin_user)]
+    dependencies=[Depends(get_admin_user)],
 )
 async def api_update_item(
-        item_id: str,
-        item_update_request: Request,
-        item_update_images: Sequence[UploadFile] = File(default=None),
+    item_id: str,
+    item_update_request: Request,
+    item_update_images: Sequence[UploadFile] = File(default=None),
 ) -> None:
     try:
         item_update_form = await item_update_request.form()
@@ -181,7 +182,7 @@ async def api_update_item(
     description="아이템 삭제",
     response_class=Response,
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(get_admin_user)]
+    dependencies=[Depends(get_admin_user)],
 )
 async def api_delete_item(item_id: str) -> None:
     try:

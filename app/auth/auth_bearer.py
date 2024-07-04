@@ -39,7 +39,9 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Sho
         raise credentials_exception
 
 
-async def get_current_active_user(user: Annotated[ShowUserDocument, Depends(get_current_user)]) -> ShowUserDocument | None:
+async def get_current_active_user(
+    user: Annotated[ShowUserDocument, Depends(get_current_user)]
+) -> ShowUserDocument | None:
     if user.is_delete:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

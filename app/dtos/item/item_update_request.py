@@ -2,7 +2,7 @@ import dataclasses
 from datetime import datetime
 from typing import Sequence
 
-from app.dtos.item.item_creation_request import ItemOptions, FitSizing
+from app.dtos.item.item_creation_request import FitSizing, ItemOptions
 from app.entities.category.category_codes import CategoryCode
 
 

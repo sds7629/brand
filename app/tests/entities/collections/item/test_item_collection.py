@@ -27,11 +27,8 @@ async def test_insert_item() -> None:
             "detail-2": "가나다",
             "detail-3": "라바사",
         },
-        "fit-sizing": {
-            "model-fit": "165cm 33kg 90 10 10",
-            "item-size": "80 10 29 10"
-        },
-        "fabric": "천을 이용해 만들었어요"
+        "fit-sizing": {"model-fit": "165cm 33kg 90 10 10", "item-size": "80 10 29 10"},
+        "fabric": "천을 이용해 만들었어요",
     }
     registration_date = datetime.utcnow()
     category = CategoryCode.TOP

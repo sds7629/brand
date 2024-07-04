@@ -10,13 +10,7 @@ async def test_cart_insert_one() -> None:
     items = await ItemCollection.find_all_item(offset=0)
     mount = len(items[:3])
     price = sum([item.price for item in items[:3]])
-    result = await CartCollection.insert_one(
-        user=user,
-        item=items[0],
-        quantity=3,
-        total_price=price,
-        options="black-1"
-    )
+    result = await CartCollection.insert_one(user=user, item=items[0], quantity=3, total_price=price, options="black-1")
 
     assert result.user == user
     assert result.total_price == price

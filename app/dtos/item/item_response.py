@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Sequence, Any
+from typing import Any, Sequence
 
 from pydantic import HttpUrl, dataclasses
 

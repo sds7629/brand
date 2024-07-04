@@ -6,7 +6,6 @@ from pydantic import AfterValidator, HttpUrl, dataclasses
 from app.entities.category.category_codes import CategoryCode
 from app.entities.collections.base_document import BaseDocument
 
-
 HttpUrlString = Annotated[HttpUrl, AfterValidator(lambda v: str(v))]
 
 

@@ -105,5 +105,5 @@ class OrderCollection:
             payment_method=result["payment_method"],
             total_price=result["total_price"],
             item_name=result["item_name"],
-            is_payment=result["is_payment"]
+            is_payment=result["is_payment"],
         )

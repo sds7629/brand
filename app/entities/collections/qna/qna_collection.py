@@ -55,12 +55,10 @@ class QnACollection:
 
     @classmethod
     async def find_all_qna(cls, offset: int) -> list[QnADocument]:
-        all_qna = await (cls._collection.find({})
-                         .sort([("_id", pymongo.DESCENDING)]).limit(15).skip(offset).to_list(length=15))
-        return [
-            cls._result_dto(result)
-            for result in all_qna
-        ]
+        all_qna = await (
+            cls._collection.find({}).sort([("_id", pymongo.DESCENDING)]).limit(15).skip(offset).to_list(length=15)
+        )
+        return [cls._result_dto(result) for result in all_qna]
 
     @classmethod
     async def get_all_qna_count(cls) -> int:

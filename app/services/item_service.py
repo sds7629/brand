@@ -1,5 +1,5 @@
 from dataclasses import asdict
-from typing import Sequence
+from typing import Sequence, Any
 
 from bson import ObjectId
 from fastapi import File, UploadFile
@@ -21,16 +21,25 @@ async def create_item(
 ) -> ItemDocument:
     if bool(item_creation_images):
         item_creation_image_urls_from_aws = [(await upload_image(image))["url"] for image in item_creation_images]
+    options_list = [asdict(option).values() for option in item_creation_request.options]
+    options = {
+        key: val for key, val in options_list if val is not None
+    }
+    details = {
+        f"detail-{i+1}": item_creation_request.details[i] for i in range(len(item_creation_request.details))
+    }
     item = await ItemCollection.insert_one(
         name=item_creation_request.name,
         price=item_creation_request.price,
         image_urls=item_creation_image_urls_from_aws,
+        options=options,
+        item_detail_menu={
+            "details": details,
+            "fit-sizing": asdict(item_creation_request.fit_sizing),
+            "fabric": item_creation_request.fabric,
+        },
         description=item_creation_request.description,
-        item_quantity=item_creation_request.item_quantity,
-        size=item_creation_request.size,
-        color=item_creation_request.color,
         category_codes=item_creation_request.category,
-        details=item_creation_request.details,
     )
 
     return item
@@ -42,7 +51,9 @@ async def delete_item(item_id: ObjectId) -> int:
     return deleted_item
 
 
-async def updated_item(item_id: ObjectId, item_update_request: ItemUpdateRequest, item_update_images: Sequence[UploadFile] | None,) -> int:
+async def updated_item(item_id: ObjectId,
+                       item_update_request: ItemUpdateRequest,
+                       item_update_images: Sequence[UploadFile] | None,) -> int:
     if len(data := {key: val for key, val in asdict(item_update_request).items() if val is not None}) > 0:
         if bool(item_update_images):
             item_update_image_urls_from_aws = [

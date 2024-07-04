@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Sequence
 
 from pydantic import dataclasses
@@ -14,6 +15,7 @@ class OnlyOneQnAResponse:
     view_count: int
     is_secret: bool
     is_notice: bool
+    created_at: str
     image_urls: Sequence[str] | None = None
 
 

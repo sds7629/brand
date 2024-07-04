@@ -15,7 +15,7 @@ async def test_cart_insert_one() -> None:
         item=items[0],
         quantity=3,
         total_price=price,
-        color=ColorCode.WHITE,
+        options="black-1"
     )
 
     assert result.user == user

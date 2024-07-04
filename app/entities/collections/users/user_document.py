@@ -31,6 +31,7 @@ class UserDocument(BaseDocument):
     phone_num: str
     login_method: str
     is_authenticated: bool
+    is_policy: bool
     is_admin: bool
     is_delete: bool
     delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")

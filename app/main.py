@@ -36,7 +36,7 @@ app.include_router(payment_router)
 
 templates = Jinja2Templates(directory="app/templates")
 
-origins = ["http://localhost:3000"]
+origins = ["http://localhost:3000", "https://steady-chimera-68464b.netlify.app/"]
 
 app.add_middleware(
     CORSMiddleware,

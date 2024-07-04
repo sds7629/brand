@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import dataclasses
 
 from app.config import Config
@@ -10,6 +12,6 @@ from app.entities.collections.users.user_document import ShowUserDocument
 class CartDocument(BaseDocument):
     user: ShowUserDocument
     item: ItemDocument
+    options: str
     quantity: int
-    color: str
     total_price: int

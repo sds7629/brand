@@ -28,8 +28,7 @@ class CreateOrderResponse:
 class OrderItemResponse:
     name: str
     price: int
-    size: str
-    color: str
+    options: str
     price: int
     image_urls: Sequence[str]
 

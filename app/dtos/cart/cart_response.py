@@ -8,8 +8,6 @@ class CartItemResponse:
     item_id: str
     item_name: str
     image_urls: Sequence[HttpUrl]
-    size: str
-    color: str
 
 
 @dataclasses.dataclass
@@ -17,6 +15,7 @@ class CartResponse:
     cart_id: str
     item: CartItemResponse
     quantity: int
+    options: str
     total_price: int
 
 

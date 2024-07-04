@@ -18,8 +18,11 @@ import certifi
 ca = certifi.where()
 DB_NAME = os.environ.get("MONGO_DB")
 
-client = AsyncIOMotorClient(DB_NAME, tlsCAFile=ca)
-db = client["FSO"]
+# client = AsyncIOMotorClient(DB_NAME, tlsCAFile=ca)
+# db = client["FSO"]
+
+client = AsyncIOMotorClient()
+db = client["weeber"]
 
 item_collection = AsyncIOMotorCollection(db, "item")
 
@@ -65,17 +68,27 @@ details = [
     "오늘 날씨 너무 더움 ㅇㅅㅇ",
     "곧 있으면 장마시작",
 ]
+options = ["black-1", "black-2", "white-1", "white-2"]
+model_fit = "165cm 33kg 10 10 10"
+item_size = "80 10 29 10"
+fabric = "면 100%"
 
 name = [fake.ecommerce_name() for _ in range(data_mount)]
 price = [fake.random_int(min=8000, max=20000) for _ in range(data_mount)]
 image_urls = [[random.choice(image_urls_list) for _ in range(3)] for _ in range(data_mount)]
+options = [{option: 25 for option in options} for _ in range(data_mount)]
+item_detail_menu = [{
+    "details": {f"detail-{_}": random.choice(details) for _ in range(3)},
+    "fit_sizing": {
+        "model_fit": model_fit,
+        "item_size": item_size,
+        "fabric": fabric,
+    }
+} for _ in range(100)
+    ]
 description = [fake.paragraph() for _ in range(data_mount)]
 registration_date = [fake.date_time_between() for _ in range(data_mount)]
-item_quantity = [100 for _ in range(data_mount)]
-size = [random.choice(size_list) for _ in range(data_mount)]
-color = [random.choice(color_list) for _ in range(data_mount)]
 category_codes = [random.choice(category_list) for _ in range(data_mount)]
-details = [[random.choice(details) for _ in range(3)] for _ in range(data_mount)]
 
 df = pd.DataFrame()
 df["name"] = name
@@ -83,11 +96,9 @@ df["price"] = price
 df["image_urls"] = image_urls
 df["description"] = description
 df["registration_date"] = registration_date
-df["item_quantity"] = item_quantity
-df["size"] = size
-df["color"] = color
+df["options"] = options
+df["item_detail_menu"] = item_detail_menu
 df["category_codes"] = category_codes
-df["details"] = details
 
 records = df.to_dict(orient="records")
 

@@ -55,9 +55,11 @@ class QnACollection:
 
     @classmethod
     async def find_all_qna(cls, offset: int) -> list[QnADocument]:
+        all_qna = await (cls._collection.find({})
+                         .sort([("_id", pymongo.DESCENDING)]).limit(15).skip(offset).to_list(length=15))
         return [
             cls._result_dto(result)
-            for result in await cls._collection.find({}).limit(15).skip(offset).to_list(length=15)
+            for result in all_qna
         ]
 
     @classmethod
@@ -79,6 +81,7 @@ class QnACollection:
         return [
             cls._result_dto(result)
             for result in await cls._collection.find({"title": {"$regex": title_keyword, "$options": "i"}})
+            .sort([("_id", pymongo.DESCENDING)])
             .limit(15)
             .skip(offset)
             .to_list(None)
@@ -89,6 +92,7 @@ class QnACollection:
         return [
             cls._result_dto(result)
             for result in await cls._collection.find({"payload": {"$regex": payload_keyword, "$options": "i"}})
+            .sort([("_id", pymongo.DESCENDING)])
             .limit(15)
             .skip(offset)
             .to_list(None)
@@ -99,6 +103,7 @@ class QnACollection:
         return [
             cls._result_dto(result)
             for result in await cls._collection.find({"writer": {"$regex": writer_keyword, "$options": "i"}})
+            .sort([("_id", pymongo.DESCENDING)])
             .limit(15)
             .skip(offset)
             .to_list(None)

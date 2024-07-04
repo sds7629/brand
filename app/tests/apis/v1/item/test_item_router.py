@@ -28,15 +28,17 @@ async def test_create_item_api() -> None:
         "name": "api test2",
         "price": 100000,
         "description": "api test pants",
-        "item_quantity": 100,
-        "size": "1",
-        "color": "black",
         "category": "bottom",
+        "fit_sizing": {
+            "model_fit": "180cm 80 15 96",
+            "item_size": "29 30 30 10"
+        },
         "details": [
             "높은 밀도의 코튼 소재",
             "웨이스트 밴드 드로우 스트링",
             "밑단 스트링 조절 가능",
         ],
+        "fabric": "면 100%"
     }
     image_path = "screenshot.png"
 

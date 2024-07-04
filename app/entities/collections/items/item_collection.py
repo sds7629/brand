@@ -29,43 +29,37 @@ class ItemCollection:
     async def insert_one(
         cls,
         name: str,
-        color: ColorCode,
         price: int,
         image_urls: Sequence[HttpUrl],
+        options: dict[str, Any],
+        item_detail_menu: dict[str, Any],
         description: str,
-        item_quantity: int,
-        size: SizeCode,
         category_codes: CategoryCode,
-        details: Sequence[str],
         registration_date: datetime = datetime.utcnow(),
     ) -> ItemDocument:
         result = await cls._collection.insert_one(
             {
                 "name": name,
-                "color": color,
                 "price": price,
-                "image_url": [str(image_url) for image_url in image_urls],
+                "image_urls": [str(image_url) for image_url in image_urls],
                 "description": description,
                 "registration_date": registration_date,
-                "item_quantity": item_quantity,
-                "size": size,
+                "options": options,
+                "item_detail_menu": item_detail_menu,
                 "category_codes": category_codes,
-                "details": details,
             }
         )
 
         return ItemDocument(
             _id=result.inserted_id,
             name=name,
-            color=color,
             price=price,
             image_urls=image_urls,
             description=description,
             registration_date=registration_date + timedelta(hours=9),
-            item_quantity=item_quantity,
-            size=size,
+            options=options,
+            item_detail_menu=item_detail_menu,
             category_codes=category_codes,
-            details=details,
         )
 
     @classmethod
@@ -85,6 +79,7 @@ class ItemCollection:
     @classmethod
     async def find_by_name(cls, name: str) -> list[ItemDocument] | None:
         filtering_item = await cls._collection.find({"name": {"$regex": name, "$options": "i"}}).to_list(length=15)
+        filtering_item.sort(key=lambda item: item["_id"])
         return [cls._parse(item) for item in filtering_item if item is not None]
 
     @classmethod
@@ -102,17 +97,11 @@ class ItemCollection:
         return ItemDocument(
             _id=result["_id"],
             name=result["name"],
-            color=result["color"],
             price=result["price"],
             image_urls=result["image_urls"],
             description=result["description"],
+            options=result["options"],
+            item_detail_menu=result["item_detail_menu"],
             registration_date=result["registration_date"] + timedelta(hours=9),
-            item_quantity=result["item_quantity"],
-            size=result["size"],
             category_codes=result["category_codes"],
-            details=result["details"],
         )
-
-    @property
-    def collection(self):
-        return self._collection

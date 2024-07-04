@@ -28,6 +28,7 @@ from app.services.qna_service import (
     update_qna,
 )
 from app.utils.cookie_util import CookieUtil
+from app.utils.utility import TimeUtil
 
 router = APIRouter(prefix="/v1/qna", tags=["qna"], redirect_slashes=False)
 
@@ -44,6 +45,7 @@ async def api_get_qna(
         page: int = 1
 ) -> QnAResponse:
     all_qna_data = qna_list(page)
+
     if qna_type == "title" and keyword is not None:
         all_qna_data = await find_qna_by_title(keyword, page)
 
@@ -67,8 +69,9 @@ async def api_get_qna(
             ),
             is_secret=qna.is_secret,
             is_notice=qna.is_notice,
+            created_at=await TimeUtil.get_created_at_from_id(str(qna.id))
         )
-        for qna in await all_qna_data if qna.is_secret is False
+        for qna in await all_qna_data
     ]
     return QnAResponse(qna=qna, page_count=int(await PageRepository.get("qna_page_count")))
 
@@ -110,6 +113,7 @@ async def api_get_qna(
                 ),
                 is_secret=qna.is_secret,
                 is_notice=qna.is_notice,
+                created_at=await TimeUtil.get_created_at_from_id(str(qna.id))
             )
             for qna in all_secret_qna if (qna.is_secret is False) or (qna.writer == user)
         ]
@@ -146,6 +150,7 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
         view_count=int(await ViewCountRedisRepository.get("view_count_" + str(result.id))),
         is_secret=result.is_secret,
         is_notice=result.is_notice,
+        created_at=await TimeUtil.get_created_at_from_id(str(qna.id))
     )
 
 
@@ -179,7 +184,8 @@ async def api_create_qna(
             image_urls=qna.image_urls,
             view_count=qna.view_count,
             is_notice=qna.is_notice,
-            is_secret=qna.is_secret
+            is_secret=qna.is_secret,
+            created_at=await TimeUtil.get_created_at_from_id(str(qna.id))
         )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -217,7 +223,7 @@ async def api_update_qna(
         qna_id: str,
         qna_request: Request,
         user: Annotated[ShowUserDocument, Depends(get_current_user)],
-        qna_update_images: Sequence[UploadFile] = File(...),
+        qna_update_images: Sequence[UploadFile] = File(default=[]),
 ) -> None:
     if qna_update_images[0].filename == "":
         qna_update_images = None

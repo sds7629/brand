@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Sequence
+from typing import Sequence, Any
 
 from pydantic import HttpUrl, dataclasses
 
@@ -13,12 +13,10 @@ class OneItemResponse:
     price: int
     image_urls: Sequence[HttpUrl]
     description: str
+    options: dict[str, int]
+    item_details_menu: dict[str, Any]
     registration_date: datetime
-    item_quantity: int
-    size: str
-    color: str
     category_codes: CategoryCode
-    details: Sequence[str] | None = None
 
 
 @dataclasses.dataclass

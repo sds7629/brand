@@ -51,8 +51,7 @@ async def api_get_user_orders(user: Annotated[ShowUserDocument, Depends(get_curr
                     OrderItemResponse(
                         name=item.name,
                         price=item.price,
-                        size=item.size,
-                        color=item.color,
+                        options=item.options,
                         image_urls=item.image_urls,
                     )
                     for item in order.ordering_item
@@ -70,7 +69,8 @@ async def api_get_user_orders(user: Annotated[ShowUserDocument, Depends(get_curr
     status_code=status.HTTP_200_OK,
 )
 async def api_pre_order(
-    user: Annotated[ShowUserDocument, Depends(get_current_user)], pre_order_creation_request: PreOrderCreationRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)],
+    pre_order_creation_request: PreOrderCreationRequest,
 ) -> PreOrderResponse:
     try:
         order = await pre_order(user, pre_order_creation_request)

@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Any
 
 from pydantic import dataclasses
 
@@ -8,12 +8,15 @@ from app.utils.enums.payment_codes import PaymentMethodCode
 
 @dataclasses.dataclass(config=Config)
 class PreOrderCreationRequest:
-    cart_id: Sequence[str]
+    options: str
+    item_id: str | None = None
+    cart_id: str | None = None
 
 
 @dataclasses.dataclass(config=Config)
 class OrderCreationRequest:
-    email: str
+    item_id: str
+    merchant_id: str
     post_code: str
     address: str
     detail_address: str
@@ -22,4 +25,3 @@ class OrderCreationRequest:
     requirements: str | None
     payment_method: PaymentMethodCode
     total_price: int
-    cart_id: Sequence[str]

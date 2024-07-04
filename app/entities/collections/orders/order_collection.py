@@ -11,6 +11,7 @@ from app.entities.collections.orders.order_document import OrderDocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.connection import db
 from app.utils.enums.payment_codes import PaymentMethodCode
+from app.utils.enums.status_codes import StatusCode
 
 
 class OrderCollection:
@@ -26,54 +27,50 @@ class OrderCollection:
     async def insert_one(
         cls,
         user: ShowUserDocument,
-        email: str,
-        total_price: int,
+        order_name: str,
         merchant_id: str,
         post_code: str,
         address: str,
         detail_address: str,
-        order_name: str,
+        requirements: str,
         phone_num: str,
         payment_method: PaymentMethodCode,
-        requirements: str,
-        ordering_item: Sequence[ItemDocument],
-        ordering_date: datetime = datetime.utcnow(),
+        total_price: int,
+        item_name: str,
+        payment_status: StatusCode = StatusCode.ORDER_PLACED,
         is_payment: bool = False,
     ) -> OrderDocument:
         order = await cls._collection.insert_one(
             {
                 "user": asdict(user),
+                "order_name": order_name,
                 "merchant_id": merchant_id,
-                "email": email,
                 "post_code": post_code,
                 "address": address,
                 "detail_address": detail_address,
                 "requirements": requirements,
-                "order_name": order_name,
                 "phone_num": phone_num,
+                "payment_status": payment_status,
                 "payment_method": payment_method,
                 "total_price": total_price,
-                "ordering_item": [asdict(item) for item in ordering_item],
-                "ordering_date": ordering_date,
+                "item_name": item_name,
                 "is_payment": is_payment,
             }
         )
-
         return OrderDocument(
             _id=order.inserted_id,
             user=user,
-            email=email,
+            order_name=order_name,
             merchant_id=merchant_id,
             post_code=post_code,
             address=address,
             detail_address=detail_address,
             requirements=requirements,
-            order_name=order_name,
             phone_num=phone_num,
+            payment_status=payment_status,
             payment_method=payment_method,
             total_price=total_price,
-            ordering_item=ordering_item,
-            ordering_date=ordering_date + timedelta(hours=9),
+            item_name=item_name,
             is_payment=is_payment,
         )
 
@@ -97,7 +94,6 @@ class OrderCollection:
         return OrderDocument(
             _id=result["_id"],
             user=result["user"],
-            email=result["email"],
             merchant_id=result["merchant_id"],
             post_code=result["post_code"],
             address=result["address"],
@@ -105,9 +101,9 @@ class OrderCollection:
             requirements=result["requirements"],
             order_name=result["order_name"],
             phone_num=result["phone_num"],
+            payment_status=result["payment_status"],
             payment_method=result["payment_method"],
             total_price=result["total_price"],
-            ordering_item=result["ordering_item"],
-            ordering_date=result["ordering_date"] + timedelta(hours=9),
-            is_payment=result["is_payment"],
+            item_name=result["item_name"],
+            is_payment=result["is_payment"]
         )

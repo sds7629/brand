@@ -2,8 +2,7 @@ import dataclasses
 from datetime import datetime
 from typing import Sequence
 
-from pydantic import HttpUrl
-
+from app.dtos.item.item_creation_request import ItemOptions, FitSizing
 from app.entities.category.category_codes import CategoryCode
 
 
@@ -12,7 +11,9 @@ class ItemUpdateRequest:
     name: str | None = None
     price: int | None = None
     description: str | None = None
-    item_quantity: int | None = None
-    size: str | None = None
-    category: list[CategoryCode] | None = None
+    details: Sequence[str] | None = None
+    fit_sizing: FitSizing | None = None
+    fabric: str | None = None
+    options: Sequence[ItemOptions] | None = None
+    category: CategoryCode | None = None
     updated_at: datetime = datetime.utcnow()

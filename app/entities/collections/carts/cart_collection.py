@@ -24,14 +24,14 @@ class CartCollection:
 
     @classmethod
     async def insert_one(
-        cls, user: ShowUserDocument, item: ItemDocument, quantity: int, color: str, total_price: int
+        cls, user: ShowUserDocument, item: ItemDocument, quantity: int, options: str, total_price: int
     ) -> CartDocument:
         result = await cls._collection.insert_one(
             {
                 "user": asdict(user),
                 "item": asdict(item),
+                "options": options,
                 "quantity": quantity,
-                "color": color,
                 "total_price": total_price,
             }
         )
@@ -41,7 +41,7 @@ class CartCollection:
             user=user,
             item=item,
             quantity=quantity,
-            color=color,
+            options=options,
             total_price=total_price,
         )
 
@@ -68,6 +68,6 @@ class CartCollection:
             user=result["user"],
             item=result["item"],
             quantity=result["quantity"],
-            color=result["color"],
+            options=result["options"],
             total_price=result["total_price"],
         )

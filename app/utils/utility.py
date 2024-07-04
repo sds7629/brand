@@ -36,11 +36,11 @@ class TotalUtil:
 
     @classmethod
     async def encode(
-        cls,
-        data: dict[Any, Any] | UserDocument,
-        secret_key: str,
-        expires_time: str,
-        algorithm: str = "HS256",
+            cls,
+            data: dict[Any, Any] | UserDocument,
+            secret_key: str,
+            expires_time: str,
+            algorithm: str = "HS256",
     ) -> str:
         if type(data) is UserDocument:
             to_encode = asdict(
@@ -71,9 +71,9 @@ class TotalUtil:
 
     @classmethod
     async def check_token_expire(
-        cls,
-        token: str,
-        secret_key: str,
+            cls,
+            token: str,
+            secret_key: str,
     ) -> dict[Any, Any] | None:
         payload = await cls.decode(token, secret_key)
         now_time = datetime.timestamp(datetime.now(timezone("Asia/Seoul")))
@@ -122,3 +122,10 @@ class TimeUtil:
         seconds_to_midnight = next_midnight - now
 
         return seconds_to_midnight, next_midnight
+
+    @classmethod
+    async def get_created_at_from_id(cls, object_id: str) -> str:
+        to_time = object_id[:8]
+        time_to_ten = int(to_time, 16)
+        timestamp_created_at = datetime.fromtimestamp(time_to_ten)
+        return timestamp_created_at

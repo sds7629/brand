@@ -10,7 +10,7 @@ from app.utils.utility import TotalUtil
 async def test_insert_one() -> None:
     # Given
     user = await UserCollection.find_by_nickname("admin")
-    title = "안녕"
+    title = "안녕6"
     payload = "잘가세요, 푸루입니다3ㅡ.ㅡ"
 
     await QnACollection.insert_one(

@@ -4,10 +4,15 @@ from pydantic import dataclasses
 
 
 @dataclasses.dataclass
+class CartOption:
+    quantity: int
+    color_size: str
+
+
+@dataclasses.dataclass
 class OneCartCreationRequest:
     item_id: str
-    quantity: int
-    color: str
+    options: Sequence[CartOption]
 
 
 @dataclasses.dataclass

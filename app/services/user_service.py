@@ -46,12 +46,13 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | 
         raise ValidationException(response_message="사용할 수 없는 아이디입니다.")
 
     user = await UserCollection.insert_one(
-        user_signup_request.user_id,
-        user_signup_request.email,
-        user_signup_request.name,
-        user_signup_request.password,
-        user_signup_request.nickname,
-        user_signup_request.phone_num,
+        user_id=user_signup_request.user_id,
+        email=user_signup_request.email,
+        name=user_signup_request.name,
+        password=user_signup_request.password,
+        nickname=user_signup_request.nickname,
+        phone_num=user_signup_request.phone_num,
+        is_policy=user_signup_request.is_policy,
     )
 
     return user

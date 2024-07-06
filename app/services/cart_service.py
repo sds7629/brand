@@ -8,7 +8,7 @@ from app.entities.collections import ItemCollection, UserCollection
 from app.entities.collections.carts.cart_collection import CartCollection
 from app.entities.collections.carts.cart_document import CartDocument
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NotPermissionException, ValidationException
+from app.exceptions import NoPermissionException, ValidationException
 
 
 async def get_user_carts(user_data: ShowUserDocument) -> Sequence[CartDocument]:
@@ -54,5 +54,5 @@ async def create_cart(
 async def delete_cart(user: ShowUserDocument, cart_id: ObjectId) -> None:
     cart = await CartCollection.find_by_id(cart_id)
     if cart.user != user:
-        raise NotPermissionException(response_message="접근 권한이 없습니다.")
+        raise NoPermissionException(response_message="접근 권한이 없습니다.")
     await CartCollection.delete_by_id(cart.id)

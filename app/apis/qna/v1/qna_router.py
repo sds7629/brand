@@ -1,7 +1,6 @@
 import asyncio
 import json
-from dataclasses import asdict
-from typing import Annotated, Sequence, Union
+from typing import Annotated, Sequence
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -26,9 +25,8 @@ from app.entities.redis_repositories.view_count_repository import (
     ViewCountRedisRepository,
 )
 from app.exceptions import (
-    NoContentException,
-    NoSuchElementException,
-    QnANotFoundException,
+    NoSuchContentException,
+    NotFoundException,
     ValidationException,
 )
 from app.services.qna_service import (
@@ -141,7 +139,7 @@ async def api_get_qna(
 async def api_get_qna_detail(request: Request, response: Response, qna_id: str) -> OnlyOneQnAResponse:
     try:
         result = await find_qna_by_id(ObjectId(qna_id))
-    except NoSuchElementException as e:
+    except NoSuchContentException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"message": e.response_message},
@@ -161,7 +159,7 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
         view_count=int(await ViewCountRedisRepository.get("view_count_" + str(result.id))),
         is_secret=result.is_secret,
         is_notice=result.is_notice,
-        created_at=await TimeUtil.get_created_at_from_id(str(qna.id)),
+        created_at=await TimeUtil.get_created_at_from_id(str(result.id)),
     )
 
 
@@ -209,7 +207,7 @@ async def api_create_qna(
 async def api_delete_qna(qna_id: str, user: Annotated[ShowUserDocument, Depends(get_current_user)]) -> None:
     try:
         await delete_qna_by_id(ObjectId(qna_id), user)
-    except QnANotFoundException as e:
+    except NotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"message": e.response_message},
@@ -248,12 +246,12 @@ async def api_update_qna(
         )
     try:
         await update_qna(ObjectId(qna_id), qna_validate_data, qna_update_images, user)
-    except QnANotFoundException as e:
+    except NotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"message": e.response_message},
         )
-    except NoContentException as e:
+    except NoSuchContentException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e.response_message,

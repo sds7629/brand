@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Union
 
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
@@ -7,7 +7,9 @@ from fastapi.responses import ORJSONResponse
 from app.auth.auth_bearer import get_current_user
 from app.dtos.order.order_creation_request import (
     OrderCreationRequest,
-    PreOrderCreationRequest,
+    PreOrderCartCreationRequest,
+    PreOrderItemCreationRequest,
+    PreOrderRequest,
 )
 from app.dtos.order.order_response import (
     BaseOrderResponse,
@@ -18,12 +20,12 @@ from app.dtos.order.order_response import (
 )
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import (
-    ItemQuantityException,
+    NotFoundException,
     NoPermissionException,
-    NoSuchElementException,
     ValidationException,
 )
-from app.services.order_service import create_order, get_user_orders, pre_order
+from app.services.order_service import create_order, get_user_orders, pre_order_cart
+from app.utils.utility import TimeUtil
 
 router = APIRouter(prefix="/v1/orders", tags=["orders"], redirect_slashes=False)
 
@@ -44,17 +46,17 @@ async def api_get_user_orders(user: Annotated[ShowUserDocument, Depends(get_curr
                 merchant_id=order.merchant_id,
                 address=order.address,
                 detail_address=order.detail_address,
-                order_name=order.order_name,
+                recipient_name=order.recipient_name,
                 requirements=order.requirements,
-                ordering_date=order.ordering_date,
-                item=[
+                ordering_date=await TimeUtil.get_created_at_from_id(str(order.id)),
+                items=[
                     OrderItemResponse(
-                        name=item.name,
-                        price=item.price,
-                        options=item.options,
-                        image_urls=item.image_urls,
+                        item_name=item.item.name,
+                        item_option=item.option,
+                        item_price=item.item.price,
+                        image_urls=item.item.image_urls,
                     )
-                    for item in order.ordering_item
+                    for item in order.order_item
                 ],
             )
             for order in orders
@@ -63,22 +65,17 @@ async def api_get_user_orders(user: Annotated[ShowUserDocument, Depends(get_curr
 
 
 @router.post(
-    "/pre-order",
+    "/start",
     description="결제 주문",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
 async def api_pre_order(
     user: Annotated[ShowUserDocument, Depends(get_current_user)],
-    pre_order_creation_request: PreOrderCreationRequest,
+    pre_order_creation_request: PreOrderRequest,
 ) -> PreOrderResponse:
     try:
-        order = await pre_order(user, pre_order_creation_request)
-    except NoSuchElementException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": e.response_message},
-        )
+        order = await pre_order_cart(user, pre_order_creation_request)
     except NoPermissionException as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -86,19 +83,28 @@ async def api_pre_order(
         )
     return PreOrderResponse(
         user_id=order.user.user_id,
-        email=order.email,
+        email=order.user.email,
         post_code=order.post_code,
         address=order.address,
         detail_address=order.detail_address,
         phone_num=order.phone_num,
-        order_name=order.order_name,
+        recipient_name=order.recipient_name,
         requirements=order.requirements,
         total_price=order.total_price,
+        ordering_item=[
+            OrderItemResponse(
+                item_name=item_info["order_item_name"],
+                item_option=item_info["selected_options"],
+                item_price=item_info["order_item_price"],
+                image_urls=item_info["order_item_images"],
+            )
+            for item_info in order.ordering_item
+        ]
     )
 
 
 @router.post(
-    "/create",
+    "/done",
     description="결제 주문 생성",
     response_class=ORJSONResponse,
     status_code=status.HTTP_201_CREATED,
@@ -108,7 +114,7 @@ async def api_create_order(
 ) -> CreateOrderResponse:
     try:
         order = await create_order(user, order_creation_request)
-    except ItemQuantityException as e:
+    except NotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"message": e.response_message},
@@ -121,3 +127,4 @@ async def api_create_order(
         )
 
     return CreateOrderResponse(order_id=str(order.id))
+

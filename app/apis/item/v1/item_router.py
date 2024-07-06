@@ -25,9 +25,8 @@ from app.dtos.item.item_response import ItemResponse, OneItemResponse
 from app.dtos.item.item_update_request import ItemUpdateRequest
 from app.entities.redis_repositories.page_repository import PageRepository
 from app.exceptions import (
-    ItemNotFoundException,
-    NoContentException,
-    NoSuchElementException,
+    NotFoundException,
+    NoSuchContentException,
     ValidationException,
 )
 from app.services.item_service import (
@@ -80,7 +79,7 @@ async def api_get_all_items(name: str | None = None, page: int = 1) -> ItemRespo
 async def api_get_one_item(item_id: str) -> OneItemResponse:
     try:
         item = await get_item_by_id(ObjectId(item_id))
-    except NoSuchElementException as e:
+    except NoSuchContentException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": e.response_message})
     return OneItemResponse(
         id=str(item.id),
@@ -169,7 +168,7 @@ async def api_update_item(
         )
     try:
         await updated_item(ObjectId(item_id), item_update_validate_data, item_update_images)
-    except NoContentException as e:
+    except NoSuchContentException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
     except InvalidId:
         raise HTTPException(
@@ -187,7 +186,7 @@ async def api_update_item(
 async def api_delete_item(item_id: str) -> None:
     try:
         await delete_item(ObjectId(item_id))
-    except ItemNotFoundException as e:
+    except NotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"message": e.response_message},

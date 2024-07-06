@@ -1,22 +1,39 @@
-from typing import Any, Sequence
+from typing import Sequence, Union, Annotated, Literal
 
 from pydantic import dataclasses
+from pydantic.dataclasses import Field
+from fastapi import Body
 
 from app.config import Config
 from app.utils.enums.payment_codes import PaymentMethodCode
 
 
+@dataclasses.dataclass
+class OrderItemCreationRequest:
+    item_id: str
+    option: str
+    quantity: int
+
+
 @dataclasses.dataclass(config=Config)
-class PreOrderCreationRequest:
-    options: str
-    item_id: str | None = None
-    cart_id: str | None = None
+class PreOrderCartCreationRequest:
+    type: Literal["cart"] = "cart"
+    cart_id: Sequence[str] = Field(default_factory=list)
+
+
+@dataclasses.dataclass(config=Config)
+class PreOrderItemCreationRequest:
+    type: Literal["item"] = "item"
+    options: Sequence[OrderItemCreationRequest] = Field(default_factory=list)
+
+
+PreOrderRequest = Annotated[Union[PreOrderCartCreationRequest, PreOrderItemCreationRequest], Body(discriminator="type")]
 
 
 @dataclasses.dataclass(config=Config)
 class OrderCreationRequest:
-    item_id: str
-    merchant_id: str
+    item_info: Sequence[OrderItemCreationRequest]
+    recipient_name: str
     post_code: str
     address: str
     detail_address: str

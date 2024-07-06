@@ -9,7 +9,7 @@ from app.config import PORT_ONE_SECRET_KEY, STORE_ID
 from app.dtos.payment.payment_request import PaymentRequest
 from app.dtos.payment.payment_response import PaymentHistoryResponse, PaymentResponse
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NoPermissionException, NoSuchElementException
+from app.exceptions import NoPermissionException, NoSuchContentException
 from app.services.payment_service import find_payment, get_history
 
 router = APIRouter(prefix="/v1/payment", tags=["Payment"], redirect_slashes=False)
@@ -26,7 +26,7 @@ async def api_get_history(
 ) -> Sequence[PaymentHistoryResponse]:
     try:
         histories = await get_history(user)
-    except NoSuchElementException as e:
+    except NoSuchContentException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"detail": e.response_message})
 
     return [

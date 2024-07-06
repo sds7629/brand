@@ -20,7 +20,7 @@ from app.dtos.user.user_signout_request import UserSignOutRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.dtos.user.user_signup_response import UserSignupResponse
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import UserNotFoundException, ValidationException
+from app.exceptions import NotFoundException, ValidationException
 from app.services.user_service import (
     check_nickname_or_email,
     delete_user,
@@ -85,7 +85,7 @@ async def api_signup_user(user_signup_request: UserSignupRequest) -> UserSignupR
 async def api_signin_user(response: Response, user_signin_request: UserSigninRequest) -> UserSigninResponse:
     try:
         user = await signin_user(user_signin_request)
-    except UserNotFoundException as e:
+    except NotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e.response_message,
@@ -136,7 +136,7 @@ async def api_signout(
 ) -> None:
     try:
         await delete_user(user, ObjectId(user_signout_request.base_user_id))
-    except UserNotFoundException as e:
+    except NotFoundException as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
     except InvalidId:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail={"message": "id invalid user"})

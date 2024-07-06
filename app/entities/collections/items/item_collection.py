@@ -9,8 +9,6 @@ from pydantic import HttpUrl
 from app.entities.category.category_codes import CategoryCode
 from app.entities.collections.items.item_document import ItemDocument
 from app.utils.connection import db
-from app.utils.enums.color_codes import ColorCode
-from app.utils.enums.size_codes import SizeCode
 
 
 class ItemCollection:

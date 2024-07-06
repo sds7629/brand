@@ -12,7 +12,7 @@ from app.dtos.cart.cart_response import (
     CartResponse,
 )
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NotPermissionException, ValidationException
+from app.exceptions import NoPermissionException, ValidationException
 from app.services.cart_service import create_cart, delete_cart, get_user_carts
 
 router = APIRouter(prefix="/v1/cart", tags=["cart"], redirect_slashes=False)
@@ -71,7 +71,7 @@ async def api_create_cart(
 async def api_delete_cart(user: Annotated[ShowUserDocument, Depends(get_current_user)], cart_id: str) -> None:
     try:
         await delete_cart(user, ObjectId(cart_id))
-    except NotPermissionException as e:
+    except NoPermissionException as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"message": e.response_message},

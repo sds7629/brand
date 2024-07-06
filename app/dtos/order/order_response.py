@@ -1,9 +1,17 @@
 from datetime import datetime
 from typing import Sequence
 
-from pydantic import dataclasses
+from pydantic import dataclasses, HttpUrl
 
 from app.config import Config
+
+
+@dataclasses.dataclass
+class OrderItemResponse:
+    item_name: str
+    item_option: str
+    item_price: int
+    image_urls: Sequence[HttpUrl]
 
 
 @dataclasses.dataclass
@@ -13,10 +21,11 @@ class PreOrderResponse:
     post_code: str | None
     address: str | None
     detail_address: str | None
+    recipient_name: str
     phone_num: str | None
-    order_name: str | None
     requirements: str | None
     total_price: int
+    ordering_item: Sequence[OrderItemResponse]
 
 
 @dataclasses.dataclass
@@ -25,24 +34,15 @@ class CreateOrderResponse:
 
 
 @dataclasses.dataclass
-class OrderItemResponse:
-    name: str
-    price: int
-    options: str
-    price: int
-    image_urls: Sequence[str]
-
-
-@dataclasses.dataclass
 class BaseOrderResponse:
     id: str
     merchant_id: str
     address: str
     detail_address: str
-    order_name: str
+    recipient_name: str
     requirements: str
     ordering_date: datetime
-    item: Sequence[OrderItemResponse]
+    items: Sequence[OrderItemResponse]
 
 
 @dataclasses.dataclass(config=Config, kw_only=True)

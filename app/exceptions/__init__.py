@@ -3,11 +3,7 @@ class BaseException(Exception):
         self.response_message = response_message
 
 
-class UserNotFoundException(BaseException):
-    pass
-
-
-class NoSuchElementException(BaseException):
+class NoSuchContentException(BaseException):
     pass
 
 
@@ -15,35 +11,15 @@ class NoPermissionException(BaseException):
     pass
 
 
-class QnANotFoundException(BaseException):
+class NotFoundException(BaseException):
     pass
 
 
-class QnAValidationException(BaseException):
-    pass
-
-
-class ItemNotFoundException(BaseException):
-    pass
-
-
-class ItemQuantityException(BaseException):
-    pass
-
-
-class OrderNotFoundException(BaseException):
+class QuantityException(BaseException):
     pass
 
 
 class ValidationException(BaseException):
-    pass
-
-
-class NotPermissionException(BaseException):
-    pass
-
-
-class NoContentException(BaseException):
     pass
 
 

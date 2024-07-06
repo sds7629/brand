@@ -10,10 +10,9 @@ from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import (
-    NoContentException,
-    NoSuchElementException,
-    NotPermissionException,
-    QnANotFoundException,
+    NoSuchContentException,
+    NoPermissionException,
+    NotFoundException,
 )
 from app.utils.connection_aws import upload_image
 
@@ -25,7 +24,7 @@ async def qna_list(page: int) -> list[QnADocument]:
 
 async def find_qna_by_id(qna_id: ObjectId) -> QnADocument | None:
     if (qna := await QnACollection.find_by_id(qna_id)) is None:
-        raise NoSuchElementException(response_message="QnA를 찾을 수 없습니다.")
+        raise NoSuchContentException(response_message="QnA를 찾을 수 없습니다.")
     return qna
 
 
@@ -49,10 +48,10 @@ async def find_qna_by_writer(keyword: str, page: int) -> Sequence[QnADocument]:
 
 async def delete_qna_by_id(qna_id: ObjectId, user: ShowUserDocument) -> None:
     if not (qna := await QnACollection.find_by_id(qna_id)):
-        raise QnANotFoundException(f"No QnA found with id: {id}")
+        raise NotFoundException(f"No QnA found with id: {id}")
 
     if qna.writer.user_id != user.user_id:
-        raise NotPermissionException(response_message="작성자가 아닙니다.")
+        raise NoPermissionException(response_message="작성자가 아닙니다.")
 
     await QnACollection.delete_by_id(qna_id)
 
@@ -81,10 +80,10 @@ async def update_qna(
     user: ShowUserDocument,
 ) -> None:
     if not (qna := await QnACollection.find_by_id(qna_id)):
-        raise QnANotFoundException(f"No QnA found with id: {qna_id}")
+        raise NotFoundException(f"No QnA found with id: {qna_id}")
 
     if qna.writer.user_id != user.user_id:
-        raise NotPermissionException(response_message="작성자가 아닙니다.")
+        raise NoPermissionException(response_message="작성자가 아닙니다.")
 
     if len(data := {key: val for key, val in asdict(validate_data).items() if val is not None}) > 0:
         if bool(qna_update_images):
@@ -94,4 +93,4 @@ async def update_qna(
             data["image_urls"] = item_update_image_urls_from_aws
         updated_item_count = await QnACollection.update_by_id(qna_id, data)
     else:
-        raise NoContentException(response_message="No Content")
+        raise NoSuchContentException(response_message="No Content")

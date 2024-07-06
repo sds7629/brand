@@ -16,7 +16,7 @@ from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
 from app.entities.collections.users.user_document import ShowUserDocument, UserDocument
-from app.exceptions import UserNotFoundException, ValidationException
+from app.exceptions import NotFoundException, ValidationException
 from app.utils.utility import TotalUtil
 
 
@@ -62,11 +62,11 @@ async def signin_user(user_signin_request: UserSigninRequest) -> dict[Any, Any]:
     user = await UserCollection.find_by_user_id(user_signin_request.user_id)
 
     if not user:
-        raise UserNotFoundException(f"가입된 유저가 아닙니다.")
+        raise NotFoundException(f"가입된 유저가 아닙니다.")
 
     if user is not None:
         if user.is_delete:
-            raise UserNotFoundException(f"가입된 유저가 아닙니다.")
+            raise NotFoundException(f"가입된 유저가 아닙니다.")
 
     if await TotalUtil.is_valid_password(user_signin_request.password, user.hash_pw):
         access_token, refresh_token = await asyncio.gather(
@@ -79,7 +79,7 @@ async def signin_user(user_signin_request: UserSigninRequest) -> dict[Any, Any]:
             "refresh_token": refresh_token,
         }
         return data
-    raise UserNotFoundException(response_message="패스워드가 맞지 않습니다.")
+    raise NotFoundException(response_message="패스워드가 맞지 않습니다.")
 
 
 async def delete_user(user: ShowUserDocument, user_id: ObjectId) -> None:

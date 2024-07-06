@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Sequence
+from typing import Sequence, Any
 
 from pydantic import dataclasses
 
@@ -7,14 +7,22 @@ from app.config import Config
 from app.entities.collections.base_document import BaseDocument
 from app.entities.collections.items.item_document import ItemDocument
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.utils.enums.payment_codes import PaymentMethodCode
 from app.utils.enums.status_codes import StatusCode
+from bson import ObjectId
+
+
+@dataclasses.dataclass
+class OrderItem:
+    item: ItemDocument
+    option: str
+    quantity: int
 
 
 @dataclasses.dataclass(config=Config)
 class OrderDocument(BaseDocument):
     user: ShowUserDocument
-    order_name: str
+    order_item: Sequence[OrderItem]
+    recipient_name: str
     merchant_id: str
     post_code: str
     address: str
@@ -22,23 +30,19 @@ class OrderDocument(BaseDocument):
     requirements: str
     phone_num: str
     payment_status: StatusCode
-    payment_method: PaymentMethodCode
     total_price: int
-    item_name: str
     is_payment: bool
 
 
 @dataclasses.dataclass
 class PreOrderDocument:
     user: ShowUserDocument
-    order_name: str | None
-    merchant_id: str | None
+    email: str | None
+    recipient_name: str | None
     post_code: str | None
-    address: str
-    detail_address: str
-    requirements: str
+    address: str | None
+    detail_address: str | None
+    requirements: str | None
     phone_num: str | None
-    payment_status: StatusCode | None
-    payment_method: PaymentMethodCode | None
     total_price: int
-    ordering_item: Sequence[ItemDocument]
+    ordering_item: Sequence[dict[str, Any]]

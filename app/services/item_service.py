@@ -9,9 +9,8 @@ from app.dtos.item.item_update_request import ItemUpdateRequest
 from app.entities.collections.items.item_collection import ItemCollection
 from app.entities.collections.items.item_document import ItemDocument
 from app.exceptions import (
-    ItemNotFoundException,
-    NoContentException,
-    NoSuchElementException,
+    NotFoundException,
+    NoSuchContentException,
 )
 from app.utils.connection_aws import upload_image
 
@@ -43,7 +42,7 @@ async def create_item(
 
 async def delete_item(item_id: ObjectId) -> int:
     if not (deleted_item := await ItemCollection.delete_by_id(item_id)):
-        raise ItemNotFoundException(response_message=f"Item with id {item_id} not found")
+        raise NotFoundException(response_message=f"Item with id {item_id} not found")
     return deleted_item
 
 
@@ -60,7 +59,7 @@ async def updated_item(
             data["image_urls"] = item_update_image_urls_from_aws
         updated_item_count = await ItemCollection.update_by_id(item_id, data)
         return updated_item_count
-    raise NoContentException(response_message="No Contents")
+    raise NoSuchContentException(response_message="No Contents")
 
 
 async def get_all_item(page: int) -> list[ItemDocument]:
@@ -78,6 +77,6 @@ async def get_item_by_name(item_name: str) -> list[ItemDocument]:
 
 async def get_item_by_id(item_id: ObjectId) -> ItemDocument:
     if not (get_one_item := await ItemCollection.find_by_id(item_id)):
-        raise NoSuchElementException(response_message="아이템을 찾을 수 없습니다.")
+        raise NoSuchContentException(response_message="아이템을 찾을 수 없습니다.")
 
     return get_one_item

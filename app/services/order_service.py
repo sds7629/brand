@@ -4,20 +4,19 @@ from bson import ObjectId
 
 from app.dtos.order.order_creation_request import (
     OrderCreationRequest,
-    PreOrderCartCreationRequest, PreOrderItemCreationRequest, PreOrderRequest,
+    PreOrderCartCreationRequest,
+    PreOrderItemCreationRequest,
+    PreOrderRequest,
 )
 from app.entities.collections import CartCollection, ItemCollection, UserCollection
 from app.entities.collections.orders.order_collection import OrderCollection
 from app.entities.collections.orders.order_document import (
     OrderDocument,
+    OrderItem,
     PreOrderDocument,
-    OrderItem
 )
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import (
-    NoPermissionException,
-    ValidationException, NotFoundException,
-)
+from app.exceptions import NoPermissionException, NotFoundException, ValidationException
 from app.utils.payment_util import PaymentUtil
 
 
@@ -29,16 +28,16 @@ async def get_user_orders(user: ShowUserDocument) -> list[OrderDocument] | None:
 
 
 async def pre_order_cart(
-        user: ShowUserDocument,
-        pre_order_creation_request: PreOrderRequest
+    user: ShowUserDocument, pre_order_creation_request: PreOrderRequest
 ) -> PreOrderDocument | None:
     user_document = await UserCollection.find_by_id(ObjectId(user.id))
     user_base_delivery = [delivery for delivery in user_document.delivery_area if delivery.is_base_delivery]
 
     match pre_order_creation_request.type:
         case "cart":
-            order_item_from_cart = [await CartCollection.find_by_id(ObjectId(cart_id)) for cart_id in
-                                    pre_order_creation_request.cart_id]
+            order_item_from_cart = [
+                await CartCollection.find_by_id(ObjectId(cart_id)) for cart_id in pre_order_creation_request.cart_id
+            ]
             compare_cart_from_user = [cart.user.id == user.id for cart in order_item_from_cart]
 
             if all(compare_cart_from_user) is False:
@@ -63,7 +62,7 @@ async def pre_order_cart(
                     "order_item_name": order_item.name,
                     "order_item_images": order_item.image_urls,
                     "order_item_price": order_item.price,
-                    "selected_options": item.option
+                    "selected_options": item.option,
                 }
                 for item in pre_order_creation_request.options
             ]
@@ -102,8 +101,7 @@ async def pre_order_cart(
 
 async def create_order(user: ShowUserDocument, order_creation_request: OrderCreationRequest) -> OrderDocument:
     co_item_list = [
-        ItemCollection.find_by_id(ObjectId(item_info.item_id))
-        for item_info in order_creation_request.item_info
+        ItemCollection.find_by_id(ObjectId(item_info.item_id)) for item_info in order_creation_request.item_info
     ]
     item_list = await asyncio.gather(*co_item_list)
 

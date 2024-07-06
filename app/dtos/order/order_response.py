@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Sequence
 
-from pydantic import dataclasses, HttpUrl
+from pydantic import HttpUrl, dataclasses
 
 from app.config import Config
 

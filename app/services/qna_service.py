@@ -10,8 +10,8 @@ from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import (
-    NoSuchContentException,
     NoPermissionException,
+    NoSuchContentException,
     NotFoundException,
 )
 from app.utils.connection_aws import upload_image

@@ -1,8 +1,8 @@
-from typing import Sequence, Union, Annotated, Literal
+from typing import Annotated, Literal, Sequence, Union
 
+from fastapi import Body
 from pydantic import dataclasses
 from pydantic.dataclasses import Field
-from fastapi import Body
 
 from app.config import Config
 from app.utils.enums.payment_codes import PaymentMethodCode

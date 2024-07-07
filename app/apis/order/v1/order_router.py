@@ -7,8 +7,6 @@ from fastapi.responses import ORJSONResponse
 from app.auth.auth_bearer import get_current_user
 from app.dtos.order.order_creation_request import (
     OrderCreationRequest,
-    PreOrderCartCreationRequest,
-    PreOrderItemCreationRequest,
     PreOrderRequest,
 )
 from app.dtos.order.order_response import (

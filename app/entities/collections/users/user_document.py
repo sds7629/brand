@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import dataclasses, field_validator
+from pydantic import dataclasses
 from pydantic.dataclasses import Field
 
 from app.config import Config
@@ -30,6 +30,7 @@ class UserDocument(BaseDocument):
     nickname: str
     phone_num: str
     login_method: str
+    sns_confirm: bool
     is_authenticated: bool
     is_policy: bool
     is_admin: bool

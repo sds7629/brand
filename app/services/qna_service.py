@@ -1,11 +1,12 @@
+import asyncio
 from dataclasses import asdict
-from datetime import datetime
-from typing import Any, Sequence
+from typing import Sequence
 
 from bson import ObjectId
 from fastapi import UploadFile
 
 from app.dtos.qna.qna_request import QnARequest, UpdateQnARequest
+from app.entities.collections.comments.comment_collection import CommentCollection
 from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
@@ -54,16 +55,23 @@ async def delete_qna_by_id(qna_id: ObjectId, user: ShowUserDocument) -> None:
         raise NoPermissionException(response_message="작성자가 아닙니다.")
 
     await QnACollection.delete_by_id(qna_id)
+    comments = await CommentCollection.find_by_base_qna(qna_id)
+    co_del_comments = [
+        CommentCollection.delete_by_id(comment.id)
+        for comment in comments
+    ]
+    await asyncio.gather(*co_del_comments)
 
 
 async def create_qna(
     qna_data: QnARequest, qna_creation_images: Sequence[UploadFile], user: ShowUserDocument
 ) -> QnADocument:
-    qna_creation_image_urls_from_aws = []
     if bool(qna_creation_images):
         qna_creation_image_urls_from_aws = [
             (await upload_image(image))["url"] for image in qna_creation_images if image.filename != ""
         ]
+    else:
+        qna_creation_image_urls_from_aws = qna_creation_images
     return await QnACollection.insert_one(
         title=qna_data.title,
         payload=qna_data.payload,
@@ -76,7 +84,7 @@ async def create_qna(
 async def update_qna(
     qna_id: ObjectId,
     validate_data: UpdateQnARequest,
-    qna_update_images: Sequence[UploadFile] | None,
+    qna_update_images: Sequence[UploadFile],
     user: ShowUserDocument,
 ) -> None:
     if not (qna := await QnACollection.find_by_id(qna_id)):
@@ -91,6 +99,17 @@ async def update_qna(
                 (await upload_image(image))["url"] for image in qna_update_images if image.filename != ""
             ]
             data["image_urls"] = item_update_image_urls_from_aws
-        updated_item_count = await QnACollection.update_by_id(qna_id, data)
+        await QnACollection.update_by_id(qna_id, data)
+        return
+
+    if bool(qna_update_images):
+        qna_update_image_urls_from_aws = [
+            (await upload_image(image))["url"] for image in qna_update_images if image.filename != ""
+        ]
+        data = {
+            "image_urls": qna_update_image_urls_from_aws,
+        }
+        await QnACollection.update_by_id(qna_id, data)
+        return
     else:
         raise NoSuchContentException(response_message="No Content")

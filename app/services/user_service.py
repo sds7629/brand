@@ -52,6 +52,7 @@ async def signup_user(user_signup_request: UserSignupRequest) -> UserDocument | 
         password=user_signup_request.password,
         nickname=user_signup_request.nickname,
         phone_num=user_signup_request.phone_num,
+        sns_confirm=user_signup_request.sns_confirm,
         is_policy=user_signup_request.is_policy,
     )
 

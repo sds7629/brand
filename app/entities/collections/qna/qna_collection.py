@@ -108,7 +108,7 @@ class QnACollection:
         ]
 
     @classmethod
-    async def update_by_id(cls, qna_id: ObjectId, data: dict[str, str]) -> int:
+    async def update_by_id(cls, qna_id: ObjectId, data: dict[str, Any]) -> int:
         result = await cls._collection.update_one({"_id": qna_id}, {"$set": data}, upsert=False)
         return result.modified_count
 

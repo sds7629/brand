@@ -12,8 +12,10 @@ from app.apis.order.v1.order_router import router as order_router
 from app.apis.payment.v1.payment_router import router as payment_router
 from app.apis.qna.v1.qna_router import router as qna_router
 from app.apis.user.v1.user_router import router as user_router
+from app.apis.comment.v1.comment_router import router as comment_router
 from app.entities.collections import set_indexes
 from app.utils.redis_scheduler import start_scheduler
+
 
 
 @asynccontextmanager
@@ -33,6 +35,7 @@ app.include_router(kakao_router)
 app.include_router(order_router)
 app.include_router(cart_router)
 app.include_router(payment_router)
+app.include_router(comment_router)
 
 templates = Jinja2Templates(directory="app/templates")
 

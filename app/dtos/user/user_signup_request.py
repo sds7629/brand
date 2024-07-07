@@ -11,4 +11,5 @@ class UserSignupRequest:
     password: str
     nickname: str
     phone_num: str
+    sns_confirm: bool
     is_policy: bool

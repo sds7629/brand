@@ -232,13 +232,14 @@ async def api_update_qna(
     user: Annotated[ShowUserDocument, Depends(get_current_user)],
     qna_update_images: Sequence[UploadFile] = File(default=[]),
 ) -> None:
-    if qna_update_images[0].filename == "":
-        qna_update_images = None
     try:
         qna_request_form_data = await qna_request.form()
-        qna_data = {key: val for key, val in qna_request_form_data.items() if key != "qna_update_images"}
-        qna_data_to_json = json.loads(qna_data["qna_update_request"])
-        qna_validate_data = UpdateQnARequest(**qna_data_to_json)
+        if "qna_update_request" in qna_request_form_data.keys():
+            qna_data = {key: val for key, val in qna_request_form_data.items() if key != "qna_update_images"}
+            qna_data_to_json = json.loads(qna_data["qna_update_request"])
+            qna_validate_data = UpdateQnARequest(**qna_data_to_json)
+        else:
+            qna_validate_data = UpdateQnARequest()
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

@@ -145,7 +145,7 @@ async def api_create_item(
 
 
 @router.put(
-    "/{item_id}/update",
+    "/update/{item_id}",
     description="아이템 수정",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
@@ -177,7 +177,7 @@ async def api_update_item(
 
 
 @router.delete(
-    "/{item_id}/delete",
+    "/delete/{item_id}",
     description="아이템 삭제",
     response_class=Response,
     status_code=status.HTTP_204_NO_CONTENT,

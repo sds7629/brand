@@ -199,7 +199,7 @@ async def api_create_qna(
 
 
 @router.delete(
-    "/{qna_id}/delete",
+    "/delete/{qna_id}",
     description="QnA 삭제",
     response_class=ORJSONResponse,
     status_code=status.HTTP_204_NO_CONTENT,
@@ -221,7 +221,7 @@ async def api_delete_qna(qna_id: str, user: Annotated[ShowUserDocument, Depends(
 
 
 @router.put(
-    "/{qna_id}/update",
+    "/update/{qna_id}",
     description="QnA 수정",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,

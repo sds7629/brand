@@ -14,6 +14,7 @@ from app.dtos.user.user_duplicated_response import DuplicatedResponse
 from app.dtos.user.user_find_password import EmailSchema
 from app.dtos.user.user_profile_response import UserProfileResponse
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
+from app.dtos.user.user_set_passwd_request import UserSetPasswdRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signin_response import Token, UserSigninResponse
 from app.dtos.user.user_signout_request import UserSignOutRequest
@@ -160,6 +161,7 @@ async def api_refresh_access_token(response: Response, refresh_token_request: Re
         secure=True,
         httponly=True,
         samesite="lax",
+        domain="localhost",
     )
 
     return Token(
@@ -193,9 +195,11 @@ async def api_find_password(data: EmailSchema, background_task: BackgroundTasks)
 
 
 @router.post(
-    "/set_new_password",
+    "/set_newpassword",
     description="비밀번호 찾기 - 새로운 비밀번호 설정",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_set_new_password() -> None: ...
+async def api_set_new_password(user_set_passwd_request: UserSetPasswdRequest) -> None:
+    # result = await set_new_password(user_set_passwd_request)
+    ...

@@ -64,7 +64,7 @@ async def api_create_cart(
 
 
 @router.put(
-    "/{cart_id}/update",
+    "/update/{cart_id}",
     description="장바구니 수정",
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
@@ -92,7 +92,7 @@ async def api_update_cart(user: Annotated[ShowUserDocument, Depends(get_current_
 
 
 @router.delete(
-    "/{cart_id}/delete",
+    "/delete/{cart_id}",
     description="장바구니 삭제",
     response_class=ORJSONResponse,
     status_code=status.HTTP_204_NO_CONTENT,

@@ -122,7 +122,7 @@ async def api_update_comment(
 
 
 @router.delete(
-    "/{comment_id}/delete",
+    "/delete/{comment_id}",
     description="QnA Comment Delete",
     response_class=ORJSONResponse,
     status_code=status.HTTP_204_NO_CONTENT,

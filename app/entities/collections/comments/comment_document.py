@@ -9,5 +9,4 @@ from app.entities.collections.users.user_document import ShowUserDocument
 class CommentDocument(BaseDocument):
     writer: ShowUserDocument
     payload: str
-    image_url: HttpUrlString | None
     base_qna: QnADocument

@@ -23,12 +23,12 @@ class DeliveryDocument:
 
 @dataclasses.dataclass
 class UserDocument(BaseDocument):
-    user_id: str
+    user_id: str | None
     email: str
-    name: str
-    hash_pw: str
-    nickname: str
-    phone_num: str
+    name: str | None
+    hash_pw: str | None
+    nickname: str | None
+    phone_num: str | None
     login_method: str
     sns_confirm: bool
     is_authenticated: bool
@@ -38,12 +38,24 @@ class UserDocument(BaseDocument):
     delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")
 
 
+@dataclasses.dataclass
+class SocialUserDocument(BaseDocument):
+    email: str
+    name: str
+    nickname: str | None
+    login_method: str
+    sns_confirm: bool
+    is_policy: bool
+    delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")
+
+
 @dataclasses.dataclass(config=Config)
 class ShowUserDocument(BaseDocument):
     user_id: str
     email: str
     name: str
     nickname: str
+    login_method: str
     is_delete: bool
     is_admin: bool
     delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")

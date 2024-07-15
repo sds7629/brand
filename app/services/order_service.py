@@ -55,7 +55,6 @@ async def pre_order_cart(
             total_price = sum([cart.total_price for cart in order_item_from_cart])
 
         case "item":
-            print(pre_order_creation_request.options[0])
             order_item = await ItemCollection.find_by_id(ObjectId(pre_order_creation_request.options[0].item_id))
             ordering_item = [
                 {

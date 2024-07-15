@@ -4,6 +4,7 @@ from datetime import datetime, time, timedelta
 from typing import Any
 
 from jose import jwt
+
 from passlib.context import CryptContext
 from pytz import timezone
 
@@ -46,16 +47,16 @@ class TotalUtil:
             to_encode = asdict(
                 UserJWT(
                     _id=str(data.id),
-                    user_id=data.user_id,
-                    nickname=data.nickname,
+                    user_email=data.email,
+                    nickname=data.nickname if data.nickname is not None else data.name,
                 )
             )
         else:
             to_encode = asdict(
                 UserJWT(
                     _id=str(data["_id"]),
-                    user_id=data["user_id"],
-                    nickname=data["nickname"],
+                    user_email=data["email"],
+                    nickname=data["nickname"] if data["nickname"] is not None else data["name"],
                 )
             )
         expire = datetime.now(timezone("Asia/Seoul")) + timedelta(minutes=float(expires_time))
@@ -127,5 +128,5 @@ class TimeUtil:
     async def get_created_at_from_id(cls, object_id: str) -> datetime:
         to_time = object_id[:8]
         time_to_ten = int(to_time, 16)
-        timestamp_created_at = datetime.fromtimestamp(time_to_ten)
+        timestamp_created_at = datetime.fromtimestamp(time_to_ten) + timedelta(hours=9)
         return timestamp_created_at

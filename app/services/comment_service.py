@@ -27,28 +27,22 @@ async def get_comments_mount(qna_id: str) -> int:
 
 async def create_comment(
         comment_creation_data: CommentCreationRequest,
-        comment_creation_image: UploadFile,
         writer: ShowUserDocument,
 ) -> CommentDocument:
+
     if (base_qna := await QnACollection.find_by_id(ObjectId(comment_creation_data.base_qna))) is None:
         raise NoSuchContentException(response_message="Not found")
 
-    if comment_creation_image is not None:
-        comment_creation_image_url_from_aws = (await upload_image(comment_creation_image))["url"]
-    else:
-        comment_creation_image_url_from_aws = comment_creation_image
     return await CommentCollection.insert_one(
         writer=writer,
         payload=comment_creation_data.payload,
         base_qna=base_qna,
-        image_url=comment_creation_image_url_from_aws,
     )
 
 
 async def update_comment(
         comment_id: str,
         comment_update_data: CommentUpdateRequest,
-        comment_update_image: UploadFile | None,
         writer: ShowUserDocument,
 ) -> int:
     comment = await CommentCollection.find_by_id(ObjectId(comment_id))
@@ -57,19 +51,9 @@ async def update_comment(
         raise NoPermissionException("접근 권한이 없습니다.")
 
     if len(data := {key: val for key, val in asdict(comment_update_data).items() if val is not None}):
-        if comment_update_image is not None:
-            comment_update_image_url_from_aws = (await upload_image(comment_update_image))["url"]
-            data['image_url'] = comment_update_image_url_from_aws
         updated_comment_count = await CommentCollection.update_by_id(ObjectId(comment_id), data)
         return updated_comment_count
 
-    if comment_update_image is not None:
-        comment_update_image_url_from_aws = (await upload_image(comment_update_image))["url"]
-        data = {
-            "image_url": comment_update_image_url_from_aws
-        }
-        updated_comment_count = await CommentCollection.update_by_id(ObjectId(comment_id), data)
-        return updated_comment_count
     raise NoSuchContentException(response_message="No Contents")
 
 

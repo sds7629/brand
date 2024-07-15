@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 
 from app.apis.cart.v1.cart_router import router as cart_router
 from app.apis.item.v1.item_router import router as item_router
-from app.apis.oauth_login.v1.kakao_oauth_router import router as kakao_router
+from app.apis.oauth_login.v1.oauth_router import router as kakao_router
 from app.apis.order.v1.order_router import router as order_router
 from app.apis.payment.v1.payment_router import router as payment_router
 from app.apis.qna.v1.qna_router import router as qna_router

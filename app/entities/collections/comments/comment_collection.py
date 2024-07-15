@@ -28,14 +28,12 @@ class CommentCollection:
             writer: ShowUserDocument,
             payload: str,
             base_qna: QnADocument,
-            image_url: str = None,
     ) -> CommentDocument:
         result = await cls._collection.insert_one(
             {
                 "writer": asdict(writer),
                 "payload": payload,
                 "base_qna": asdict(base_qna),
-                "image_url": image_url,
             }
         )
         return CommentDocument(
@@ -43,7 +41,6 @@ class CommentCollection:
             writer=writer,
             payload=payload,
             base_qna=base_qna,
-            image_url=image_url,
         )
 
     @classmethod
@@ -78,5 +75,4 @@ class CommentCollection:
             writer=result["writer"],
             payload=result["payload"],
             base_qna=result["base_qna"],
-            image_url=result["image_url"],
         )

@@ -46,6 +46,7 @@ async def update_cart(user: ShowUserDocument, cart_id: str, cart_update_request:
     cart = await CartCollection.find_by_id(ObjectId(cart_id))
     if cart.user != user:
         raise NoPermissionException(response_message="접근 권한이 없습니다.")
+
     if (cart_update_request.options is not None) and (cart_update_request.options not in cart.item.options.keys()):
         raise ValidationException(response_message="잘못된 요청입니다.")
 

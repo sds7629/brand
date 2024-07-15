@@ -23,5 +23,9 @@ class ValidationException(BaseException):
     pass
 
 
+class AuthorizationException(BaseException):
+    pass
+
+
 class UserAlreadyExistException(BaseException):
     pass

@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     print("종료되었어요!")
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, docs_url='/v1/docs', openapi_url='/v1/openapi.json')
 app.include_router(user_router)
 app.include_router(qna_router)
 app.include_router(item_router)

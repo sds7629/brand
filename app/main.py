@@ -17,7 +17,6 @@ from app.entities.collections import set_indexes
 from app.utils.redis_scheduler import start_scheduler
 
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("시작되었어요!")

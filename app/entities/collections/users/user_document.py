@@ -52,7 +52,7 @@ class SocialUserDocument(BaseDocument):
 
 @dataclasses.dataclass(config=Config)
 class ShowUserDocument(BaseDocument):
-    user_id: str
+    user_id: str | None
     email: str
     name: str
     nickname: str

@@ -89,46 +89,51 @@ class UserCollection:
         login_method: str,
         is_authenticated: bool,
         name: str | None = None,
+        user_id: str | None = None,
         sns_confirm: bool = False,
         is_policy: bool = False,
         is_admin: bool = False,
+        phone_num: str | None = None,
         is_delete: bool = False,
         nickname: str | None = None,
+        point: int = 0,
         delivery_area: list[DeliveryDocument] = [],
     ):
         result = await cls._collection.insert_one(
             {
-                "user_id": None,
+                "user_id": user_id,
                 "email": email,
                 "name": name,
                 "hash_pw": None,
                 "nickname": nickname,
-                "phone_num": None,
+                "phone_num": phone_num,
                 "login_method": login_method,
                 "sns_confirm": sns_confirm,
                 "is_policy": is_policy,
                 "is_authenticated": is_authenticated,
                 "is_delete": is_delete,
                 "is_admin": is_admin,
+                "point": point,
                 "delivery_area": [asdict(area) for area in delivery_area],
             }
         )
 
         return UserDocument(
             _id=result.inserted_id,
-            user_id=None,
+            user_id=user_id,
             name=name,
             hash_pw=None,
             email=email,
             nickname=nickname,
             login_method=login_method,
             sns_confirm=sns_confirm,
-            phone_num=None,
+            phone_num=phone_num,
             is_policy=is_policy,
             is_authenticated=is_authenticated,
             is_delete=is_delete,
             is_admin=is_admin,
             delivery_area=delivery_area,
+            point=point,
         )
 
     @classmethod

@@ -9,7 +9,7 @@ from pytz import timezone
 
 from app.config import ACCESS_TOKEN_EXFIRE
 from app.dtos.user.user_jwt_payload import UserJWT
-from app.entities.collections.users.user_document import UserDocument
+from app.entities.collections.users.user_document import UserDocument, ShowUserDocument
 
 
 class TotalUtil:
@@ -37,7 +37,7 @@ class TotalUtil:
     @classmethod
     async def encode(
         cls,
-        data: dict[Any, Any] | UserDocument,
+        data: dict[Any, Any] | UserDocument | ShowUserDocument,
         secret_key: str,
         expires_time: str,
         algorithm: str = "HS256",

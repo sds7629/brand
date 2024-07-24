@@ -4,19 +4,20 @@ import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse, RedirectResponse
 
-from app.config import KAKAO_REST_API_KEY, NONCE
+from app.config import KAKAO_REST_API_KEY, NONCE, NAVER_CLIENT_KEY
 from app.dtos.oauth_login.kakao_dto import (
     ConfirmIdToken,
     KakaoAccessToken,
     KakaoCode,
     KakaoSignResponse,
 )
+from app.dtos.oauth_login.naver_dto import NaverSignResponse, NaverCode
 from app.exceptions import (
     AuthorizationException,
     UserAlreadyExistException,
     ValidationException,
 )
-from app.services.oauth_service import confirm_id_token, kakao_login
+from app.services.oauth_service import confirm_id_token, kakao_login, naver_login
 
 router = APIRouter(prefix="/v1/oauth", tags=["social"], redirect_slashes=False)
 
@@ -80,3 +81,39 @@ async def api_kakao_login_with_code(kakao_code: KakaoCode) -> KakaoSignResponse:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
 
         return KakaoSignResponse(**user_data)
+
+
+@router.post(
+    "/naver",
+    description="카카오 로그인",
+    response_class=RedirectResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_kakao_login() -> RedirectResponse:
+    response = RedirectResponse(
+        f"https://nid.naver.com/oauth2.0/authorize?state=asdffdsadd&response_type=code&client_id={NAVER_CLIENT_KEY}&redirect_uri=http://localhost:8080/v1/oauth/naver/login")
+    return response
+
+
+@router.post(
+    "/naver/login",
+    description="네이버 로그인",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_naver_login(naver_code: NaverCode) -> NaverSignResponse:
+    try:
+        token = await naver_login(naver_code)
+    except ValidationException as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"message": e.response_message},
+        )
+
+    except UserAlreadyExistException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": e.response_message},
+        )
+
+    return NaverSignResponse(**token)

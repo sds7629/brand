@@ -12,11 +12,14 @@ from app.config import (
     ACCESS_TOKEN_EXFIRE,
     ALGORITHM,
     KAKAO_APP_KEY,
+    NAVER_CLIENT_KEY,
+    NAVER_SECRET_KEY,
     NONCE,
     REFRESH_SECRET_KEY,
     REFRESH_TOKEN_EXFIRE,
 )
 from app.dtos.oauth_login.kakao_dto import ConfirmIdToken, KakaoAccessToken
+from app.dtos.oauth_login.naver_dto import NaverCode
 from app.entities.collections import UserCollection
 from app.exceptions import (
     AuthorizationException,
@@ -58,7 +61,7 @@ async def kakao_login(kakao_token: KakaoAccessToken) -> dict[str, Any]:
     headers = {
         "Authorization": f"Bearer {kakao_token.access_token}",
     }
-    print(kakao_token.access_token)
+
     async with aiohttp.ClientSession(headers=headers) as client:
         async with client.get(user_profile_url) as res:
             if res.status != 200:
@@ -68,14 +71,30 @@ async def kakao_login(kakao_token: KakaoAccessToken) -> dict[str, Any]:
     user_email = res_json["kakao_account"]["email"]
     user_nickname = profile["nickname"]
 
-    if user := await UserCollection.find_by_email(user_email) is not None:
-        raise UserAlreadyExistException(response_message=f"{user.login_method}로 이미 가입되어 있습니다!")
-
     if not (user_email_validate := res_json["kakao_account"]["is_email_valid"]):
-        raise ValidationException(response_message="유효하지 않은 이메일입니다.")
+        raise ValidationException(response_message="유효하지 않은 이메일입니다. 카카오에 등록된 이메일 인증 바랍니다.")
+
+    user = await UserCollection.find_by_email(user_email)
+
+    if (user is not None) and user.login_method == "카카오":
+        access_token, refresh_token = await asyncio.gather(
+            TotalUtil.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE),
+            TotalUtil.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE),
+        )
+
+        data = {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+
+        return data
+
+    if (user is not None) and user.login_method != "카카오":
+        raise UserAlreadyExistException(response_message=f"{user.login_method}로 이미 가입되어 있습니다!")
 
     save_user = await UserCollection.social_insert_one(
         email=user_email,
+        name=user_nickname,
         nickname=user_nickname,
         is_authenticated=user_email_validate,
         login_method="카카오",
@@ -92,3 +111,72 @@ async def kakao_login(kakao_token: KakaoAccessToken) -> dict[str, Any]:
     }
 
     return data
+
+
+async def naver_login(naver_code: NaverCode) -> dict[str, Any]:
+    access_token_url = f"https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id={NAVER_CLIENT_KEY}&client_secret={NAVER_SECRET_KEY}&code={naver_code.code}&state={naver_code.state}"
+
+    async with aiohttp.ClientSession() as client:
+        async with client.get(access_token_url) as res:
+            response = await res.json()
+
+        access_token = response["access_token"]
+
+        headers = {
+            "Authorization": f"Bearer {access_token}",
+        }
+
+        async with client.get(f"https://openapi.naver.com/v1/nid/me", headers=headers) as res:
+            profile_response = await res.json()
+
+            user_data = profile_response["response"]
+
+        user_id = user_data.get("id")
+        user_email = user_data.get('email')
+        user_phone_number = user_data.get('mobile')
+        user_name = user_data.get("name")
+
+        print(user_id, user_email, user_phone_number, user_name)
+
+        if not user_email:
+            raise ValidationException(response_message="유효하지 않은 이메일입니다.")
+
+        user = await UserCollection.find_by_email(user_email)
+
+        if (user is not None) and (user.login_method == "네이버"):
+            access_token, refresh_token = await asyncio.gather(
+                TotalUtil.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE),
+                TotalUtil.encode(user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE),
+            )
+
+            data = {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            }
+
+            return data
+
+        if (user is not None) and user.login_method != "네이버":
+            raise UserAlreadyExistException(response_message=f"{user.login_method}로 가입되어 있습니다")
+
+        save_user = await UserCollection.social_insert_one(
+            email=user_email,
+            user_id=user_id,
+            name=user_name,
+            nickname=user_name,
+            is_authenticated=True,
+            login_method="네이버",
+            phone_num=user_phone_number,
+        )
+
+        access_token, refresh_token = await asyncio.gather(
+            TotalUtil.encode(save_user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE),
+            TotalUtil.encode(save_user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE),
+        )
+
+        data = {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+        }
+
+        return data

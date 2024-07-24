@@ -1,12 +1,21 @@
-import aiohttp
 import uuid
 
+import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse, RedirectResponse
 
-from app.config import KAKAO_REST_API_KEY,  NONCE
-from app.dtos.oauth_login.kakao_dto import ConfirmIdToken, KakaoAccessToken, KakaoSignResponse, KakaoCode
-from app.exceptions import AuthorizationException, ValidationException, UserAlreadyExistException
+from app.config import KAKAO_REST_API_KEY, NONCE
+from app.dtos.oauth_login.kakao_dto import (
+    ConfirmIdToken,
+    KakaoAccessToken,
+    KakaoCode,
+    KakaoSignResponse,
+)
+from app.exceptions import (
+    AuthorizationException,
+    UserAlreadyExistException,
+    ValidationException,
+)
 from app.services.oauth_service import confirm_id_token, kakao_login
 
 router = APIRouter(prefix="/v1/oauth", tags=["social"], redirect_slashes=False)
@@ -53,35 +62,21 @@ async def api_kakao_login_with_code(kakao_code: KakaoCode) -> KakaoSignResponse:
             if res.status != 200:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail={"message": "로그인에 실패했습니다. 다시 시도해주세요"}
+                    detail={"message": "로그인에 실패했습니다. 다시 시도해주세요"},
                 )
             res_json = await res.json()
         try:
             await confirm_id_token(ConfirmIdToken(**res_json))
         except AuthorizationException as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={"message": e.response_message}
-            )
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={"message": e.response_message})
         try:
             user_data = await kakao_login(KakaoAccessToken(**res_json))
         except AuthorizationException as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={"message": e.response_message}
-            )
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={"message": e.response_message})
         except ValidationException as e:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={"message": e.response_message}
-            )
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail={"message": e.response_message})
 
         except UserAlreadyExistException as e:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"message": e.response_message}
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
 
         return KakaoSignResponse(**user_data)
-
-

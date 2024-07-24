@@ -3,8 +3,9 @@ import json
 from datetime import timedelta
 from typing import Callable
 
-from app.utils.redis_ import redis
 from requests_futures.sessions import FuturesSession
+
+from app.utils.redis_ import redis
 
 CACHE_TTL = timedelta(days=7)
 

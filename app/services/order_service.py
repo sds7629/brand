@@ -3,10 +3,7 @@ import uuid
 
 from bson import ObjectId
 
-from app.dtos.order.order_creation_request import (
-    OrderCreationRequest,
-    PreOrderRequest,
-)
+from app.dtos.order.order_creation_request import OrderCreationRequest, PreOrderRequest
 from app.entities.collections import CartCollection, ItemCollection, UserCollection
 from app.entities.collections.orders.order_collection import OrderCollection
 from app.entities.collections.orders.order_document import (

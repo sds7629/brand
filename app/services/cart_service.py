@@ -10,7 +10,11 @@ from app.entities.collections import ItemCollection, UserCollection
 from app.entities.collections.carts.cart_collection import CartCollection
 from app.entities.collections.carts.cart_document import CartDocument
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NoPermissionException, ValidationException, NoSuchContentException
+from app.exceptions import (
+    NoPermissionException,
+    NoSuchContentException,
+    ValidationException,
+)
 
 
 async def get_user_carts(user_data: ShowUserDocument) -> Sequence[CartDocument]:
@@ -20,7 +24,7 @@ async def get_user_carts(user_data: ShowUserDocument) -> Sequence[CartDocument]:
 
 
 async def create_cart(
-        user_data: ShowUserDocument, cart_creation_request: OneCartCreationRequest
+    user_data: ShowUserDocument, cart_creation_request: OneCartCreationRequest
 ) -> tuple[CartDocument, ...]:
     user = await UserCollection.find_by_id(user_data.id)
     item = await ItemCollection.find_by_id(ObjectId(cart_creation_request.item_id))
@@ -51,9 +55,11 @@ async def update_cart(user: ShowUserDocument, cart_id: str, cart_update_request:
         raise ValidationException(response_message="잘못된 요청입니다.")
 
     if (cart_update_request.quantity is not None) and (
-            cart_update_request.quantity > cart.item.options[
-        f"{cart_update_request.options if cart_update_request.options is not None else cart.item.options[f'{cart.options}']}"
-    ]):
+        cart_update_request.quantity
+        > cart.item.options[
+            f"{cart_update_request.options if cart_update_request.options is not None else cart.item.options[f'{cart.options}']}"
+        ]
+    ):
         raise ValidationException(response_message="잘못된 요청입니다.")
 
     if len(data := {key: val for key, val in asdict(cart_update_request).items() if val is not None}):

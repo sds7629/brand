@@ -1,4 +1,5 @@
 import os
+
 from redis.asyncio import ConnectionError, Redis
 
 redis: "Redis[str]" = Redis.from_url(

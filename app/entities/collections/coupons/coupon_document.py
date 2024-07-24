@@ -1,6 +1,7 @@
 from typing import Sequence
 
 from pydantic import dataclasses
+
 from app.entities.collections.base_document import BaseDocument
 
 

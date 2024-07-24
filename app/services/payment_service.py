@@ -1,24 +1,31 @@
 import asyncio
-
-import aiohttp
 import base64
-
 from datetime import datetime
 from typing import Sequence
+
+import aiohttp
 from bson import ObjectId
 
-from app.dtos.payment.payment_request import PaymentRequest, SetPaymentRequest, FailPaymentRequest
-from app.entities.collections import CartCollection, OrderCollection, ItemCollection
+from app.config import TOSS_SECRET_KEY
+from app.dtos.payment.payment_request import (
+    FailPaymentRequest,
+    PaymentRequest,
+    SetPaymentRequest,
+)
+from app.entities.collections import CartCollection, ItemCollection, OrderCollection
 from app.entities.collections.payment.payment_collection import PaymentCollection
 from app.entities.collections.payment.payment_document import PaymentDocument
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NoPermissionException, NoSuchContentException, ValidationException
-from app.config import TOSS_SECRET_KEY
+from app.exceptions import (
+    NoPermissionException,
+    NoSuchContentException,
+    ValidationException,
+)
 from app.utils.enums.payment_codes import PaymentMethodCode
 
 toss_secret = TOSS_SECRET_KEY + ":"
-toss_key = base64.b64encode(toss_secret.encode('utf-8'))
-toss_key_str = toss_key.decode('utf-8')
+toss_key = base64.b64encode(toss_secret.encode("utf-8"))
+toss_key_str = toss_key.decode("utf-8")
 
 
 async def get_history(user: ShowUserDocument) -> Sequence[PaymentDocument]:
@@ -31,13 +38,13 @@ async def set_payment(user: ShowUserDocument, payment_request: SetPaymentRequest
     if order.user != user:
         raise NoPermissionException(response_message="권한이 없습니다.")
     payment = await PaymentCollection.insert_one(
-            user=user,
-            merchant_id=payment_request.merchant_id,
-            payment_name=payment_request.payment_name,
-            total_price=payment_request.amount,
-            payment_method=PaymentMethodCode(payment_request.payment_method),
-            payment_time=datetime.utcnow()
-        )
+        user=user,
+        merchant_id=payment_request.merchant_id,
+        payment_name=payment_request.payment_name,
+        total_price=payment_request.amount,
+        payment_method=PaymentMethodCode(payment_request.payment_method),
+        payment_time=datetime.utcnow(),
+    )
 
     return payment
 
@@ -60,7 +67,7 @@ async def success_payment(payment_request: PaymentRequest) -> None:
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Basic {toss_key_str}",
-        "Cross-Origin-Opener-Policy": "same-origin-allow-popups"
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
     }
 
     data = {
@@ -79,13 +86,16 @@ async def success_payment(payment_request: PaymentRequest) -> None:
             else:
                 raise ValidationException(response_message="에러가 발생했습니다.")
 
-        real_pay = payment_data['balanceAmount']
+        real_pay = payment_data["balanceAmount"]
 
         if real_pay != payment_request.amount:
-            async with client.post(cancel_url, json={
-                "paymentKey": payment_request.payment_key,
-                "cancelReason": "요청 금액 오류",
-            }) as response:
+            async with client.post(
+                cancel_url,
+                json={
+                    "paymentKey": payment_request.payment_key,
+                    "cancelReason": "요청 금액 오류",
+                },
+            ) as response:
                 if response.status == 200:
                     raise ValidationException("실 결제 금액이 요청 금액과 다릅니다.")
 
@@ -93,14 +103,14 @@ async def success_payment(payment_request: PaymentRequest) -> None:
             merchant_id=payment_request.order_id,
             data={
                 "is_payment": True,
-            }
+            },
         )
 
         await PaymentCollection.update_by_id(
             payment_id=payment.id,
             data={
                 "payment_status": True,
-            }
+            },
         )
 
         order_item_list = [
@@ -130,13 +140,8 @@ async def success_payment(payment_request: PaymentRequest) -> None:
 
 async def fail_payment(payment_request: FailPaymentRequest) -> None:
     payment = await PaymentCollection.update_by_merchant_id(
-        merchant_id=payment_request.order_id,
-        data={
-            "fail_reason": payment_request.code + payment_request.message
-        }
+        merchant_id=payment_request.order_id, data={"fail_reason": payment_request.code + payment_request.message}
     )
     if payment == 0:
         raise NoSuchContentException(response_message="결제 내역을 찾을 수 없습니다.")
     return
-
-

@@ -84,33 +84,35 @@ class UserCollection:
 
     @classmethod
     async def social_insert_one(
-            cls,
-            email: str,
-            login_method: str,
-            is_authenticated: bool,
-            name: str | None = None,
-            sns_confirm: bool = False,
-            is_policy: bool = False,
-            is_admin: bool = False,
-            is_delete: bool = False,
-            nickname: str | None = None,
-            delivery_area: list[DeliveryDocument] = [],
+        cls,
+        email: str,
+        login_method: str,
+        is_authenticated: bool,
+        name: str | None = None,
+        sns_confirm: bool = False,
+        is_policy: bool = False,
+        is_admin: bool = False,
+        is_delete: bool = False,
+        nickname: str | None = None,
+        delivery_area: list[DeliveryDocument] = [],
     ):
-        result = await cls._collection.insert_one({
-            "user_id": None,
-            "email": email,
-            "name": name,
-            "hash_pw": None,
-            "nickname": nickname,
-            "phone_num": None,
-            "login_method": login_method,
-            "sns_confirm": sns_confirm,
-            "is_policy": is_policy,
-            "is_authenticated": is_authenticated,
-            "is_delete": is_delete,
-            "is_admin": is_admin,
-            "delivery_area": [asdict(area) for area in delivery_area],
-        })
+        result = await cls._collection.insert_one(
+            {
+                "user_id": None,
+                "email": email,
+                "name": name,
+                "hash_pw": None,
+                "nickname": nickname,
+                "phone_num": None,
+                "login_method": login_method,
+                "sns_confirm": sns_confirm,
+                "is_policy": is_policy,
+                "is_authenticated": is_authenticated,
+                "is_delete": is_delete,
+                "is_admin": is_admin,
+                "delivery_area": [asdict(area) for area in delivery_area],
+            }
+        )
 
         return UserDocument(
             _id=result.inserted_id,

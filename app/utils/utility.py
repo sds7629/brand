@@ -4,7 +4,6 @@ from datetime import datetime, time, timedelta
 from typing import Any
 
 from jose import jwt
-
 from passlib.context import CryptContext
 from pytz import timezone
 
@@ -47,7 +46,7 @@ class TotalUtil:
             to_encode = asdict(
                 UserJWT(
                     _id=str(data.id),
-                    user_email=data.email,
+                    email=data.email,
                     nickname=data.nickname if data.nickname is not None else data.name,
                 )
             )
@@ -55,7 +54,7 @@ class TotalUtil:
             to_encode = asdict(
                 UserJWT(
                     _id=str(data["_id"]),
-                    user_email=data["email"],
+                    email=data["email"],
                     nickname=data["nickname"] if data["nickname"] is not None else data["name"],
                 )
             )

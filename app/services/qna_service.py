@@ -56,10 +56,7 @@ async def delete_qna_by_id(qna_id: ObjectId, user: ShowUserDocument) -> None:
 
     await QnACollection.delete_by_id(qna_id)
     comments = await CommentCollection.find_by_base_qna(qna_id)
-    co_del_comments = [
-        CommentCollection.delete_by_id(comment.id)
-        for comment in comments
-    ]
+    co_del_comments = [CommentCollection.delete_by_id(comment.id) for comment in comments]
     await asyncio.gather(*co_del_comments)
 
 

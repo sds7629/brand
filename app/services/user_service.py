@@ -94,6 +94,7 @@ async def refresh_access_token(refresh: RefreshAccessRequest) -> dict[str, str]:
     token_expire = await TotalUtil.check_token_expire(refresh.refresh_token, REFRESH_SECRET_KEY)
     if token_expire["is_expired"]:
         raise ValidationException(response_message="Token is expired")
+    print(user)
     access_token = await TotalUtil.encode(user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE, ALGORITHM)
     data = {"access_token": access_token}
     return data

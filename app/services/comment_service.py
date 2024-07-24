@@ -1,17 +1,16 @@
 from dataclasses import asdict
 from typing import Sequence
 
+from bson import ObjectId
+from fastapi import UploadFile
+
 from app.dtos.comment.comment_creation_request import CommentCreationRequest
 from app.dtos.comment.comment_update_request import CommentUpdateRequest
 from app.entities.collections import QnACollection
 from app.entities.collections.comments.comment_collection import CommentCollection
 from app.entities.collections.comments.comment_document import CommentDocument
-
-from bson import ObjectId
-from fastapi import UploadFile
-
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NoSuchContentException, NoPermissionException
+from app.exceptions import NoPermissionException, NoSuchContentException
 from app.utils.connection_aws import upload_image
 
 
@@ -26,8 +25,8 @@ async def get_comments_mount(qna_id: str) -> int:
 
 
 async def create_comment(
-        comment_creation_data: CommentCreationRequest,
-        writer: ShowUserDocument,
+    comment_creation_data: CommentCreationRequest,
+    writer: ShowUserDocument,
 ) -> CommentDocument:
 
     if (base_qna := await QnACollection.find_by_id(ObjectId(comment_creation_data.base_qna))) is None:
@@ -41,9 +40,9 @@ async def create_comment(
 
 
 async def update_comment(
-        comment_id: str,
-        comment_update_data: CommentUpdateRequest,
-        writer: ShowUserDocument,
+    comment_id: str,
+    comment_update_data: CommentUpdateRequest,
+    writer: ShowUserDocument,
 ) -> int:
     comment = await CommentCollection.find_by_id(ObjectId(comment_id))
 

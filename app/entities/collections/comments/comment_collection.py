@@ -1,16 +1,14 @@
+from dataclasses import asdict
 from typing import Any, Sequence
 
 import pymongo
-
+from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 
 from app.entities.collections.comments.comment_document import CommentDocument
 from app.entities.collections.qna.qna_document import QnADocument
 from app.entities.collections.users.user_document import ShowUserDocument
 from app.utils.connection import db
-
-from dataclasses import asdict
-from bson import ObjectId
 
 
 class CommentCollection:
@@ -24,10 +22,10 @@ class CommentCollection:
 
     @classmethod
     async def insert_one(
-            cls,
-            writer: ShowUserDocument,
-            payload: str,
-            base_qna: QnADocument,
+        cls,
+        writer: ShowUserDocument,
+        payload: str,
+        base_qna: QnADocument,
     ) -> CommentDocument:
         result = await cls._collection.insert_one(
             {
@@ -50,7 +48,9 @@ class CommentCollection:
 
     @classmethod
     async def find_by_base_qna(cls, base_qna: ObjectId) -> Sequence[CommentDocument]:
-        result = await cls._collection.find({"base_qna._id": base_qna}).sort([("_id", pymongo.DESCENDING)]).to_list(None)
+        result = (
+            await cls._collection.find({"base_qna._id": base_qna}).sort([("_id", pymongo.DESCENDING)]).to_list(None)
+        )
         return [cls._parse(comment) for comment in result if comment is not None]
 
     @classmethod

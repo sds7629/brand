@@ -1,4 +1,4 @@
-from pydantic import dataclasses, Field
+from pydantic import Field, dataclasses
 
 
 @dataclasses.dataclass

@@ -5,10 +5,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import ORJSONResponse
 
 from app.auth.auth_bearer import get_current_user
-from app.dtos.order.order_creation_request import (
-    OrderCreationRequest,
-    PreOrderRequest,
-)
+from app.dtos.order.order_creation_request import OrderCreationRequest, PreOrderRequest
 from app.dtos.order.order_response import (
     BaseOrderResponse,
     CreateOrderResponse,
@@ -105,8 +102,7 @@ async def api_pre_order(
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_order(
-    user: Annotated[ShowUserDocument, Depends(get_current_user)],
-    order_creation_request: OrderCreationRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], order_creation_request: OrderCreationRequest
 ) -> CreateOrderResponse:
     try:
         order = await create_order(user, order_creation_request)

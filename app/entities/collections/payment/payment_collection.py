@@ -78,14 +78,18 @@ class PaymentCollection:
     @classmethod
     async def update_by_id(cls, payment_id: ObjectId, data: dict[str, Any]) -> int:
         updated_payment = await cls._collection.update_one(
-            {"_id": payment_id}, {"$set": data}, upsert=False,
+            {"_id": payment_id},
+            {"$set": data},
+            upsert=False,
         )
         return updated_payment.modified_count
 
     @classmethod
     async def update_by_merchant_id(cls, merchant_id: str, data: dict[str, Any]) -> int:
         updated_payment = await cls._collection.update_one(
-            {"merchant_id": merchant_id}, {"$set": data}, upsert=False,
+            {"merchant_id": merchant_id},
+            {"$set": data},
+            upsert=False,
         )
 
     @classmethod

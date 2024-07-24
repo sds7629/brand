@@ -1,25 +1,27 @@
 import asyncio
 import base64
 import json
+from datetime import datetime
 from typing import Any
 
 import aiohttp
-
-from datetime import datetime
 from pytz import timezone
 
-from app.dtos.oauth_login.kakao_dto import ConfirmIdToken, KakaoAccessToken
-from app.entities.collections import UserCollection
-from app.exceptions import AuthorizationException, ValidationException, UserAlreadyExistException
-
 from app.config import (
-    KAKAO_APP_KEY,
-    NONCE,
     ACCESS_SECRET_KEY,
     ACCESS_TOKEN_EXFIRE,
     ALGORITHM,
+    KAKAO_APP_KEY,
+    NONCE,
+    REFRESH_SECRET_KEY,
     REFRESH_TOKEN_EXFIRE,
-    REFRESH_SECRET_KEY
+)
+from app.dtos.oauth_login.kakao_dto import ConfirmIdToken, KakaoAccessToken
+from app.entities.collections import UserCollection
+from app.exceptions import (
+    AuthorizationException,
+    UserAlreadyExistException,
+    ValidationException,
 )
 from app.utils.utility import TotalUtil
 
@@ -32,7 +34,7 @@ async def confirm_id_token(token: ConfirmIdToken) -> None:
     new_id_token = new_id_token + "=" * (4 - len(new_id_token) % 4)
     decoded = base64.b64decode(new_id_token)
     str_token = decoded.decode("utf-8")
-    headers, payload, _ = str_token.split('}')
+    headers, payload, _ = str_token.split("}")
     headers += "}"
     payload += "}"
     json_payload = json.loads(payload)
@@ -41,10 +43,10 @@ async def confirm_id_token(token: ConfirmIdToken) -> None:
     if json_payload["aud"] != KAKAO_APP_KEY:
         raise AuthorizationException(response_message="잘못된 요청입니다.")
 
-    if json_payload["iss"] != 'https://kauth.kakao.com':
+    if json_payload["iss"] != "https://kauth.kakao.com":
         raise AuthorizationException(response_message="잘못된 요청입니다.")
 
-    if json_payload['exp'] <= now_time:
+    if json_payload["exp"] <= now_time:
         raise AuthorizationException(response_message="만료된 요청입니다.")
 
     if json_payload["nonce"] != NONCE:
@@ -81,7 +83,7 @@ async def kakao_login(kakao_token: KakaoAccessToken) -> dict[str, Any]:
 
     access_token, refresh_token = await asyncio.gather(
         TotalUtil.encode(save_user, ACCESS_SECRET_KEY, ACCESS_TOKEN_EXFIRE),
-        TotalUtil.encode(save_user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE)
+        TotalUtil.encode(save_user, REFRESH_SECRET_KEY, REFRESH_TOKEN_EXFIRE),
     )
 
     data = {
@@ -90,6 +92,3 @@ async def kakao_login(kakao_token: KakaoAccessToken) -> dict[str, Any]:
     }
 
     return data
-
-
-

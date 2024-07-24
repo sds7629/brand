@@ -13,8 +13,17 @@ from app.dtos.cart.cart_response import (
 )
 from app.dtos.cart.cart_update_request import CartUpdateRequest
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NoPermissionException, ValidationException, NoSuchContentException
-from app.services.cart_service import create_cart, delete_cart, get_user_carts, update_cart
+from app.exceptions import (
+    NoPermissionException,
+    NoSuchContentException,
+    ValidationException,
+)
+from app.services.cart_service import (
+    create_cart,
+    delete_cart,
+    get_user_carts,
+    update_cart,
+)
 
 router = APIRouter(prefix="/v1/cart", tags=["cart"], redirect_slashes=False)
 
@@ -51,8 +60,7 @@ async def api_get_user_carts(user: Annotated[ShowUserDocument, Depends(get_curre
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_cart(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)],
-        cart_creation_request: OneCartCreationRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], cart_creation_request: OneCartCreationRequest
 ) -> CartCreationResponse:
     try:
         cart_id_list = await create_cart(user, cart_creation_request)
@@ -70,9 +78,9 @@ async def api_create_cart(
     response_class=ORJSONResponse,
     status_code=status.HTTP_200_OK,
 )
-async def api_update_cart(user: Annotated[ShowUserDocument, Depends(get_current_user)],
-                          cart_id: str,
-                          cart_update_request: CartUpdateRequest) -> int:
+async def api_update_cart(
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], cart_id: str, cart_update_request: CartUpdateRequest
+) -> int:
     try:
         return await update_cart(user=user, cart_id=cart_id, cart_update_request=cart_update_request)
     except NoPermissionException as e:

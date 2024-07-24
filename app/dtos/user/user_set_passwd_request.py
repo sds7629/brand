@@ -1,4 +1,4 @@
-from pydantic import dataclasses, EmailStr
+from pydantic import EmailStr, dataclasses
 
 
 @dataclasses.dataclass

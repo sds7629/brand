@@ -203,4 +203,3 @@ async def api_find_password(data: EmailSchema, background_task: BackgroundTasks)
 async def api_set_new_password(user_set_passwd_request: UserSetPasswdRequest) -> None:
     # result = await set_new_password(user_set_passwd_request)
     ...
-

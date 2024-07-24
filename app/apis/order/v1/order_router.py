@@ -77,6 +77,7 @@ async def api_pre_order(
         )
     return PreOrderResponse(
         user_id=order.user.user_id,
+        merchant_id=order.merchant_id,
         email=order.user.email,
         post_code=order.post_code,
         address=order.address,
@@ -104,7 +105,8 @@ async def api_pre_order(
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_order(
-    user: Annotated[ShowUserDocument, Depends(get_current_user)], order_creation_request: OrderCreationRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)],
+    order_creation_request: OrderCreationRequest
 ) -> CreateOrderResponse:
     try:
         order = await create_order(user, order_creation_request)

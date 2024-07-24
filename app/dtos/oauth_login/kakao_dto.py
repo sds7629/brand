@@ -7,6 +7,11 @@ class ConfirmIdToken:
 
 
 @dataclasses.dataclass
+class KakaoCode:
+    code: str
+
+
+@dataclasses.dataclass
 class KakaoAccessToken:
     access_token: str
 

@@ -1,11 +1,10 @@
 import asyncio
+import uuid
 
 from bson import ObjectId
 
 from app.dtos.order.order_creation_request import (
     OrderCreationRequest,
-    PreOrderCartCreationRequest,
-    PreOrderItemCreationRequest,
     PreOrderRequest,
 )
 from app.entities.collections import CartCollection, ItemCollection, UserCollection
@@ -32,6 +31,7 @@ async def pre_order_cart(
 ) -> PreOrderDocument | None:
     user_document = await UserCollection.find_by_id(ObjectId(user.id))
     user_base_delivery = [delivery for delivery in user_document.delivery_area if delivery.is_base_delivery]
+    merchant_id = await PaymentUtil.generate_merchant_id()
 
     match pre_order_creation_request.type:
         case "cart":
@@ -73,6 +73,7 @@ async def pre_order_cart(
     if user_base_delivery:
         return PreOrderDocument(
             user=user,
+            merchant_id=merchant_id,
             email=user_base_delivery[0].email,
             post_code=user_base_delivery[0].post_code,
             address=user_base_delivery[0].address,
@@ -86,6 +87,7 @@ async def pre_order_cart(
     else:
         return PreOrderDocument(
             user=user,
+            merchant_id=merchant_id,
             email=None,
             post_code=None,
             address=None,
@@ -134,13 +136,11 @@ async def create_order(user: ShowUserDocument, order_creation_request: OrderCrea
         [item.price * item_info.quantity for item, item_info in zip(item_list, order_creation_request.item_info)]
     )
 
-    merchant_id = await PaymentUtil.generate_merchant_id()
-
     if order_creation_request.total_price == total_price:
         return await OrderCollection.insert_one(
             user=user,
             order_item=order_item_list,
-            merchant_id=merchant_id,
+            merchant_id=order_creation_request.merchant_id,
             recipient_name=order_creation_request.recipient_name,
             post_code=order_creation_request.post_code,
             address=order_creation_request.address,

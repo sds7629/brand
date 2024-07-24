@@ -29,6 +29,7 @@ class UserDocument(BaseDocument):
     hash_pw: str | None
     nickname: str | None
     phone_num: str | None
+    point: int
     login_method: str
     sns_confirm: bool
     is_authenticated: bool
@@ -56,6 +57,7 @@ class ShowUserDocument(BaseDocument):
     name: str
     nickname: str
     login_method: str
+    point: int
     is_delete: bool
     is_admin: bool
     delivery_area: list[DeliveryDocument] = Field(default_factory=list, alias="delivery_area")

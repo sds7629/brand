@@ -75,6 +75,11 @@ class OrderCollection:
         return result.matched_count
 
     @classmethod
+    async def update_by_merchant_id(cls, merchant_id: str, data: dict[str, Any]) -> int:
+        order = await cls._collection.update_one({"merchant_id": merchant_id}, {"$set": data}, upsert=False)
+        return order.modified_count
+
+    @classmethod
     async def find_by_id(cls, object_id: ObjectId) -> OrderDocument | None:
         order = await cls._collection.find_one({"_id": ObjectId(object_id)})
         return cls._parse(order) if order else None
@@ -83,6 +88,11 @@ class OrderCollection:
     async def find_by_user_id(cls, user_id: ObjectId) -> list[OrderDocument] | None:
         order = await cls._collection.find({"user._id": user_id}).to_list(None)
         return [cls._parse(order_one) for order_one in order if order_one is not None]
+
+    @classmethod
+    async def find_by_merchant_id(cls, merchant_id: str) -> OrderDocument | None:
+        order = await cls._collection.find_one({"merchant_id": merchant_id})
+        return cls._parse(order) if order else None
 
     @classmethod
     def _parse(cls, result: dict[Any, Any]) -> OrderDocument:

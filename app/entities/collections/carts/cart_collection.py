@@ -62,6 +62,14 @@ class CartCollection:
         return cast(int, result.deleted_count)
 
     @classmethod
+    async def delete_by_item(cls, item_id: ObjectId, user_id: ObjectId, option: str) -> int:
+        result = await cls._collection.delete_one(
+            {"item._id": item_id, "user._id": user_id, "options": option},
+        )
+
+        return cast(int, result.deleted_count)
+
+    @classmethod
     async def update_by_id(cls, cart_id: ObjectId, data: dict[str, Any]) -> int:
         result = await cls._collection.update_one({"_id": cart_id}, {"$set": data}, upsert=True)
         return result.modified_count

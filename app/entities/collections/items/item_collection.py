@@ -86,6 +86,15 @@ class ItemCollection:
         return result.modified_count
 
     @classmethod
+    async def update_quantity_by_id(cls, object_id: ObjectId, option: str, quantity: int) -> int:
+        result = await cls._collection.update_one(
+            {"_id": object_id},
+            {"$inc": {f"options.{option}": -quantity}},
+            upsert=False
+        )
+        return result.modified_count
+
+    @classmethod
     async def delete_by_id(cls, object_id: ObjectId) -> int:
         result = await cls._collection.delete_one({"_id": object_id})
         return cast(int, result.deleted_count)

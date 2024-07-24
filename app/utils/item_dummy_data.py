@@ -16,11 +16,11 @@ from app.utils.enums.size_codes import SizeCode
 ca = certifi.where()
 DB_NAME = os.environ.get("MONGO_DB")
 
-client = AsyncIOMotorClient(DB_NAME, tlsCAFile=ca)
-db = client["FSO"]
+# client = AsyncIOMotorClient(DB_NAME, tlsCAFile=ca)
+# db = client["FSO"]
 
-# client = AsyncIOMotorClient()
-# db = client["weeber"]
+client = AsyncIOMotorClient()
+db = client["weeber"]
 
 item_collection = AsyncIOMotorCollection(db, "item")
 

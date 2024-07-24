@@ -37,6 +37,7 @@ class OrderDocument(BaseDocument):
 @dataclasses.dataclass
 class PreOrderDocument:
     user: ShowUserDocument
+    merchant_id: str | None
     email: str | None
     recipient_name: str | None
     post_code: str | None

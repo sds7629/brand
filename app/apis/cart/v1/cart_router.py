@@ -51,7 +51,8 @@ async def api_get_user_carts(user: Annotated[ShowUserDocument, Depends(get_curre
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_cart(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)], cart_creation_request: OneCartCreationRequest
+        user: Annotated[ShowUserDocument, Depends(get_current_user)],
+        cart_creation_request: OneCartCreationRequest
 ) -> CartCreationResponse:
     try:
         cart_id_list = await create_cart(user, cart_creation_request)

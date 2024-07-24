@@ -33,6 +33,7 @@ PreOrderRequest = Annotated[Union[PreOrderCartCreationRequest, PreOrderItemCreat
 @dataclasses.dataclass(config=Config)
 class OrderCreationRequest:
     item_info: Sequence[OrderItemCreationRequest]
+    merchant_id: str
     recipient_name: str
     post_code: str
     address: str

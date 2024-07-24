@@ -17,6 +17,7 @@ class OrderItemResponse:
 @dataclasses.dataclass
 class PreOrderResponse:
     user_id: str
+    merchant_id: str | None
     email: str | None
     post_code: str | None
     address: str | None

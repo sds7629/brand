@@ -136,8 +136,6 @@ async def naver_login(naver_code: NaverCode) -> dict[str, Any]:
         user_phone_number = user_data.get("mobile")
         user_name = user_data.get("name")
 
-        print(user_id, user_email, user_phone_number, user_name)
-
         if not user_email:
             raise ValidationException(response_message="유효하지 않은 이메일입니다.")
 

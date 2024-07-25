@@ -42,7 +42,7 @@ class TotalUtil:
         expires_time: str,
         algorithm: str = "HS256",
     ) -> str:
-        if type(data) is UserDocument | ShowUserDocument:
+        if type(data) is UserDocument or type(data) is ShowUserDocument:
             to_encode = asdict(
                 UserJWT(
                     _id=str(data.id),

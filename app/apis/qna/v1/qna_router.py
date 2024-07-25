@@ -53,7 +53,7 @@ router = APIRouter(prefix="/v1/qna", tags=["qna"], redirect_slashes=False)
     status_code=status.HTTP_200_OK,
 )
 async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, page: int = 1) -> QnAResponse:
-    all_qna_data = qna_list(page)
+    all_qna_data = await qna_list(page)
 
     if qna_type == "title" and keyword is not None:
         all_qna_data = await find_qna_by_title(keyword, page)

@@ -4,14 +4,14 @@ import aiohttp
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse, RedirectResponse
 
-from app.config import KAKAO_REST_API_KEY, NONCE, NAVER_CLIENT_KEY
+from app.config import KAKAO_REST_API_KEY, NAVER_CLIENT_KEY, NONCE
 from app.dtos.oauth_login.kakao_dto import (
     ConfirmIdToken,
     KakaoAccessToken,
     KakaoCode,
     KakaoSignResponse,
 )
-from app.dtos.oauth_login.naver_dto import NaverSignResponse, NaverCode
+from app.dtos.oauth_login.naver_dto import NaverCode, NaverSignResponse
 from app.exceptions import (
     AuthorizationException,
     UserAlreadyExistException,
@@ -91,7 +91,8 @@ async def api_kakao_login_with_code(kakao_code: KakaoCode) -> KakaoSignResponse:
 )
 async def api_kakao_login() -> RedirectResponse:
     response = RedirectResponse(
-        f"https://nid.naver.com/oauth2.0/authorize?state=asdffdsadd&response_type=code&client_id={NAVER_CLIENT_KEY}&redirect_uri=http://localhost:8080/v1/oauth/naver/login")
+        f"https://nid.naver.com/oauth2.0/authorize?state=asdffdsadd&response_type=code&client_id={NAVER_CLIENT_KEY}&redirect_uri=http://localhost:8080/v1/oauth/naver/login"
+    )
     return response
 
 

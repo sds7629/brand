@@ -9,7 +9,7 @@ from pytz import timezone
 
 from app.config import ACCESS_TOKEN_EXFIRE
 from app.dtos.user.user_jwt_payload import UserJWT
-from app.entities.collections.users.user_document import UserDocument, ShowUserDocument
+from app.entities.collections.users.user_document import ShowUserDocument, UserDocument
 
 
 class TotalUtil:

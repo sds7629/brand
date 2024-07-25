@@ -132,8 +132,8 @@ async def naver_login(naver_code: NaverCode) -> dict[str, Any]:
             user_data = profile_response["response"]
 
         user_id = user_data.get("id")
-        user_email = user_data.get('email')
-        user_phone_number = user_data.get('mobile')
+        user_email = user_data.get("email")
+        user_phone_number = user_data.get("mobile")
         user_name = user_data.get("name")
 
         print(user_id, user_email, user_phone_number, user_name)

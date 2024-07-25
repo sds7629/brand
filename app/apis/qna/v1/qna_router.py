@@ -81,7 +81,7 @@ async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, p
             created_at=await TimeUtil.get_created_at_from_id(str(qna.id)),
             comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,
         )
-        for qna in await all_qna_data
+        for qna in all_qna_data
     ]
     return QnAResponse(qna=qna, page_count=int(await PageRepository.get("qna_page_count")))
 

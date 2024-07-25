@@ -21,12 +21,12 @@ from app.services.oauth_service import confirm_id_token, kakao_login, naver_logi
 
 router = APIRouter(prefix="/v1/oauth", tags=["social"], redirect_slashes=False)
 
-REDIRECT_URI = "http://localhost:3000"
+REDIRECT_URI = "http://localhost:8080/v1/oauth/kakao/login"
 
 nonce = str(uuid.uuid4())
 
 
-@router.post(
+@router.get(
     "/kakao",
     description="카카오 로그인",
     response_class=RedirectResponse,
@@ -83,9 +83,9 @@ async def api_kakao_login_with_code(kakao_code: KakaoCode) -> KakaoSignResponse:
         return KakaoSignResponse(**user_data)
 
 
-@router.post(
+@router.get(
     "/naver",
-    description="카카오 로그인",
+    description="네이버 로그인",
     response_class=RedirectResponse,
     status_code=status.HTTP_200_OK,
 )

@@ -82,6 +82,7 @@ async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, p
             comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,
         )
         for qna in all_qna_data
+        if not qna.is_secret
     ]
     return QnAResponse(qna=qna, page_count=int(await PageRepository.get("qna_page_count")))
 
@@ -127,7 +128,7 @@ async def api_get_qna(
             comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,
         )
         for qna in all_secret_qna
-        if (qna.is_secret is False) or (qna.writer == user)
+        if not qna.is_secret or (qna.writer == user)
     ]
 
     return QnAResponse(qna=qna, page_count=int(await PageRepository.get("qna_page_count")))

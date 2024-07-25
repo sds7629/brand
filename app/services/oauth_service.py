@@ -119,7 +119,7 @@ async def naver_login(naver_code: NaverCode) -> dict[str, Any]:
     async with aiohttp.ClientSession() as client:
         async with client.get(access_token_url) as res:
             response = await res.json()
-            print(response)
+
         access_token = response["access_token"]
 
         headers = {

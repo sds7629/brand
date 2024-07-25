@@ -124,6 +124,7 @@ async def api_get_qna(
             is_secret=qna.is_secret,
             is_notice=qna.is_notice,
             created_at=await TimeUtil.get_created_at_from_id(str(qna.id)),
+            comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,
         )
         for qna in all_secret_qna
         if (qna.is_secret is False) or (qna.writer == user)
@@ -162,6 +163,7 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
         is_secret=result.is_secret,
         is_notice=result.is_notice,
         created_at=await TimeUtil.get_created_at_from_id(str(result.id)),
+        comment_count=count if (count := await get_comments_mount(str(result.id))) != 0 else 0,
     )
 
 
@@ -195,6 +197,7 @@ async def api_create_qna(
             is_notice=qna.is_notice,
             is_secret=qna.is_secret,
             created_at=await TimeUtil.get_created_at_from_id(str(qna.id)),
+            comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,
         )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

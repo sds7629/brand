@@ -18,7 +18,6 @@ from app.services.comment_service import (
     create_comment,
     delete_comment,
     get_comments_from_qna,
-    get_comments_mount,
     update_comment,
 )
 from app.utils.utility import TimeUtil

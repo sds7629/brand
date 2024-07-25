@@ -42,9 +42,11 @@ async def pre_order_cart(
 
             ordering_item = [
                 {
+                    "order_item_id": cart.item.id,
                     "order_item_name": cart.item.name,
                     "order_item_images": cart.item.image_urls,
                     "order_item_price": cart.item.price,
+                    "order_item_quantity": cart.quantity,
                     "selected_options": cart.options,
                 }
                 for cart in order_item_from_cart
@@ -55,9 +57,11 @@ async def pre_order_cart(
             order_item = await ItemCollection.find_by_id(ObjectId(pre_order_creation_request.options[0].item_id))
             ordering_item = [
                 {
+                    "order_item_id": order_item.id,
                     "order_item_name": order_item.name,
                     "order_item_images": order_item.image_urls,
                     "order_item_price": order_item.price,
+                    "order_item_quantity": item.quantity,
                     "selected_options": item.option,
                 }
                 for item in pre_order_creation_request.options

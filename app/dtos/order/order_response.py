@@ -8,10 +8,9 @@ from app.config import Config
 
 @dataclasses.dataclass
 class OrderItemResponse:
-    item_name: str
-    item_option: str
-    item_price: int
-    image_urls: Sequence[HttpUrl]
+    item_id: str
+    option: str
+    quantity: int
 
 
 @dataclasses.dataclass

@@ -21,6 +21,7 @@ from app.services.comment_service import (
     get_comments_mount,
     update_comment,
 )
+from app.utils.utility import TimeUtil
 
 router = APIRouter(prefix="/v1/comments", tags=["comments"], redirect_slashes=False)
 
@@ -34,7 +35,6 @@ router = APIRouter(prefix="/v1/comments", tags=["comments"], redirect_slashes=Fa
 async def api_get_comments_from_qna(qna_id: str) -> Sequence[CommentResponse]:
     try:
         comments = await get_comments_from_qna(qna_id)
-        mount = await get_comments_mount(qna_id)
     except NoSuchContentException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -43,10 +43,10 @@ async def api_get_comments_from_qna(qna_id: str) -> Sequence[CommentResponse]:
     return [
         CommentResponse(
             comment_id=str(comment.id),
+            created_at=await TimeUtil.get_created_at_from_id(str(comment.id)),
             writer=comment.writer.nickname,
             payload=comment.payload,
             base_qna_id=str(comment.base_qna.id),
-            total_qna_mount=mount,
         )
         for comment in comments
     ]

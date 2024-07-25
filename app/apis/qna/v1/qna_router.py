@@ -29,6 +29,7 @@ from app.exceptions import (
     NotFoundException,
     ValidationException,
 )
+from app.services.comment_service import get_comments_mount
 from app.services.qna_service import (
     create_qna,
     delete_qna_by_id,
@@ -78,6 +79,7 @@ async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, p
             is_secret=qna.is_secret,
             is_notice=qna.is_notice,
             created_at=await TimeUtil.get_created_at_from_id(str(qna.id)),
+            comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,
         )
         for qna in await all_qna_data
     ]

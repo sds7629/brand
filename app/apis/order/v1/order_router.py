@@ -85,10 +85,9 @@ async def api_pre_order(
         total_price=order.total_price,
         ordering_item=[
             OrderItemResponse(
-                item_name=item_info["order_item_name"],
-                item_option=item_info["selected_options"],
-                item_price=item_info["order_item_price"],
-                image_urls=item_info["order_item_images"],
+                item_id=item_info["order_item_id"],
+                option=item_info["selected_options"],
+                quantity=item_info["order_item_quantity"],
             )
             for item_info in order.ordering_item
         ],
@@ -102,7 +101,8 @@ async def api_pre_order(
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_order(
-    user: Annotated[ShowUserDocument, Depends(get_current_user)], order_creation_request: OrderCreationRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)],
+    order_creation_request: OrderCreationRequest
 ) -> CreateOrderResponse:
     try:
         order = await create_order(user, order_creation_request)

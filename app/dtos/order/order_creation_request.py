@@ -39,7 +39,6 @@ class OrderCreationRequest:
     address: str
     detail_address: str
     phone_num: str
-    order_name: str
     requirements: str | None
     payment_method: PaymentMethodCode
     total_price: int

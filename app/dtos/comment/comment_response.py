@@ -7,4 +7,3 @@ class CommentResponse:
     total_qna_mount: int
     writer: str
     payload: str
-    image_url: str | None

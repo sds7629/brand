@@ -42,6 +42,7 @@ async def api_get_comments_from_qna(qna_id: str) -> Sequence[CommentResponse]:
         )
     return [
         CommentResponse(
+            comment_id=str(comment.id),
             writer=comment.writer.nickname,
             payload=comment.payload,
             base_qna_id=str(comment.base_qna.id),

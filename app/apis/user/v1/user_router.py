@@ -1,3 +1,4 @@
+from dataclasses import asdict
 from typing import Annotated
 
 from bson import ObjectId
@@ -13,7 +14,7 @@ from app.dtos.user.user_delivery_request import DeliveryRequest, UpdateDeliveryR
 from app.dtos.user.user_duplicated_request import DuplicatedRequest
 from app.dtos.user.user_duplicated_response import DuplicatedResponse
 from app.dtos.user.user_find_password import EmailSchema
-from app.dtos.user.user_profile_response import UserProfileResponse
+from app.dtos.user.user_profile_response import UserProfileResponse, DeliveryResponse
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_set_passwd_request import UserSetPasswdRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
@@ -54,7 +55,20 @@ async def api_profile(user: Annotated[ShowUserDocument, Depends(get_current_user
             name=user.name,
             nickname=user.nickname,
             email=user.email,
-            delivery_area=user.delivery_area,
+            delivery_area=[
+                DeliveryResponse(
+                    id=str(area.id),
+                    name=area.name,
+                    email=area.email,
+                    post_code=area.post_code,
+                    address=area.address,
+                    detail_address=area.detail_address,
+                    recipient_phone=area.recipient_phone,
+                    requirements=area.requirements,
+                    is_base_delivery=area.is_base_delivery,
+                )
+                for area in user.delivery_area
+            ],
         )
 
 

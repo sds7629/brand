@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import asdict
 from typing import Any
 
 from bson import ObjectId
@@ -10,12 +11,13 @@ from app.config import (
     REFRESH_SECRET_KEY,
     REFRESH_TOKEN_EXFIRE,
 )
+from app.dtos.user.user_delivery_request import DeliveryRequest, UpdateDeliveryRequest
 from app.dtos.user.user_duplicated_request import DuplicatedRequest
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
 from app.dtos.user.user_signup_request import UserSignupRequest
 from app.entities.collections.users.user_collection import UserCollection
-from app.entities.collections.users.user_document import ShowUserDocument, UserDocument
+from app.entities.collections.users.user_document import ShowUserDocument, UserDocument, DeliveryDocument
 from app.exceptions import NotFoundException, ValidationException
 from app.utils.utility import TotalUtil
 
@@ -115,3 +117,48 @@ async def check_nickname_or_email(nickname_or_email_request: DuplicatedRequest) 
             return "is_duplicated"
         else:
             return "not_found"
+
+
+async def set_delivery(
+        user: ShowUserDocument,
+        delivery_request: DeliveryRequest,
+) -> int:
+    if len(data := {key: val for key, val in asdict(delivery_request).items()}) == 0:
+        raise ValidationException(response_message="업데이트할 데이터가 없습니다.")
+
+    validate_data = DeliveryDocument(
+        _id=ObjectId(),
+        **data
+    )
+
+    result = await UserCollection.create_delivery_area(
+        user_id=user.id,
+        data=validate_data,
+    )
+
+    return result
+
+
+async def update_delivery(
+        user: ShowUserDocument,
+        delivery_id: str,
+        delivery_request: UpdateDeliveryRequest,
+) -> None:
+    if (data := {key: val for key, val in asdict(delivery_request).items() if val is not None}) == 0:
+        raise ValidationException(response_message="업데이트할 데이터가 없습니다.")
+
+    await UserCollection.update_delivery_area(
+        user_id=user.id,
+        delivery_id=ObjectId(delivery_id),
+        data=data
+    )
+
+
+async def delete_delivery(
+        user: ShowUserDocument,
+        delivery_id: str,
+) -> None:
+    await UserCollection.delete_delivery_area(
+        user_id=user.id,
+        delivery_id=ObjectId(delivery_id),
+    )

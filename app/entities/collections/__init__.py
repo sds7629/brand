@@ -6,6 +6,8 @@ from app.entities.collections.items.item_collection import ItemCollection
 from app.entities.collections.orders.order_collection import OrderCollection
 from app.entities.collections.qna.qna_collection import QnACollection
 from app.entities.collections.users.user_collection import UserCollection
+from app.entities.collections.notice.notice_collection import NoticeCollection
+from app.entities.collections.payment.payment_collection import PaymentCollection
 
 
 async def set_indexes() -> None:
@@ -16,4 +18,6 @@ async def set_indexes() -> None:
         OrderCollection.set_index(),
         CartCollection.set_index(),
         CommentCollection.set_index(),
+        NoticeCollection.set_index(),
+        PaymentCollection.set_index(),
     )

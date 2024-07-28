@@ -77,7 +77,6 @@ async def api_get_qna(qna_type: str | None = None, keyword: str | None = None, p
                 else 0
             ),
             is_secret=qna.is_secret,
-            is_notice=qna.is_notice,
             created_at=await TimeUtil.get_created_at_from_id(str(qna.id)),
             comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,
         )
@@ -123,7 +122,6 @@ async def api_get_qna(
                 else 0
             ),
             is_secret=qna.is_secret,
-            is_notice=qna.is_notice,
             created_at=await TimeUtil.get_created_at_from_id(str(qna.id)),
             comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,
         )
@@ -162,7 +160,6 @@ async def api_get_qna_detail(request: Request, response: Response, qna_id: str) 
         image_urls=result.image_urls,
         view_count=int(await ViewCountRedisRepository.get("view_count_" + str(result.id))),
         is_secret=result.is_secret,
-        is_notice=result.is_notice,
         created_at=await TimeUtil.get_created_at_from_id(str(result.id)),
         comment_count=count if (count := await get_comments_mount(str(result.id))) != 0 else 0,
     )
@@ -195,7 +192,6 @@ async def api_create_qna(
             writer=qna.writer.nickname,
             image_urls=qna.image_urls,
             view_count=qna.view_count,
-            is_notice=qna.is_notice,
             is_secret=qna.is_secret,
             created_at=await TimeUtil.get_created_at_from_id(str(qna.id)),
             comment_count=count if (count := await get_comments_mount(str(qna.id))) != 0 else 0,

@@ -9,7 +9,7 @@ from app.entities.collections.base_document import BaseDocument
 
 
 @dataclasses.dataclass(config=Config)
-class DeliveryDocument:
+class DeliveryDocument(BaseDocument):
     name: str
     email: str
     post_code: str

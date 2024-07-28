@@ -27,7 +27,6 @@ class QnACollection:
         writer: ShowUserDocument,
         image_urls: Sequence[str] | None = None,
         is_secret: bool = False,
-        is_notice: bool = False,
         view_count: int = 0,
     ) -> QnADocument:
         result = await cls._collection.insert_one(
@@ -37,7 +36,6 @@ class QnACollection:
                 "image_urls": image_urls,
                 "writer": asdict(writer),
                 "is_secret": is_secret,
-                "is_notice": is_notice,
                 "view_count": view_count,
             }
         )
@@ -49,7 +47,6 @@ class QnACollection:
             image_urls=image_urls,
             writer=writer,
             is_secret=is_secret,
-            is_notice=is_notice,
             view_count=view_count,
         )
 
@@ -121,6 +118,5 @@ class QnACollection:
             image_urls=result["image_urls"],
             writer=result["writer"],
             is_secret=result["is_secret"],
-            is_notice=result["is_notice"],
             view_count=result["view_count"],
         )

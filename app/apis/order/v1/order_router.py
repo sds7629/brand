@@ -42,10 +42,9 @@ async def api_get_user_orders(user: Annotated[ShowUserDocument, Depends(get_curr
                 ordering_date=await TimeUtil.get_created_at_from_id(str(order.id)),
                 items=[
                     OrderItemResponse(
-                        item_name=item.item.name,
-                        item_option=item.option,
-                        item_price=item.item.price,
-                        image_urls=item.item.image_urls,
+                        item_id=str(item.item.id),
+                        option=item.option,
+                        quantity=item.quantity
                     )
                     for item in order.order_item
                 ],

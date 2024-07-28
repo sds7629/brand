@@ -16,5 +16,4 @@ class QnADocument(BaseDocument):
     image_urls: Sequence[HttpUrlString] | None
     view_count: int
     is_secret: bool
-    is_notice: bool
     updated_at: Optional[datetime] = None

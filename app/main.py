@@ -13,6 +13,7 @@ from app.apis.order.v1.order_router import router as order_router
 from app.apis.payment.v1.payment_router import router as payment_router
 from app.apis.qna.v1.qna_router import router as qna_router
 from app.apis.user.v1.user_router import router as user_router
+from app.apis.notice.v1.notice_router import router as notice_router
 from app.entities.collections import set_indexes
 from app.utils.redis_scheduler import start_scheduler
 
@@ -35,10 +36,11 @@ app.include_router(order_router)
 app.include_router(cart_router)
 app.include_router(payment_router)
 app.include_router(comment_router)
+app.include_router(notice_router)
 
 templates = Jinja2Templates(directory="app/templates")
 
-origins = ["http://localhost:3000", "https://steady-chimera-68464b.netlify.app/"]
+origins = ["http://localhost:3000", "https://steady-chimera-68464b.netlify.app"]
 
 app.add_middleware(
     CORSMiddleware,

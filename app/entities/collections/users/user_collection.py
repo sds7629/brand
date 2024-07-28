@@ -29,21 +29,21 @@ class UserCollection:
 
     @classmethod
     async def insert_one(
-        cls,
-        user_id: str,
-        email: str,
-        name: str,
-        password: str,
-        nickname: str,
-        phone_num: str,
-        sns_confirm: bool,
-        point: int = 0,
-        login_method: str = "페이지",
-        is_policy: bool = False,
-        is_authenticated: bool = False,
-        is_delete: bool = False,
-        is_admin: bool = False,
-        delivery_area: list[DeliveryDocument] = [],
+            cls,
+            user_id: str,
+            email: str,
+            name: str,
+            password: str,
+            nickname: str,
+            phone_num: str,
+            sns_confirm: bool,
+            point: int = 0,
+            login_method: str = "페이지",
+            is_policy: bool = False,
+            is_authenticated: bool = False,
+            is_delete: bool = False,
+            is_admin: bool = False,
+            delivery_area: list[DeliveryDocument] = [],
     ) -> UserDocument:
         result = await cls._collection.insert_one(
             {
@@ -84,20 +84,20 @@ class UserCollection:
 
     @classmethod
     async def social_insert_one(
-        cls,
-        email: str,
-        login_method: str,
-        is_authenticated: bool,
-        name: str | None = None,
-        user_id: str | None = None,
-        sns_confirm: bool = False,
-        is_policy: bool = False,
-        is_admin: bool = False,
-        phone_num: str | None = None,
-        is_delete: bool = False,
-        nickname: str | None = None,
-        point: int = 0,
-        delivery_area: list[DeliveryDocument] = [],
+            cls,
+            email: str,
+            login_method: str,
+            is_authenticated: bool,
+            name: str | None = None,
+            user_id: str | None = None,
+            sns_confirm: bool = False,
+            is_policy: bool = False,
+            is_admin: bool = False,
+            phone_num: str | None = None,
+            is_delete: bool = False,
+            nickname: str | None = None,
+            point: int = 0,
+            delivery_area: list[DeliveryDocument] = [],
     ):
         result = await cls._collection.insert_one(
             {
@@ -155,6 +155,58 @@ class UserCollection:
     async def find_by_email(cls, email: str) -> ShowUserDocument | None:
         result = await cls._collection.find_one({"email": email})
         return cls._result_show_user_document_dto(result) if result else None
+
+    @classmethod
+    async def update_by_id(cls, user_id: ObjectId, data: dict[str, Any]) -> int:
+        result = await cls._collection.update_one(
+            {"_id": user_id},
+            {"$set": data},
+            upsert=False,
+        )
+        return result.modified_count
+
+    @classmethod
+    async def create_delivery_area(cls, user_id: ObjectId, data: DeliveryDocument) -> int:
+        user_data = await cls._collection.find_one({"_id": user_id})
+        if data.is_base_delivery:
+            for i, area in enumerate(user_data["delivery_area"]):
+                user_data["delivery_area"][i]["is_base_delivery"] = False
+
+        await cls._collection.update_one(
+            {"_id": user_id},
+            {"$set": user_data},
+            upsert=False,
+        )
+
+        result = await cls._collection.update_one(
+            {"_id": user_id},
+            {"$push": {"delivery_area": asdict(data)}},
+            upsert=False,
+        )
+        return result.modified_count
+
+    @classmethod
+    async def update_delivery_area(
+            cls,
+            user_id: ObjectId,
+            delivery_id: ObjectId,
+            data: dict[str, Any]
+    ) -> int:
+        result = await cls._collection.update_one(
+            {"_id": user_id, "delivery_area._id": delivery_id},
+            {"$set": {f"delivery_area.$.{key}": val for key, val in data.items()}},
+            upsert=False,
+        )
+        return result.modified_count
+
+    @classmethod
+    async def delete_delivery_area(cls, user_id: ObjectId, delivery_id: ObjectId) -> int:
+        user = await cls._collection.update_one(
+            {"_id": user_id},
+            {"$pull": {"delivery_area": {"_id": delivery_id}}}
+        )
+
+        return user.modified_count
 
     @classmethod
     async def delete_by_id(cls, object_id: ObjectId) -> ShowUserDocument | None:

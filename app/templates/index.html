@@ -55,18 +55,19 @@
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjgyNjkwNjllMWY1YTkxOGJmYmUxOGQiLCJ1c2VyX2VtYWlsIjoiYWRtaW5AbmF2ZXIuY29tIiwibmlja25hbWUiOiJhZG1pbiIsImV4cCI6MTcyMTU3Njg2N30.tpqjWJQEVZekw3LbhtuKjOOp8ho9TaId0pCLF0t7V0E"
+                        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjgyNjkwNjllMWY1YTkxOGJmYmUxOGQiLCJlbWFpbCI6ImFkbWluQG5hdmVyLmNvbSIsIm5pY2tuYW1lIjoiYWRtaW4iLCJleHAiOjE3MjIwOTIyNDh9.G1mCTAm599Ev-7ciizhHreLqP-vytVz-ocj7PpJ41Sk"
                     },
                     body: JSON.stringify({
+                        payment_method: "easy_pay",
                         payment_name: "토스 티셔츠 외 2건",
-                        merchant_id: "20240721--25ecabab882146709b9b86fdb946167d",
+                        merchant_id: "20240721--25ecabab882146709b9b86fdb9461673",
                         amount: 65709
                         })
                 })
 
                 if(response.ok){
                     await widgets.requestPayment({
-                    orderId: "20240721--25ecabab882146709b9b86fdb946167d",
+                    orderId: "20240721--25ecabab882146709b9b86fdb9461673",
                     orderName: "토스 티셔츠 외 2건",
                     successUrl: "http://localhost:8080/v1/payment/success",
                     failUrl: "http://localhost:8080/v1/payment/fail",

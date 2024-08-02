@@ -26,3 +26,8 @@ class FailPaymentResponse:
     code: str
     message: str
     merchant_id: str
+
+
+@dataclasses.dataclass
+class CancelPaymentResponse:
+    message: str

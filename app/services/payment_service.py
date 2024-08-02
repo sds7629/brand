@@ -11,6 +11,7 @@ from app.dtos.payment.payment_request import (
     FailPaymentRequest,
     PaymentRequest,
     SetPaymentRequest,
+    VirtualPaymentRequest,
 )
 from app.entities.collections import CartCollection, ItemCollection, OrderCollection
 from app.entities.collections.payment.payment_collection import PaymentCollection
@@ -35,8 +36,13 @@ async def get_history(user: ShowUserDocument) -> Sequence[PaymentDocument]:
 
 async def set_payment(user: ShowUserDocument, payment_request: SetPaymentRequest) -> PaymentDocument:
     order = await OrderCollection.find_by_merchant_id(payment_request.merchant_id)
+    if order is None:
+        raise NoSuchContentException(response_message="주문 정보가 없습니다.")
     if order.user != user:
         raise NoPermissionException(response_message="권한이 없습니다.")
+    if await PaymentCollection.find_by_merchant_id(payment_request.merchant_id) is not None:
+        raise ValidationException(response_message="이미 진행 중인 주문입니다.")
+
     payment = await PaymentCollection.insert_one(
         user=user,
         merchant_id=payment_request.merchant_id,
@@ -110,6 +116,7 @@ async def success_payment(payment_request: PaymentRequest) -> None:
             payment_id=payment.id,
             data={
                 "payment_status": True,
+                "payment_key": payment_request.payment_key,
             },
         )
 
@@ -145,3 +152,58 @@ async def fail_payment(payment_request: FailPaymentRequest) -> None:
     if payment == 0:
         raise NoSuchContentException(response_message="결제 내역을 찾을 수 없습니다.")
     return
+
+
+async def payment_virtual_account(virtual_request: VirtualPaymentRequest) -> None:
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Basic {toss_key_str}",
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+    }
+    data = {
+        "amount": virtual_request.amount,
+        "orderId": virtual_request.merchant_id,
+        "orderName": virtual_request.payment_name,
+        "customerName": virtual_request.customer_name,
+        "bank": virtual_request.bank,
+        "validHours": 24,
+    }
+    async with aiohttp.ClientSession(headers=headers) as client:
+        async with client.post(
+            "https://api.tosspayments.com/v1/payments/virtual-accounts",
+            json=data,
+        ) as res:
+            if res.status == 200:
+                print(await res.json())
+
+
+async def cancel_payment(user: ShowUserDocument, payment_id: str) -> str:
+    payment = await PaymentCollection.find_by_id(ObjectId(payment_id))
+
+    if payment.user != user:
+        raise NoPermissionException(response_message="권한이 없습니다.")
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Basic {toss_key_str}",
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+    }
+
+    data = {
+        "cancelReason": "환불 요청",
+    }
+
+    cancel_url = f"https://api.tosspayments.com/v1/payments/{payment.payment_key}/cancel"
+
+    async with aiohttp.ClientSession(headers=headers) as client:
+        async with client.post(
+            url=cancel_url,
+            json=data,
+        ) as res:
+            if res.status == 200:
+                await PaymentCollection.update_by_id(
+                    payment_id=ObjectId(payment_id), data={"payment_status": False, "fail_reason": "환불 요청"}
+                )
+                return "결제가 취소되었습니다."
+            else:
+                raise ValidationException(response_message="요청이 잘못되었습니다.")

@@ -8,8 +8,10 @@ from app.dtos.payment.payment_request import (
     FailPaymentRequest,
     PaymentRequest,
     SetPaymentRequest,
+    VirtualPaymentRequest,
 )
 from app.dtos.payment.payment_response import (
+    CancelPaymentResponse,
     FailPaymentResponse,
     PaymentHistoryResponse,
 )
@@ -20,8 +22,10 @@ from app.exceptions import (
     ValidationException,
 )
 from app.services.payment_service import (
+    cancel_payment,
     fail_payment,
     get_history,
+    payment_virtual_account,
     set_payment,
     success_payment,
 )
@@ -42,7 +46,7 @@ async def api_get_history(
     try:
         histories = await get_history(user)
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"detail": str(e)})
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": str(e)})
 
     return [
         PaymentHistoryResponse(
@@ -66,10 +70,19 @@ async def api_set_payment(
 ) -> None:
     try:
         result = await set_payment(user, set_payment_request)
+    except NoSuchContentException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": e.response_message})
+
+    except ValidationException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": e.response_message},
+        )
+
     except NoPermissionException as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"detail": e.response_message},
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"message": e.response_message},
         )
 
 
@@ -118,3 +131,39 @@ async def api_fail_payment(
     except NoSuchContentException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": e.response_message})
     return FailPaymentResponse(code=code, message=message, merchant_id=order_id)
+
+
+@router.post(
+    "virtual-accounts",
+    description="가상 계좌 결제",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_payment_virtual_account(virtual_request: VirtualPaymentRequest) -> None:
+    try:
+        await payment_virtual_account(virtual_request)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": str(e)})
+
+
+@router.delete(
+    "/cancel/{payment_id}",
+    description="결제 취소",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_cancel_payment(
+    user: Annotated[ShowUserDocument, Depends(get_current_user)],
+    payment_id: str,
+) -> CancelPaymentResponse:
+    try:
+        message = await cancel_payment(user, payment_id)
+    except NoPermissionException as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"message": e.response_message},
+        )
+    except ValidationException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
+
+    return CancelPaymentResponse(message=message)

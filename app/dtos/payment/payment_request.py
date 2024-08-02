@@ -22,3 +22,12 @@ class SetPaymentRequest:
     payment_name: str
     merchant_id: str
     amount: int
+
+
+@dataclasses.dataclass
+class VirtualPaymentRequest:
+    merchant_id: str
+    amount: int
+    payment_name: str
+    customer_name: str
+    bank: str

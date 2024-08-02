@@ -1,6 +1,6 @@
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Optional, Any, Sequence
+from typing import Any, Optional, Sequence
 
 import pymongo
 from bson import ObjectId
@@ -24,11 +24,11 @@ class NoticeCollection:
 
     @classmethod
     async def insert_one(
-            cls,
-            title: str,
-            payload: str,
-            writer: ShowUserDocument,
-            updated_at: Optional[datetime] = None,
+        cls,
+        title: str,
+        payload: str,
+        writer: ShowUserDocument,
+        updated_at: Optional[datetime] = None,
     ) -> NoticeDocument:
         result = await cls._collection.insert_one(
             {
@@ -53,15 +53,10 @@ class NoticeCollection:
 
     @classmethod
     async def find_all_notice(cls, offset: int) -> Sequence[NoticeDocument] | None:
-        notice_list = await (cls._collection.find({})
-                             .sort([("_id", pymongo.DESCENDING)])
-                             .limit(15)
-                             .skip(offset)
-                             .to_list(None))
-        return [
-            cls._parse(notice)
-            for notice in notice_list
-        ]
+        notice_list = await (
+            cls._collection.find({}).sort([("_id", pymongo.DESCENDING)]).limit(15).skip(offset).to_list(None)
+        )
+        return [cls._parse(notice) for notice in notice_list]
 
     @classmethod
     async def update_by_id(cls, notice_id: ObjectId, data: dict[str, Any]) -> int:

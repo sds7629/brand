@@ -1,14 +1,19 @@
-from typing import Sequence, Annotated
+from typing import Annotated, Sequence
 
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import ORJSONResponse
 
+from app.auth.auth_bearer import get_admin_user
 from app.dtos.notice.notice_request import NoticeRequest, UpdateNoticeRequest
 from app.dtos.notice.notice_response import NoticeResponse
 from app.entities.collections.users.user_document import ShowUserDocument
-from app.exceptions import NotFoundException, NoPermissionException, ValidationException
-from app.services.notice_service import get_notices, create_notice, update_notice, delete_notice
-from app.auth.auth_bearer import get_admin_user
+from app.exceptions import NoPermissionException, NotFoundException, ValidationException
+from app.services.notice_service import (
+    create_notice,
+    delete_notice,
+    get_notices,
+    update_notice,
+)
 from app.utils.utility import TimeUtil
 
 router = APIRouter(prefix="/v1/notice", tags=["Notice"], redirect_slashes=False)
@@ -47,8 +52,7 @@ async def api_get_notices(page: int = 1) -> Sequence[NoticeResponse]:
     status_code=status.HTTP_201_CREATED,
 )
 async def api_create_notice(
-        user: Annotated[ShowUserDocument, Depends(get_admin_user)],
-        notice_request: NoticeRequest
+    user: Annotated[ShowUserDocument, Depends(get_admin_user)], notice_request: NoticeRequest
 ) -> None:
     try:
         await create_notice(user, notice_request)
@@ -66,27 +70,16 @@ async def api_create_notice(
     status_code=status.HTTP_200_OK,
 )
 async def api_update_notice(
-        notice_id: str,
-        user: Annotated[ShowUserDocument, Depends(get_admin_user)],
-        update_request: UpdateNoticeRequest
+    notice_id: str, user: Annotated[ShowUserDocument, Depends(get_admin_user)], update_request: UpdateNoticeRequest
 ) -> None:
     try:
         result = await update_notice(notice_id, user, update_request)
     except NotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": e.response_message}
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": e.response_message})
     except NoPermissionException as e:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={"message": e.response_message}
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail={"message": e.response_message})
     except ValidationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": e.response_message}
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail={"message": e.response_message})
 
 
 @router.delete(
@@ -95,20 +88,10 @@ async def api_update_notice(
     response_class=ORJSONResponse,
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def api_delete_notice(
-        user: Annotated[ShowUserDocument, Depends(get_admin_user)],
-        notice_id: str
-) -> None:
+async def api_delete_notice(user: Annotated[ShowUserDocument, Depends(get_admin_user)], notice_id: str) -> None:
     try:
         await delete_notice(user, notice_id)
     except NotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": e.response_message}
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail={"message": e.response_message})
     except NoPermissionException as e:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={"message": e.response_message}
-        )
-
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail={"message": e.response_message})

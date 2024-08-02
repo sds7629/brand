@@ -21,6 +21,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Sho
     )
     try:
         token_expire = await TotalUtil.check_token_expire(token, ACCESS_SECRET_KEY)
+
         if token_expire["is_expired"]:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

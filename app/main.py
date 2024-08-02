@@ -8,12 +8,12 @@ from fastapi.templating import Jinja2Templates
 from app.apis.cart.v1.cart_router import router as cart_router
 from app.apis.comment.v1.comment_router import router as comment_router
 from app.apis.item.v1.item_router import router as item_router
+from app.apis.notice.v1.notice_router import router as notice_router
 from app.apis.oauth_login.v1.oauth_router import router as kakao_router
 from app.apis.order.v1.order_router import router as order_router
 from app.apis.payment.v1.payment_router import router as payment_router
 from app.apis.qna.v1.qna_router import router as qna_router
 from app.apis.user.v1.user_router import router as user_router
-from app.apis.notice.v1.notice_router import router as notice_router
 from app.entities.collections import set_indexes
 from app.utils.redis_scheduler import start_scheduler
 

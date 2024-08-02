@@ -12,6 +12,7 @@ class PaymentDocument(BaseDocument):
     user: ShowUserDocument
     payment_name: str
     merchant_id: str
+    payment_key: str | None
     total_price: int
     payment_time: datetime
     payment_method: PaymentMethodCode | None

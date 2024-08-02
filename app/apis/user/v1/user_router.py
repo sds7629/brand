@@ -14,7 +14,7 @@ from app.dtos.user.user_delivery_request import DeliveryRequest, UpdateDeliveryR
 from app.dtos.user.user_duplicated_request import DuplicatedRequest
 from app.dtos.user.user_duplicated_response import DuplicatedResponse
 from app.dtos.user.user_find_password import EmailSchema
-from app.dtos.user.user_profile_response import UserProfileResponse, DeliveryResponse
+from app.dtos.user.user_profile_response import DeliveryResponse, UserProfileResponse
 from app.dtos.user.user_refresh_access_request import RefreshAccessRequest
 from app.dtos.user.user_set_passwd_request import UserSetPasswdRequest
 from app.dtos.user.user_signin_request import UserSigninRequest
@@ -26,10 +26,13 @@ from app.entities.collections.users.user_document import ShowUserDocument
 from app.exceptions import NotFoundException, ValidationException
 from app.services.user_service import (
     check_nickname_or_email,
+    delete_delivery,
     delete_user,
     refresh_access_token,
+    set_delivery,
     signin_user,
-    signup_user, set_delivery, delete_delivery, update_delivery,
+    signup_user,
+    update_delivery,
 )
 from app.utils.send_mail import find_password_to_email_send
 
@@ -148,7 +151,7 @@ async def api_logout_user(response: Response) -> None:
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def api_signout(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], user_signout_request: UserSignOutRequest
 ) -> None:
     try:
         await delete_user(user, ObjectId(user_signout_request.base_user_id))
@@ -199,33 +202,14 @@ async def api_check_nickname(nickname_or_email_request: DuplicatedRequest) -> Du
     return DuplicatedResponse(result=result)
 
 
-@router.post(
-    "/find-password",
-    description="비밀번호 찾기 - 이메일 전송",
-    response_class=ORJSONResponse,
-    status_code=status.HTTP_200_OK,
-)
-async def api_find_password(data: EmailSchema, background_task: BackgroundTasks) -> None:
-    background_task.add_task(find_password_to_email_send, data.email)
-
-
-@router.post(
-    "/set-delivery",
-    description="배송지 추가",
-    response_class=ORJSONResponse,
-    status_code=status.HTTP_200_OK
-)
+@router.post("/set-delivery", description="배송지 추가", response_class=ORJSONResponse, status_code=status.HTTP_200_OK)
 async def api_set_delivery(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)],
-        delivery_request: DeliveryRequest
+    user: Annotated[ShowUserDocument, Depends(get_current_user)], delivery_request: DeliveryRequest
 ) -> None:
     try:
         await set_delivery(user, delivery_request)
     except ValidationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.response_message
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.response_message)
 
 
 @router.put(
@@ -235,17 +219,14 @@ async def api_set_delivery(
     status_code=status.HTTP_200_OK,
 )
 async def api_update_delivery(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)],
-        delivery_id: str,
-        update_delivery_request: UpdateDeliveryRequest,
+    user: Annotated[ShowUserDocument, Depends(get_current_user)],
+    delivery_id: str,
+    update_delivery_request: UpdateDeliveryRequest,
 ) -> None:
     try:
         await update_delivery(user, delivery_id, update_delivery_request)
     except ValidationException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=e.response_message
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.response_message)
 
 
 @router.delete(
@@ -255,16 +236,23 @@ async def api_update_delivery(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def api_delete_delivery(
-        user: Annotated[ShowUserDocument, Depends(get_current_user)],
-        delivery_id: str,
+    user: Annotated[ShowUserDocument, Depends(get_current_user)],
+    delivery_id: str,
 ) -> None:
     try:
         await delete_delivery(user, delivery_id)
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.post(
+    "/find-password",
+    description="비밀번호 찾기 - 이메일 전송",
+    response_class=ORJSONResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def api_find_password(data: EmailSchema, background_task: BackgroundTasks) -> None:
+    background_task.add_task(find_password_to_email_send, data.email)
 
 
 @router.post(

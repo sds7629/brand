@@ -5,6 +5,7 @@
     <title>Title</title>
     <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
     <script src="https://js.tosspayments.com/v2/standard"></script>
+    <script src="https://cdn.toss.im/cert/v1"></script>
 </head>
 <body>
     <div id="payment-method"></div>
@@ -12,7 +13,7 @@
     <div id="agreement"></div>
     <!-- 결제하기 버튼 -->
     <button class="button" id="payment-button" style="margin-top: 30px">결제하기</button>
-
+    <button class="button" id="confirm-button" style="margin-top: 30px">인증하기</button>
     <form action = "http://localhost:8080/v1/oauth/kakao" method = "get">
         <div>
             카카오 로그인
@@ -30,13 +31,17 @@
         main();
 
         async  function main(){
-            const button = document.getElementById("payment-button")
+            const payment_button = document.getElementById("payment-button")
+            const confirm_button = document.getElementById("confirm-button")
             const coupon = document.getElementById("coupon-box")
             const tossPayments  = TossPayments("test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm");
             const customerKey = "sds7629";
+            const tossCert = TossCert();
             const widgets = tossPayments.widgets({
                 customerKey
             });
+
+            
 
             await widgets.setAmount({
                 currency: "KRW",
@@ -50,24 +55,24 @@
 
             await widgets.renderAgreement({selector: "#agreement", variantKey: "AGREEMENT"})
 
-            button.addEventListener("click", async function() {
+            payment_button.addEventListener("click", async function() {
                let response = await fetch("http://localhost:8080/v1/payment/toss",{
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjgyNjkwNjllMWY1YTkxOGJmYmUxOGQiLCJlbWFpbCI6ImFkbWluQG5hdmVyLmNvbSIsIm5pY2tuYW1lIjoiYWRtaW4iLCJleHAiOjE3MjIwOTIyNDh9.G1mCTAm599Ev-7ciizhHreLqP-vytVz-ocj7PpJ41Sk"
+                        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NjgyNzI2NThlZWQxOTFkOGFjOWE5MmYiLCJlbWFpbCI6ImFkbWluQG5hdmVyLmNvbSIsIm5pY2tuYW1lIjoiYWRtaW4yIiwiZXhwIjoxNzIyNTczMzk4fQ.2YT4f_GCMu-FxHiWV3U_eeKDewpwbRxbWAeN2zQZFY0"
                     },
                     body: JSON.stringify({
                         payment_method: "easy_pay",
                         payment_name: "토스 티셔츠 외 2건",
-                        merchant_id: "20240721--25ecabab882146709b9b86fdb9461673",
+                        merchant_id: "20240721--25ecabab882146709b9b86fdb94616ce",
                         amount: 65709
                         })
                 })
 
                 if(response.ok){
                     await widgets.requestPayment({
-                    orderId: "20240721--25ecabab882146709b9b86fdb9461673",
+                    orderId: "20240721--25ecabab882146709b9b86fdb94616ce",
                     orderName: "토스 티셔츠 외 2건",
                     successUrl: "http://localhost:8080/v1/payment/success",
                     failUrl: "http://localhost:8080/v1/payment/fail",
